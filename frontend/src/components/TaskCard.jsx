@@ -1,0 +1,92 @@
+import React from 'react';
+import { Calendar, CheckSquare, Clock, Trash2 } from 'lucide-react';
+
+export const TaskCard = ({ task, onComplete, onDelete }) => {
+  const getPriorityClasses = (p) => {
+    if (p >= 5) return 'text-red-400 bg-red-500/10 border-red-500/20';
+    if (p >= 4) return 'text-orange-400 bg-orange-500/10 border-orange-500/20';
+    if (p >= 3) return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
+    return 'text-green-400 bg-green-500/10 border-green-500/20';
+  };
+
+  const getTypeClasses = (t) => {
+    switch (t) {
+      case 'procedural':
+        return 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20';
+      case 'theory':
+        return 'text-purple-400 bg-purple-500/10 border-purple-500/20';
+      case 'assignment':
+        return 'text-pink-400 bg-pink-500/10 border-pink-500/20';
+      default:
+        return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+    }
+  };
+
+  const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== 'completed';
+
+  return (
+    <div className={`glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between space-y-4 transition-all duration-200 hover:border-white/10 ${
+      task.status === 'completed' ? 'opacity-50' : ''
+    }`}>
+      <div className="space-y-2">
+        <div className="flex items-start justify-between gap-3">
+          <h4 className={`text-base font-bold tracking-wide text-white leading-tight ${task.status === 'completed' ? 'line-through' : ''}`}>
+            {task.title}
+          </h4>
+          <div className="flex gap-1.5 shrink-0">
+            <span className={`rounded-lg border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${getPriorityClasses(task.priority)}`}>
+              P{task.priority}
+            </span>
+            <span className={`rounded-lg border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${getTypeClasses(task.type)}`}>
+              {task.type}
+            </span>
+          </div>
+        </div>
+
+        {task.description && (
+          <p className="text-xs text-slate-400 font-medium leading-relaxed">
+            {task.description}
+          </p>
+        )}
+      </div>
+
+      <div className="flex items-center justify-between border-t border-white/5 pt-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+        <div className="flex items-center gap-3">
+          <span className="flex items-center gap-1">
+            <Clock className="h-3.5 w-3.5 text-accent-blue" />
+            {task.estimatedHours} hrs
+          </span>
+
+          {task.deadline && (
+            <span className={`flex items-center gap-1 ${isOverdue ? 'text-red-400' : ''}`}>
+              <Calendar className="h-3.5 w-3.5" />
+              {new Date(task.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-center gap-2">
+          {task.status !== 'completed' && onComplete && (
+            <button
+              onClick={() => onComplete(task._id)}
+              className="flex items-center gap-1 rounded-lg bg-accent-blue/10 border border-accent-blue/20 text-accent-blue hover:bg-accent-blue hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              <CheckSquare className="h-3.5 w-3.5" />
+              Complete
+            </button>
+          )}
+
+          {onDelete && (
+            <button
+              onClick={() => onDelete(task._id)}
+              className="rounded-lg border border-white/5 hover:border-red-500/30 hover:bg-red-500/10 text-slate-400 hover:text-red-400 p-1.5 transition-all"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+export default TaskCard;
