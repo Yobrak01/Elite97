@@ -2,7 +2,7 @@ services:
   - type: web
     name: elite97-backend
     env: node
-    rootDirectory: backend
+    rootDir: backend
     buildCommand: npm install
     startCommand: node server.js
     envVars:
