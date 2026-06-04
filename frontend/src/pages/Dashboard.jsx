@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Clock, CheckCircle2, RefreshCw, BarChart2, Plus, Sparkles, Award } from 'lucide-react';
+import { BookOpen, Clock, CheckCircle2, RefreshCw, BarChart2, Plus, Sparkles, Award, AlertTriangle } from 'lucide-react';
 import useAnalytics from '../hooks/useAnalytics';
 import useTasks from '../hooks/useTasks';
 import api from '../services/api';
@@ -13,6 +13,16 @@ import AIRecommendation from '../components/AIRecommendation';
 export const Dashboard = () => {
   const { dashboardData, weeklyData, burnoutData, loading, error, refresh } = useAnalytics();
   const { tasks, stats: taskStats } = useTasks();
+
+  const todayStart = new Date();
+  todayStart.setHours(0,0,0,0);
+  const todayEnd = new Date();
+  todayEnd.setHours(23,59,59,999);
+
+  const dueTodayOrOverdue = tasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) <= todayEnd);
+  const completedToday = tasks.filter(t => t.status === 'completed' && t.completedAt && new Date(t.completedAt) >= todayStart);
+  const totalTasksToday = dueTodayOrOverdue.length + completedToday.length;
+  const todayCompletionPct = totalTasksToday > 0 ? Math.round((completedToday.length / totalTasksToday) * 100) : 0;
 
   const [modalOpen, setModalOpen] = useState(false);
   const [studyHours, setStudyHours] = useState('');
@@ -97,6 +107,22 @@ export const Dashboard = () => {
         </div>
       </div>
 
+      {/* Critical Overdue Alert */}
+      {dueTodayOrOverdue.length > 0 && (
+        <div className="glass-panel rounded-xl p-4 border border-red-500/30 bg-red-500/10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="h-6 w-6 text-red-400" />
+            <div>
+              <h4 className="text-sm font-bold text-white tracking-wide">Priority Escalation: Tasks Due!</h4>
+              <p className="text-xs text-red-200 mt-0.5">You have {dueTodayOrOverdue.length} pending task(s) that are due today or overdue. Priority auto-escalated to Critical.</p>
+            </div>
+          </div>
+          <button onClick={() => window.location.href='/tasks'} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">
+            Execute Now
+          </button>
+        </div>
+      )}
+
       {/* Grid of Stat Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -121,9 +147,9 @@ export const Dashboard = () => {
           color={dashboardData?.burnoutLevel === 'high' ? 'red' : dashboardData?.burnoutLevel === 'moderate' ? 'yellow' : 'green'}
         />
         <StatCard
-          title="Task Completion"
-          value={`${taskStats?.total > 0 ? Math.round((taskStats.completed / taskStats.total) * 100) : 0}%`}
-          subtitle={`Completed ${taskStats?.completed || 0} / ${taskStats?.total || 0} tasks`}
+          title="Today's Task Progress"
+          value={`${todayCompletionPct}%`}
+          subtitle={`Completed ${completedToday.length} / ${totalTasksToday} tasks today`}
           icon={CheckCircle2}
           color="green"
         />

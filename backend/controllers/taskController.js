@@ -10,7 +10,25 @@ exports.getTasks = async (req, res, next) => {
     if (type) query.type = type;
     if (priority) query.priority = Number(priority);
 
-    const tasks = await Task.find(query).sort({ priority: -1, deadline: 1 });
+    let tasks = await Task.find(query).sort({ priority: -1, deadline: 1 });
+
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+    
+    let modified = false;
+    for (let t of tasks) {
+      if (t.status !== 'completed' && t.deadline && new Date(t.deadline) <= endOfToday && t.priority < 5) {
+        t.priority = 5;
+        t.aiSuggestedTier = 'tier1_critical';
+        await t.save();
+        modified = true;
+      }
+    }
+
+    if (modified) {
+      tasks = await Task.find(query).sort({ priority: -1, deadline: 1 });
+    }
+
     res.status(200).json({ success: true, count: tasks.length, data: tasks });
   } catch (error) {
     next(error);
