@@ -662,6 +662,14 @@ export const Analytics = () => {
                   </tr>
                 ))}
               </tbody>
+              <tfoot>
+                <tr className="bg-white/[0.02] border-t border-white/10">
+                  <td colSpan="5" className="p-4 pl-6 text-right text-xs font-black uppercase tracking-widest text-slate-400">Semester Mean Average:</td>
+                  <td className="p-4 pr-6 text-right text-2xl font-black text-white">
+                    {gpaData.predictedSemesterMark !== undefined ? gpaData.predictedSemesterMark.toFixed(1) : '0.0'}%
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Plus, Search, Filter, Calendar, Clock, BarChart } from 'lucide-react';
 import useTasks from '../hooks/useTasks';
 import TaskCard from '../components/TaskCard';
+import api from '../services/api';
 
 export const Tasks = () => {
   const [filterType, setFilterType] = useState('');
@@ -23,7 +24,13 @@ export const Tasks = () => {
   const [estimatedHours, setEstimatedHours] = useState('1');
   const [type, setType] = useState('theory');
   const [deadline, setDeadline] = useState('');
+  const [selectedCourse, setSelectedCourse] = useState('');
+  const [courses, setCourses] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    api.courses.getAll().then(res => setCourses(res.data)).catch(console.error);
+  }, []);
 
   const [editingId, setEditingId] = useState(null);
 
@@ -45,6 +52,7 @@ export const Tasks = () => {
     setEstimatedHours('1');
     setType('theory');
     setDeadline('');
+    setSelectedCourse('');
     setEditingId(null);
     setModalOpen(true);
   };
@@ -52,11 +60,17 @@ export const Tasks = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    
+    let finalDesc = description;
+    if (selectedCourse && !description.includes(selectedCourse)) {
+      finalDesc = finalDesc ? `${description}\n\n[Unit: ${selectedCourse}]` : `[Unit: ${selectedCourse}]`;
+    }
+
     try {
       if (editingId) {
         await updateTask(editingId, {
           title,
-          description,
+          description: finalDesc,
           priority: Number(priority),
           estimatedHours: Number(estimatedHours),
           type,
@@ -65,7 +79,7 @@ export const Tasks = () => {
       } else {
         await createTask({
           title,
-          description,
+          description: finalDesc,
           priority: Number(priority),
           estimatedHours: Number(estimatedHours),
           type,
@@ -79,6 +93,7 @@ export const Tasks = () => {
       setEstimatedHours('1');
       setType('theory');
       setDeadline('');
+      setSelectedCourse('');
       setEditingId(null);
     } catch (err) {
       console.error(err);
@@ -294,14 +309,28 @@ export const Tasks = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Deadline Date</label>
-                  <input
-                    type="date"
-                    value={deadline}
-                    onChange={(e) => setDeadline(e.target.value)}
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Course Unit (Optional)</label>
+                  <select
+                    value={selectedCourse}
+                    onChange={(e) => setSelectedCourse(e.target.value)}
                     className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
-                  />
+                  >
+                    <option value="">-- No specific unit --</option>
+                    {courses.map(c => (
+                      <option key={c._id} value={c.unitCode}>{c.unitCode} - {c.unitName}</option>
+                    ))}
+                  </select>
                 </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Deadline Date</label>
+                <input
+                  type="date"
+                  value={deadline}
+                  onChange={(e) => setDeadline(e.target.value)}
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
+                />
               </div>
 
               <div className="flex justify-end gap-2 pt-2">
