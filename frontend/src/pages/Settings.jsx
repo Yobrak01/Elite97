@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Sliders, Save, Award, Key, User, Bell, BookOpen, Calendar, Plus, Trash2, Edit2, FileText } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import api from '../services/api';
@@ -24,6 +24,12 @@ export const Settings = () => {
 
   const [pastResults, setPastResults] = useState(user?.pastResults || []);
   const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', type: 'semester', mark: '' });
+
+  const [courses, setCourses] = useState([]);
+  
+  useEffect(() => {
+    api.courses.getAll().then(res => setCourses(res.data)).catch(console.error);
+  }, []);
 
   const handleAddResultRow = () => {
     if (newResultRow.year && newResultRow.mark) {
@@ -315,13 +321,18 @@ export const Settings = () => {
                   onChange={(e) => setNewTimetableRow({...newTimetableRow, endTime: e.target.value})}
                   className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                 />
-                <input
-                  type="text"
-                  placeholder="Unit"
+                <select
                   value={newTimetableRow.unitName}
                   onChange={(e) => setNewTimetableRow({...newTimetableRow, unitName: e.target.value})}
                   className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
-                />
+                >
+                  <option value="">Select Unit...</option>
+                  {courses.map(c => (
+                    <option key={c._id} value={c.unitCode}>{c.unitCode}</option>
+                  ))}
+                  <option value="Personal Study">Personal Study</option>
+                  <option value="Other">Other</option>
+                </select>
               </div>
               <button
                 type="button"
