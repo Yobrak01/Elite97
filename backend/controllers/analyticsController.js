@@ -1,9 +1,13 @@
 const Analytics = require('../models/Analytics');
 const StudySession = require('../models/StudySession');
 const Task = require('../models/Task');
+const CourseUnit = require('../models/CourseUnit');
+const TimeLog = require('../models/TimeLog');
 const analyticsEngine = require('../services/analyticsEngine');
 const burnoutDetector = require('../services/burnoutDetector');
 const aiPlanner = require('../services/aiPlanner');
+const gpaPredictor = require('../services/gpaPredictor');
+const mitBenchmarker = require('../services/mitBenchmarker');
 
 exports.getDashboard = async (req, res, next) => {
   try {
@@ -161,6 +165,154 @@ exports.recalculateAnalytics = async (req, res, next) => {
     );
 
     res.status(200).json({ success: true, data: updated });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Predict current semester GPA and cumulative GPA
+// @route   GET /api/analytics/gpa
+// @access  Private
+exports.getGpaPrediction = async (req, res, next) => {
+  try {
+    // Fetch user's course units for the current semester
+    const courseUnits = await CourseUnit.find({ user: req.user._id });
+    const tasks = await Task.find({ user: req.user._id });
+
+    if (courseUnits.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          predictedSemesterGpa: 0,
+          cumulativeGpa: req.user.cumulativeGpa || 0,
+          courseBreakdown: [],
+          message: 'No course units found. Add courses to get GPA predictions.'
+        }
+      });
+    }
+
+    // Predict semester GPA using course difficulty, credits, and task completion
+    const predictedSemesterGpa = gpaPredictor.predictCurrentSemesterGpa(courseUnits, tasks);
+
+    // Calculate total credits for this semester
+    const totalCredits = courseUnits.reduce((sum, c) => sum + c.credits, 0);
+
+    // Calculate cumulative GPA including past results
+    const cumulativeGpa = gpaPredictor.calculateCumulativeGpa(
+      req.user.pastResults,
+      predictedSemesterGpa,
+      totalCredits
+    );
+
+    // Build per-course breakdown for frontend display
+    const courseBreakdown = courseUnits.map(course => {
+      const courseTasks = tasks.filter(t =>
+        t.title.includes(course.unitCode) ||
+        (t.description && t.description.includes(course.unitCode))
+      );
+      const completed = courseTasks.filter(t => t.status === 'completed').length;
+      const completionRate = courseTasks.length > 0 ? completed / courseTasks.length : 0;
+
+      return {
+        unitCode: course.unitCode,
+        unitName: course.unitName,
+        credits: course.credits,
+        difficulty: course.difficulty,
+        taskCount: courseTasks.length,
+        tasksCompleted: completed,
+        completionRate: Number((completionRate * 100).toFixed(1))
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        predictedSemesterGpa,
+        cumulativeGpa,
+        courseBreakdown
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Calculate MIT Engineering global ranking percentile
+// @route   GET /api/analytics/mit-ranking
+// @access  Private
+exports.getMitRanking = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    // Aggregate study-related hours from TimeLogs (personal_study + lecture)
+    const studyAggregation = await TimeLog.aggregate([
+      {
+        $match: {
+          user: req.user._id,
+          date: { $gte: sevenDaysAgo, $lte: now },
+          activityType: { $in: ['personal_study', 'lecture'] }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalStudyMinutes: { $sum: '$durationMinutes' }
+        }
+      }
+    ]);
+
+    const weeklyStudyMinutes = studyAggregation.length > 0 ? studyAggregation[0].totalStudyMinutes : 0;
+    const weeklyStudyHours = Number((weeklyStudyMinutes / 60).toFixed(1));
+
+    // Get the latest analytics records for performance metrics
+    const recentAnalytics = await Analytics.find({
+      user: req.user._id,
+      date: { $gte: sevenDaysAgo }
+    }).sort({ date: -1 });
+
+    let avgFocusScore = 0;
+    let avgCompletion = 0;
+    let avgProductivity = 0;
+
+    if (recentAnalytics.length > 0) {
+      const sumFocus = recentAnalytics.reduce((sum, a) => sum + (a.focusScore || 0), 0);
+      const sumCompletion = recentAnalytics.reduce((sum, a) => sum + (a.completionPercentage || 0), 0);
+      const sumProductivity = recentAnalytics.reduce((sum, a) => sum + (a.productivityScore || 0), 0);
+
+      avgFocusScore = Number((sumFocus / recentAnalytics.length).toFixed(1));
+      avgCompletion = Number((sumCompletion / recentAnalytics.length).toFixed(1));
+      avgProductivity = Number((sumProductivity / recentAnalytics.length).toFixed(1));
+    }
+
+    // Calculate MIT percentile using the benchmarker
+    const percentile = mitBenchmarker.calculateMitPercentile(
+      weeklyStudyHours,
+      avgFocusScore,
+      avgCompletion,
+      avgProductivity
+    );
+
+    // Save the percentile to the user profile
+    req.user.mitRankPercentile = percentile;
+    await req.user.save();
+
+    res.status(200).json({
+      success: true,
+      data: {
+        mitRankPercentile: percentile,
+        breakdown: {
+          weeklyStudyHours,
+          avgFocusScore,
+          avgCompletion,
+          avgProductivity,
+          analyticsDaysUsed: recentAnalytics.length,
+          baseline: mitBenchmarker.MIT_BASELINE
+        }
+      }
+    });
   } catch (error) {
     next(error);
   }

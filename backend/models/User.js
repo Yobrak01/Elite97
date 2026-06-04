@@ -39,6 +39,19 @@ const UserSchema = new mongoose.Schema({
     regenAfterSessions: { type: Number, default: 4 },
     notifications: { type: Boolean, default: true }
   },
+  pastResults: [{
+    year: Number,
+    semester: Number,
+    gpa: Number
+  }],
+  cumulativeGpa: {
+    type: Number,
+    default: 0
+  },
+  mitRankPercentile: {
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now

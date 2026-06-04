@@ -212,6 +212,18 @@ export const api = {
         headers: getHeaders()
       });
       return handleResponse(res);
+    },
+    getGpa: async () => {
+      const res = await fetch(`${API_URL}/analytics/gpa`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    getMitRanking: async () => {
+      const res = await fetch(`${API_URL}/analytics/mit-ranking`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
     }
   },
   planner: {
@@ -269,6 +281,70 @@ export const api = {
     delete: async (id) => {
       const res = await fetch(`${API_URL}/courses/${id}`, {
         method: 'DELETE',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    }
+  },
+  tracker: {
+    startTimer: async (data) => {
+      const res = await fetch(`${API_URL}/tracker/start`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    },
+    stopTimer: async (id) => {
+      const res = await fetch(`${API_URL}/tracker/${id}/stop`, {
+        method: 'PATCH',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    getTodayLogs: async () => {
+      const res = await fetch(`${API_URL}/tracker/today`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    getWeeklySummary: async () => {
+      const res = await fetch(`${API_URL}/tracker/weekly`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    }
+  },
+  life: {
+    getWeeklyWorkout: async () => {
+      const res = await fetch(`${API_URL}/life/workout/weekly`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    getTodayWorkout: async () => {
+      const res = await fetch(`${API_URL}/life/workout/today`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    completeExercise: async (workoutId, exerciseIndex) => {
+      const res = await fetch(`${API_URL}/life/workout/${workoutId}/exercise`, {
+        method: 'PATCH',
+        headers: getHeaders(),
+        body: JSON.stringify({ exerciseIndex })
+      });
+      return handleResponse(res);
+    },
+    getTodayMeal: async () => {
+      const res = await fetch(`${API_URL}/life/meal/today`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    regenerateMeal: async () => {
+      const res = await fetch(`${API_URL}/life/meal/regenerate`, {
+        method: 'POST',
         headers: getHeaders()
       });
       return handleResponse(res);

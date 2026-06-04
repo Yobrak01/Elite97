@@ -1,5 +1,14 @@
 import React from 'react';
-import { Calendar, CheckSquare, Clock, Trash2, Edit2, PlayCircle } from 'lucide-react';
+import { Calendar, CheckSquare, Clock, Trash2, Edit2, PlayCircle, BookOpen } from 'lucide-react';
+
+const getStudyMethod = (type, difficulty = 3) => {
+  if (type === 'theory' && difficulty >= 4) return { emoji: '🧠', label: 'Feynman Technique', color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' };
+  if (type === 'theory') return { emoji: '📝', label: 'Blurting Method', color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' };
+  if (type === 'procedural' || type === 'project') return { emoji: '🔧', label: 'Procedural Chunking', color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' };
+  if (type === 'revision') return { emoji: '🔁', label: 'Active Recall & Spaced Repetition', color: 'text-green-400 bg-green-500/10 border-green-500/20' };
+  if (type === 'assignment' && difficulty >= 4) return { emoji: '🔀', label: 'Interleaved Practice', color: 'text-orange-400 bg-orange-500/10 border-orange-500/20' };
+  return { emoji: '⏱️', label: '50/10 Pomodoro', color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' };
+};
 
 export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
   const getPriorityClasses = (p) => {
@@ -23,6 +32,7 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
   };
 
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== 'completed';
+  const studyMethod = getStudyMethod(task.type, task.difficulty || 3);
 
   return (
     <div className={`glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between space-y-4 transition-all duration-200 hover:border-white/10 ${
@@ -48,6 +58,14 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
             {task.description}
           </p>
         )}
+
+        {/* Study Method Badge */}
+        <div className="flex items-center gap-1.5">
+          <span className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider ${studyMethod.color}`}>
+            <span>{studyMethod.emoji}</span>
+            {studyMethod.label}
+          </span>
+        </div>
       </div>
 
       <div className="flex items-center justify-between border-t border-white/5 pt-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">

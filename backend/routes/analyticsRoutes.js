@@ -10,5 +10,8 @@ router.get('/weekly', analyticsController.getWeekly);
 router.get('/burnout', analyticsController.getBurnoutAssessment);
 router.get('/trends', analyticsController.getTrends);
 router.post('/calculate', analyticsController.recalculateAnalytics);
+router.get('/gpa', analyticsController.getGpaPrediction);
+router.get('/mit-ranking', analyticsController.getMitRanking);
 
 module.exports = router;
+

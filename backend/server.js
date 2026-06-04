@@ -12,6 +12,8 @@ const scheduleRoutes = require('./routes/scheduleRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const plannerRoutes = require('./routes/plannerRoutes');
 const courseRoutes = require('./routes/courseRoutes');
+const trackerRoutes = require('./routes/trackerRoutes');
+const lifeRoutes = require('./routes/lifeRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -45,6 +47,8 @@ app.use('/api/schedule', scheduleRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/planner', plannerRoutes);
 app.use('/api/courses', courseRoutes);
+app.use('/api/tracker', trackerRoutes);
+app.use('/api/life', lifeRoutes);
 
 // Health Check
 app.get('/api/health', (req, res) => {

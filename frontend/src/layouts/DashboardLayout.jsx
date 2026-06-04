@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Sidebar from '../components/Sidebar';
+import LiveTimer from '../components/LiveTimer';
 
 export const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -21,6 +22,7 @@ export const DashboardLayout = () => {
           </div>
         </main>
       </div>
+      <LiveTimer />
     </div>
   );
 };
