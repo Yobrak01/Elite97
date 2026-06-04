@@ -251,14 +251,20 @@ exports.getTodayRoutine = async (req, res, next) => {
     }
 
     const parseTime = (timeStr) => {
-      const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
-      if (!match) return 0;
-      let hours = parseInt(match[1]);
-      const minutes = parseInt(match[2]);
-      const period = match[3].toUpperCase();
-      if (period === 'PM' && hours !== 12) hours += 12;
-      if (period === 'AM' && hours === 12) hours = 0;
-      return hours * 60 + minutes;
+      const match12 = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (match12) {
+        let hours = parseInt(match12[1]);
+        const minutes = parseInt(match12[2]);
+        const period = match12[3].toUpperCase();
+        if (period === 'PM' && hours !== 12) hours += 12;
+        if (period === 'AM' && hours === 12) hours = 0;
+        return hours * 60 + minutes;
+      }
+      const match24 = timeStr.match(/(\d+):(\d+)/);
+      if (match24) {
+        return parseInt(match24[1]) * 60 + parseInt(match24[2]);
+      }
+      return 0;
     };
 
     // Format lectures to match routine structure

@@ -45,6 +45,19 @@ export const Analytics = () => {
     fetchMitRanking();
   }, []);
 
+  useEffect(() => {
+    const handleTimeLogged = async () => {
+      try {
+        const res = await api.analytics.getMitRanking();
+        setMitRanking(res.data);
+      } catch (err) {
+        console.error('MIT ranking fetch error on manual log:', err);
+      }
+    };
+    window.addEventListener('time-logged', handleTimeLogged);
+    return () => window.removeEventListener('time-logged', handleTimeLogged);
+  }, []);
+
   const formattedData = trends.map(t => {
     const d = new Date(t.date);
     return {

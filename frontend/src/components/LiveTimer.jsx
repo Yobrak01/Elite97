@@ -124,6 +124,7 @@ export const LiveTimer = () => {
       });
       setManualDuration('');
       fetchTodayLogs();
+      window.dispatchEvent(new CustomEvent('time-logged'));
     } catch (err) {
       console.error('Failed to log manually:', err);
     } finally {
