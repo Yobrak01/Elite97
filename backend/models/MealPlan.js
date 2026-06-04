@@ -11,18 +11,18 @@ const MealPlanSchema = new mongoose.Schema({
     required: true,
     default: Date.now
   },
-  breakfast: [{
-    ingredient: String,
-    amount: String
-  }],
-  lunch: [{
-    ingredient: String,
-    amount: String
-  }],
-  dinner: [{
-    ingredient: String,
-    amount: String
-  }],
+  breakfast: {
+    name: String,
+    ingredients: [{ item: String, amount: String }]
+  },
+  lunch: {
+    name: String,
+    ingredients: [{ item: String, amount: String }]
+  },
+  dinner: {
+    name: String,
+    ingredients: [{ item: String, amount: String }]
+  },
   createdAt: {
     type: Date,
     default: Date.now
