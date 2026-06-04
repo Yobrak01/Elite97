@@ -30,6 +30,8 @@ export const LiveTimer = () => {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [activeLogId, setActiveLogId] = useState(null);
   const [activityType, setActivityType] = useState('personal_study');
+  const [manualMode, setManualMode] = useState(false);
+  const [manualDuration, setManualDuration] = useState('');
   const [todayLogs, setTodayLogs] = useState([]);
   const [loadingAction, setLoadingAction] = useState(false);
   const intervalRef = useRef(null);
@@ -112,6 +114,23 @@ export const LiveTimer = () => {
     }
   };
 
+  const handleManualLog = async () => {
+    if (loadingAction || !manualDuration || Number(manualDuration) <= 0) return;
+    setLoadingAction(true);
+    try {
+      await api.tracker.manualLog({
+        activityType,
+        durationMinutes: Number(manualDuration)
+      });
+      setManualDuration('');
+      fetchTodayLogs();
+    } catch (err) {
+      console.error('Failed to log manually:', err);
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
   const activeActivity = ACTIVITIES.find(a => a.key === activityType) || ACTIVITIES[0];
   const ActiveIcon = activeActivity.icon;
 
@@ -134,25 +153,56 @@ export const LiveTimer = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Timer className="h-4 w-4 text-accent-gold" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-white">Live Tracker</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-white">
+                {manualMode ? 'Manual Log' : 'Live Tracker'}
+              </span>
             </div>
-            <button
-              onClick={() => setIsExpanded(false)}
-              className="rounded-lg p-1 text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
-            >
-              <ChevronDown className="h-4 w-4" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => !isRunning && setManualMode(!manualMode)}
+                disabled={isRunning}
+                className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded transition-colors ${
+                  manualMode ? 'bg-accent-gold/20 text-accent-gold' : 'text-slate-500 hover:text-white'
+                } ${isRunning ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                Manual
+              </button>
+              <button
+                onClick={() => setIsExpanded(false)}
+                className="rounded-lg p-1 text-slate-400 hover:bg-white/5 hover:text-white transition-colors"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
-          {/* Timer Display */}
+          {/* Timer / Input Display */}
           <div className="text-center py-3">
-            <div className={`text-4xl font-black tracking-wider tabular-nums ${isRunning ? activeActivity.color : 'text-white'} transition-colors`}>
-              {formatTime(elapsedSeconds)}
-            </div>
-            {isRunning && (
-              <p className={`mt-1 text-[10px] font-bold uppercase tracking-widest ${activeActivity.color}`}>
-                {activeActivity.label} — In Progress
-              </p>
+            {manualMode ? (
+              <div className="flex flex-col items-center gap-2">
+                <input
+                  type="number"
+                  min="1"
+                  placeholder="Minutes"
+                  value={manualDuration}
+                  onChange={(e) => setManualDuration(e.target.value)}
+                  className="w-32 bg-navy-900 border border-white/10 rounded-xl px-4 py-3 text-2xl font-black text-center text-white focus:outline-none focus:border-accent-gold/50 transition-colors"
+                />
+                <p className={`text-[10px] font-bold uppercase tracking-widest ${activeActivity.color}`}>
+                  {activeActivity.label}
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className={`text-4xl font-black tracking-wider tabular-nums ${isRunning ? activeActivity.color : 'text-white'} transition-colors`}>
+                  {formatTime(elapsedSeconds)}
+                </div>
+                {isRunning && (
+                  <p className={`mt-1 text-[10px] font-bold uppercase tracking-widest ${activeActivity.color}`}>
+                    {activeActivity.label} — In Progress
+                  </p>
+                )}
+              </>
             )}
           </div>
 
@@ -182,9 +232,18 @@ export const LiveTimer = () => {
             </div>
           </div>
 
-          {/* Start / Stop Button */}
+          {/* Start / Stop / Log Button */}
           <div>
-            {!isRunning ? (
+            {manualMode ? (
+              <button
+                onClick={handleManualLog}
+                disabled={loadingAction || !manualDuration || Number(manualDuration) <= 0}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent-blue/20 border border-accent-blue/30 text-accent-blue hover:bg-accent-blue hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-accent-blue/10 disabled:opacity-50"
+              >
+                <Check className="h-4 w-4" />
+                {loadingAction ? 'Saving...' : 'Log Time'}
+              </button>
+            ) : !isRunning ? (
               <button
                 onClick={handleStart}
                 disabled={loadingAction}
@@ -200,7 +259,7 @@ export const LiveTimer = () => {
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-red-500/10 disabled:opacity-50"
               >
                 <Square className="h-4 w-4" />
-                {loadingAction ? 'Stopping...' : 'Stop Session'}
+                {loadingAction ? 'Stopping...' : 'Stop & Save'}
               </button>
             )}
           </div>

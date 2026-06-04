@@ -7,6 +7,7 @@ router.use(authMiddleware);
 
 router.post('/start', trackerController.startTimer);
 router.patch('/:id/stop', trackerController.stopTimer);
+router.post('/manual', trackerController.manualLog);
 router.get('/today', trackerController.getTodayLogs);
 router.get('/weekly', trackerController.getWeeklySummary);
 

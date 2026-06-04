@@ -73,6 +73,47 @@ exports.stopTimer = async (req, res, next) => {
   }
 };
 
+// @desc    Manually log completed time (creates a finished TimeLog)
+// @route   POST /api/tracker/manual
+// @access  Private
+exports.manualLog = async (req, res, next) => {
+  try {
+    const { activityType, durationMinutes, description, date } = req.body;
+
+    if (!activityType || !durationMinutes) {
+      return res.status(400).json({ success: false, message: 'activityType and durationMinutes are required.' });
+    }
+
+    const validTypes = ['personal_study', 'lecture', 'chore', 'gym', 'rest'];
+    if (!validTypes.includes(activityType)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid activityType. Must be one of: ${validTypes.join(', ')}`
+      });
+    }
+
+    const targetDate = date ? new Date(date) : new Date();
+    const now = new Date();
+    
+    // Calculate a mock startTime backwards from now
+    const startTime = new Date(now.getTime() - (durationMinutes * 60000));
+
+    const timeLog = await TimeLog.create({
+      user: req.user._id,
+      date: new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()),
+      activityType,
+      description: description || 'Manual entry',
+      startTime: startTime,
+      endTime: now,
+      durationMinutes: Number(durationMinutes)
+    });
+
+    res.status(201).json({ success: true, data: timeLog });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get all time logs for today
 // @route   GET /api/tracker/today
 // @access  Private

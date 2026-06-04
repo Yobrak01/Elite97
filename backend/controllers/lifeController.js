@@ -264,9 +264,11 @@ exports.getTodayRoutine = async (req, res, next) => {
     // Format lectures to match routine structure
     const lectureRoutines = lectures.map(lec => {
       const startMins = parseTime(lec.startTime);
+      const endMins = parseTime(lec.endTime);
       return {
         time: lec.startTime,
         minutes: startMins,
+        endMinutes: endMins,
         label: `Lecture: ${lec.unitName}`,
         icon: 'GraduationCap',
         color: 'text-cyan-400',
@@ -281,13 +283,14 @@ exports.getTodayRoutine = async (req, res, next) => {
     // Sort chronologically
     mergedRoutine.sort((a, b) => a.minutes - b.minutes);
 
-    // Remove baseline study blocks that get completely overrun by a lecture at the exact same time
-    // Filter out baseline tasks that share the exact start time with a lecture, keeping the lecture
-    mergedRoutine = mergedRoutine.filter((item, index, self) => {
+    // Aggressively remove baseline study blocks that fall anywhere inside a lecture block
+    mergedRoutine = mergedRoutine.filter((item) => {
       if (!item.isLecture) {
-        // If there's a lecture starting at the exact same time, drop this baseline task
-        const hasLectureConflict = self.some(other => other.isLecture && other.minutes === item.minutes);
-        if (hasLectureConflict) return false;
+        // If this baseline task occurs between a lecture's start and end time, delete it
+        const fallsInsideLecture = lectureRoutines.some(lec => 
+          item.minutes >= lec.minutes && item.minutes < lec.endMinutes
+        );
+        if (fallsInsideLecture) return false;
       }
       return true;
     });

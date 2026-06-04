@@ -302,6 +302,14 @@ export const api = {
       });
       return handleResponse(res);
     },
+    manualLog: async (data) => {
+      const res = await fetch(`${API_URL}/tracker/manual`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    },
     getTodayLogs: async () => {
       const res = await fetch(`${API_URL}/tracker/today`, {
         headers: getHeaders()
