@@ -183,26 +183,30 @@ exports.getGpaPrediction = async (req, res, next) => {
       return res.status(200).json({
         success: true,
         data: {
-          predictedSemesterGpa: 0,
-          cumulativeGpa: req.user.cumulativeGpa || 0,
+          predictedSemesterMark: 0,
+          cumulativeMark: req.user.cumulativeMark || 0,
+          classification: 'N/A',
           courseBreakdown: [],
-          message: 'No course units found. Add courses to get GPA predictions.'
+          message: 'No course units found. Add courses to get Honours predictions.'
         }
       });
     }
 
-    // Predict semester GPA using course difficulty, credits, and task completion
-    const predictedSemesterGpa = gpaPredictor.predictCurrentSemesterGpa(courseUnits, tasks);
+    // Predict semester Mean Mark using course difficulty and task completion
+    const predictedSemesterMark = gpaPredictor.predictCurrentSemesterMark(courseUnits, tasks);
 
-    // Calculate total credits for this semester
-    const totalCredits = courseUnits.reduce((sum, c) => sum + c.credits, 0);
-
-    // Calculate cumulative GPA including past results
-    const cumulativeGpa = gpaPredictor.calculateCumulativeGpa(
+    // Calculate cumulative Honours Score including past results and weightings
+    const cumulativeMark = gpaPredictor.calculateHonoursScore(
       req.user.pastResults,
-      predictedSemesterGpa,
-      totalCredits
+      predictedSemesterMark,
+      req.user.yearOfStudy || 1
     );
+
+    const classification = gpaPredictor.getClassification(cumulativeMark);
+
+    // Persist to user model
+    req.user.cumulativeMark = cumulativeMark;
+    await req.user.save();
 
     // Build per-course breakdown for frontend display
     const courseBreakdown = courseUnits.map(course => {
@@ -227,8 +231,9 @@ exports.getGpaPrediction = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: {
-        predictedSemesterGpa,
-        cumulativeGpa,
+        predictedSemesterMark,
+        cumulativeMark,
+        classification,
         courseBreakdown
       }
     });

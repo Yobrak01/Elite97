@@ -42,9 +42,9 @@ const UserSchema = new mongoose.Schema({
   pastResults: [{
     year: Number,
     semester: Number,
-    gpa: Number
+    mark: Number
   }],
-  cumulativeGpa: {
+  cumulativeMark: {
     type: Number,
     default: 0
   },

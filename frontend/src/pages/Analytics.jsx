@@ -348,16 +348,14 @@ export const Analytics = () => {
             </button>
           </div>
         )}
-      </div>
-
-      {/* GPA & MIT Ranking Section */}
+      </div>      {/* Honours & Ranking Section */}
       <div className="grid gap-6 md:grid-cols-2 mt-6">
         
-        {/* GPA Trajectory Card */}
+        {/* Honours Trajectory Card */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
           <div className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-emerald-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">GPA Trajectory</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider text-white">Honours Trajectory</h3>
           </div>
 
           {gpaData ? (
@@ -370,7 +368,7 @@ export const Analytics = () => {
                     cx="60" cy="60" r="52" fill="none"
                     stroke="url(#gpaGradient)" strokeWidth="8"
                     strokeLinecap="round"
-                    strokeDasharray={`${((gpaData.semesterGpa || gpaData.predictedGpa || 0) / 4.0) * 326.73} 326.73`}
+                    strokeDasharray={`${((gpaData.predictedSemesterMark || 0) / 100) * 326.73} 326.73`}
                   />
                   <defs>
                     <linearGradient id="gpaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -380,7 +378,7 @@ export const Analytics = () => {
                   </defs>
                 </svg>
                 <div className="absolute text-center">
-                  <p className="text-3xl font-black text-white">{(gpaData.semesterGpa || gpaData.predictedGpa || 0).toFixed(2)}</p>
+                  <p className="text-3xl font-black text-white">{(gpaData.predictedSemesterMark || 0).toFixed(2)}</p>
                   <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Semester</p>
                 </div>
               </div>
@@ -388,33 +386,33 @@ export const Analytics = () => {
               {/* Stats */}
               <div className="flex-1 space-y-4">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Cumulative GPA</p>
-                  <p className="text-2xl font-black text-amber-400">{(gpaData.cumulativeGpa || gpaData.cumGpa || 0).toFixed(2)}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Weighted Honours Mark</p>
+                  <p className="text-2xl font-black text-amber-400">{(gpaData.cumulativeMark || 0).toFixed(2)}%</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Target</p>
-                  <p className="text-lg font-black text-emerald-400">4.00</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Projected Classification</p>
+                  <p className="text-sm font-black text-emerald-400">{gpaData.classification || 'N/A'}</p>
                 </div>
                 <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-amber-400 transition-all duration-700"
-                    style={{ width: `${((gpaData.cumulativeGpa || gpaData.cumGpa || 0) / 4.0) * 100}%` }}
+                    style={{ width: `${(gpaData.cumulativeMark || 0)}%` }}
                   />
                 </div>
               </div>
             </div>
           ) : (
             <div className="flex h-36 items-center justify-center text-xs text-slate-500 font-semibold">
-              Loading GPA data...
+              Loading Honours data...
             </div>
           )}
         </div>
 
-        {/* Daily GPA Gauge (By Study Hours) */}
+        {/* Daily Expected Mark Gauge (By Study Hours) */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-accent-gold" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">Daily GPA Gauge (By Study Hours)</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider text-white">Daily Mark Gauge (By Effort)</h3>
           </div>
 
           {gpaData ? (
@@ -427,7 +425,7 @@ export const Analytics = () => {
                     cx="60" cy="60" r="52" fill="none"
                     stroke="url(#gpaGradient)" strokeWidth="8"
                     strokeLinecap="round"
-                    strokeDasharray={`${((gpaData.semesterGpa || gpaData.predictedGpa || 0) / 4.0) * 326.73} 326.73`}
+                    strokeDasharray={`${((mitRanking?.vectors?.hours || 0) / 100) * 326.73} 326.73`}
                   />
                   <defs>
                     <linearGradient id="gpaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -437,20 +435,20 @@ export const Analytics = () => {
                   </defs>
                 </svg>
                 <div className="absolute text-center">
-                  <p className="text-3xl font-black text-white">{((mitRanking?.vectors?.hours || 0) / 100 * 4.0).toFixed(2)}</p>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Daily GPA</p>
+                  <p className="text-3xl font-black text-white">{(mitRanking?.vectors?.hours || 0).toFixed(2)}</p>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Daily Mark</p>
                 </div>
               </div>
 
               {/* Stats */}
               <div className="flex-1 space-y-4">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Cumulative Target GPA</p>
-                  <p className="text-2xl font-black text-amber-400">4.00</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Max Potential Mark</p>
+                  <p className="text-2xl font-black text-amber-400">100%</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Books & Focus Gauge</p>
-                  <p className="text-lg font-black text-emerald-400">{mitRanking?.vectors?.hours || 0}% of Daily Goal</p>
+                  <p className="text-sm font-black text-emerald-400">{(mitRanking?.vectors?.hours || 0) > 70 ? 'Excellent' : (mitRanking?.vectors?.hours || 0) > 50 ? 'Average' : 'Low'}</p>
                 </div>
                 <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
                   <div
@@ -462,7 +460,7 @@ export const Analytics = () => {
             </div>
           ) : (
             <div className="flex h-36 items-center justify-center text-xs text-slate-500 font-semibold">
-              Loading GPA data...
+              Loading Daily data...
             </div>
           )}
         </div>

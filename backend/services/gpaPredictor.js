@@ -1,67 +1,79 @@
-// gpaPredictor.js
+function getClassification(mark) {
+  if (mark >= 70) return 'First Class Honours';
+  if (mark >= 60) return 'Second Class Upper';
+  if (mark >= 50) return 'Second Class Lower';
+  if (mark >= 40) return 'Pass';
+  return 'Fail';
+}
 
-/**
- * Calculate expected GPA based on course difficulty, credits, and completion rate.
- * Assumes a 4.0 scale by default.
- */
-function predictCurrentSemesterGpa(courseUnits, tasks) {
+function predictCurrentSemesterMark(courseUnits, tasks) {
   if (!courseUnits || courseUnits.length === 0) return 0;
 
   let totalCredits = 0;
-  let totalGradePoints = 0;
+  let totalMarks = 0;
 
   courseUnits.forEach(course => {
-    // Find tasks for this course. 
-    // In a real scenario, tasks would be linked via a courseId. We'll simulate by checking if task belongs to course topics.
-    // For this simulation, we'll assign a base expected grade depending on difficulty, then adjust by task completion.
-    
-    // Base grade out of 4.0 (easier = higher base)
-    let expectedGrade = 4.0 - ((course.difficulty - 1) * 0.4); 
+    // Base mark (D1=85, D3=75, D5=65)
+    let baseMark = 75 - ((course.difficulty - 3) * 5); 
 
-    // Simulate task completion adjustment (simplified)
-    // If the user has high completion rate, grade approaches 4.0
     const courseTasks = tasks.filter(t => t.title.includes(course.unitCode) || (t.description && t.description.includes(course.unitCode)));
     
     if (courseTasks.length > 0) {
       const completed = courseTasks.filter(t => t.status === 'completed').length;
       const completionRate = completed / courseTasks.length;
-      expectedGrade = expectedGrade * 0.5 + (4.0 * completionRate * 0.5); // 50% base difficulty, 50% effort
+      baseMark += (completionRate * 30 - 15); // ranges from -15 to +15
     } else {
-      expectedGrade -= 0.5; // Penalty for no tasks registered for this course
+      baseMark -= 10; // Penalty for no tasks
     }
 
-    // Bound between 0 and 4.0
-    expectedGrade = Math.max(0, Math.min(4.0, expectedGrade));
+    let expectedMark = Math.max(0, Math.min(100, baseMark));
 
     totalCredits += course.credits;
-    totalGradePoints += expectedGrade * course.credits;
+    totalMarks += expectedMark * course.credits;
   });
 
   if (totalCredits === 0) return 0;
-  return Number((totalGradePoints / totalCredits).toFixed(2));
+  return Number((totalMarks / totalCredits).toFixed(2));
 }
 
-/**
- * Calculate cumulative GPA including past results
- */
-function calculateCumulativeGpa(pastResults, currentSemesterPredictedGpa, currentSemesterCredits) {
-  let totalCredits = currentSemesterCredits || 0;
-  let totalGradePoints = (currentSemesterPredictedGpa * currentSemesterCredits) || 0;
+function calculateHonoursScore(pastResults, currentSemesterPredictedMark, currentSemesterYear) {
+  const weightings = { 1: 0.15, 2: 0.15, 3: 0.20, 4: 0.25, 5: 0.25 };
+  let weightedSum = 0;
+  let totalWeight = 0;
 
+  const yearlyMarks = {};
   if (pastResults && pastResults.length > 0) {
-    pastResults.forEach(result => {
-      // Assuming each past semester was 15 credits average for simplification if not provided
-      const pastCredits = 15; 
-      totalCredits += pastCredits;
-      totalGradePoints += result.gpa * pastCredits;
+    pastResults.forEach(r => {
+      if (!yearlyMarks[r.year]) yearlyMarks[r.year] = { sum: 0, count: 0 };
+      yearlyMarks[r.year].sum += r.mark || r.gpa || 0; // fallback for old data
+      yearlyMarks[r.year].count += 1;
     });
   }
 
-  if (totalCredits === 0) return 0;
-  return Number((totalGradePoints / totalCredits).toFixed(2));
+  if (currentSemesterYear) {
+    if (!yearlyMarks[currentSemesterYear]) yearlyMarks[currentSemesterYear] = { sum: 0, count: 0 };
+    yearlyMarks[currentSemesterYear].sum += currentSemesterPredictedMark;
+    yearlyMarks[currentSemesterYear].count += 1;
+  }
+
+  Object.keys(yearlyMarks).forEach(year => {
+    const y = Number(year);
+    if (weightings[y]) {
+      const avgMark = yearlyMarks[y].sum / yearlyMarks[y].count;
+      weightedSum += avgMark * weightings[y];
+      totalWeight += weightings[y];
+    }
+  });
+
+  if (totalWeight === 0) return 0;
+  
+  // Extrapolate to 100% based on years completed
+  const projectedScore = weightedSum / totalWeight;
+  return Number(projectedScore.toFixed(2));
 }
 
 module.exports = {
-  predictCurrentSemesterGpa,
-  calculateCumulativeGpa
+  predictCurrentSemesterMark,
+  calculateHonoursScore,
+  getClassification
 };

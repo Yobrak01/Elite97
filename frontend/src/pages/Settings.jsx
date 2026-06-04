@@ -23,12 +23,12 @@ export const Settings = () => {
   const [newTimetableRow, setNewTimetableRow] = useState({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '' });
 
   const [pastResults, setPastResults] = useState(user?.pastResults || []);
-  const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', gpa: '' });
+  const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', mark: '' });
 
   const handleAddResultRow = () => {
-    if (newResultRow.year && newResultRow.semester && newResultRow.gpa) {
-      setPastResults([...pastResults, { year: Number(newResultRow.year), semester: Number(newResultRow.semester), gpa: Number(newResultRow.gpa) }]);
-      setNewResultRow({ year: '', semester: '', gpa: '' });
+    if (newResultRow.year && newResultRow.semester && newResultRow.mark) {
+      setPastResults([...pastResults, { year: Number(newResultRow.year), semester: Number(newResultRow.semester), mark: Number(newResultRow.mark) }]);
+      setNewResultRow({ year: '', semester: '', mark: '' });
     }
   };
 
@@ -390,9 +390,9 @@ export const Settings = () => {
                 <input
                   type="number"
                   step="0.01"
-                  placeholder="GPA (e.g. 3.5)"
-                  value={newResultRow.gpa}
-                  onChange={(e) => setNewResultRow({...newResultRow, gpa: e.target.value})}
+                  placeholder="Mark (e.g. 75)"
+                  value={newResultRow.mark}
+                  onChange={(e) => setNewResultRow({...newResultRow, mark: e.target.value})}
                   className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                 />
               </div>
@@ -413,7 +413,7 @@ export const Settings = () => {
                       <div className="flex items-center gap-4">
                         <span className="text-[10px] font-black uppercase text-emerald-400 w-16">Year {row.year}</span>
                         <span className="text-xs text-slate-300">Sem {row.semester}</span>
-                        <span className="text-xs font-bold text-white">GPA: {row.gpa?.toFixed(2)}</span>
+                        <span className="text-xs font-bold text-white">Mark: {row.mark?.toFixed(2)}</span>
                       </div>
                       <button onClick={() => handleRemoveResultRow(idx)} className="text-red-400/50 hover:text-red-400 transition-colors">
                         <Trash2 className="h-4 w-4" />
