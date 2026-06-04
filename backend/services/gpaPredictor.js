@@ -58,7 +58,8 @@ function calculateHonoursScore(pastResults, currentSemesterPredictedMark, curren
     });
   }
 
-  if (currentSemesterYear) {
+  // Only include the current semester in the projection if there is an actual predicted mark (active courses exist)
+  if (currentSemesterYear && currentSemesterPredictedMark > 0) {
     if (!yearlyMarks[currentSemesterYear]) yearlyMarks[currentSemesterYear] = { sum: 0, count: 0, override: false };
     if (!yearlyMarks[currentSemesterYear].override) {
       yearlyMarks[currentSemesterYear].sum += currentSemesterPredictedMark;
