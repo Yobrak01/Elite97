@@ -37,8 +37,8 @@ export const Courses = () => {
     setUnitName('');
     setSemester('1');
     setYear('1');
-    setCredits('3');
-    setDifficulty('0');
+    setCredits('0'); // Default to AI Auto-Assign
+    setDifficulty('0'); // Default to AI Auto-Rate
     setEditingId(null);
     setModalOpen(true);
   };
