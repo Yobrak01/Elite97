@@ -4,7 +4,7 @@ function determineMode(burnoutRisk, focusScore) {
   return 'balanced';
 }
 
-function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal') {
+function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal', timetable = []) {
   if (mode === 'recovery') {
     return [
       { startTime: '08:00', endTime: '10:00', activity: 'Extended Sleep / Rest', category: 'recovery', duration: 120 },
@@ -15,7 +15,24 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     ];
   }
 
-  // Sort tasks: completed filters out, then priority (highest first), then deadlines (earliest first)
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const todayDayName = days[new Date().getDay()];
+
+  // Filter today's lectures from the timetable
+  const todayLectures = timetable.filter(t => t.dayOfWeek === todayDayName || t.day === todayDayName);
+  
+  const parseTime = (timeStr) => {
+    if (!timeStr) return 0;
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+  };
+
+  const lectures = todayLectures.map(l => ({
+    start: parseTime(l.startTime),
+    end: parseTime(l.endTime),
+    unitName: l.unitName
+  })).sort((a, b) => a.start - b.start);
+
   const activeTasks = tasks.filter(t => t.status !== 'completed')
     .sort((a, b) => (b.priority - a.priority) || (new Date(a.deadline) - new Date(b.deadline)));
 
@@ -29,7 +46,6 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     breakDuration = 10;
   }
 
-  // Adjust hours based on global study modes
   if (studyMode === 'cat_prep') {
     availableHours = Math.max(availableHours, 8);
   } else if (studyMode === 'exam_prep') {
@@ -39,42 +55,74 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
   }
 
   const blocks = [];
-  let currentTime = new Date();
-  currentTime.setHours(8, 0, 0, 0); // Start daily schedule at 08:00 AM
-
-  let remainingMinutes = availableHours * 60;
+  
+  let currentMinute = 8 * 60; // Start daily schedule at 08:00 AM
+  let remainingStudyMinutes = availableHours * 60;
   let taskIndex = 0;
+  let lectureIndex = 0;
 
-  while (remainingMinutes > 0) {
-    // Break Block
-    if (blocks.length > 0) {
-      const breakStart = new Date(currentTime);
-      currentTime.setMinutes(currentTime.getMinutes() + breakDuration);
+  const formatTimeStr = (min) => {
+    const h = Math.floor(min / 60).toString().padStart(2, '0');
+    const m = (min % 60).toString().padStart(2, '0');
+    return `${h}:${m}`;
+  };
+
+  while (remainingStudyMinutes > 0 && currentMinute < 24 * 60) { // cap at midnight
+    // If we hit a lecture time
+    if (lectureIndex < lectures.length && currentMinute >= lectures[lectureIndex].start) {
+      const lec = lectures[lectureIndex];
+      // Fast forward or create lecture block if we are within the lecture duration
+      if (currentMinute < lec.end) {
+        blocks.push({
+          startTime: formatTimeStr(currentMinute),
+          endTime: formatTimeStr(lec.end),
+          activity: `Lecture: ${lec.unitName}`,
+          category: 'lecture',
+          duration: lec.end - currentMinute
+        });
+        currentMinute = lec.end;
+      }
+      lectureIndex++;
+      continue; // re-evaluate next iteration
+    }
+
+    // Determine free time until next lecture
+    let maxFreeTime = 24 * 60 - currentMinute;
+    if (lectureIndex < lectures.length && lectures[lectureIndex].start > currentMinute) {
+      maxFreeTime = lectures[lectureIndex].start - currentMinute;
+    }
+
+    // If gap is too small, skip it
+    if (maxFreeTime < 10) {
+      currentMinute += maxFreeTime;
+      continue;
+    }
+
+    // Insert Break Block if needed
+    if (blocks.length > 0 && blocks[blocks.length - 1].category === 'study' && maxFreeTime >= breakDuration) {
       blocks.push({
-        startTime: formatTime(breakStart),
-        endTime: formatTime(currentTime),
+        startTime: formatTimeStr(currentMinute),
+        endTime: formatTimeStr(currentMinute + breakDuration),
         activity: 'Regen Break',
         category: 'break',
         duration: breakDuration
       });
-      remainingMinutes -= breakDuration;
+      currentMinute += breakDuration;
+      maxFreeTime -= breakDuration;
     }
 
-    if (remainingMinutes <= 0) break;
+    if (maxFreeTime <= 0 || remainingStudyMinutes <= 0) continue;
 
-    // Study Block
-    const currentInterval = Math.min(interval, remainingMinutes);
-    const studyStart = new Date(currentTime);
-    currentTime.setMinutes(currentTime.getMinutes() + currentInterval);
-
+    // Insert Study Block
+    const currentInterval = Math.min(interval, remainingStudyMinutes, maxFreeTime);
     let currentActivity = 'Deep Work Revision';
     let currentTaskId = null;
+
     if (activeTasks[taskIndex]) {
       const activeTask = activeTasks[taskIndex];
       currentActivity = `Work on: ${activeTask.title} (${activeTask.type})`;
       currentTaskId = activeTask._id;
       
-      // Reduce task estimation or cycle tasks
       activeTask.estimatedHours -= (currentInterval / 60);
       if (activeTask.estimatedHours <= 0) {
         taskIndex++;
@@ -84,15 +132,16 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     }
 
     blocks.push({
-      startTime: formatTime(studyStart),
-      endTime: formatTime(currentTime),
+      startTime: formatTimeStr(currentMinute),
+      endTime: formatTimeStr(currentMinute + currentInterval),
       activity: currentActivity,
       category: 'study',
       duration: currentInterval,
       taskId: currentTaskId
     });
 
-    remainingMinutes -= currentInterval;
+    currentMinute += currentInterval;
+    remainingStudyMinutes -= currentInterval;
   }
 
   return blocks;

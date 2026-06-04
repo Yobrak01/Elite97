@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Sliders, Save, Award, Key, User, Bell, BookOpen, Calendar, Plus, Trash2, Edit2 } from 'lucide-react';
+import { Sliders, Save, Award, Key, User, Bell, BookOpen, Calendar, Plus, Trash2, Edit2, FileText } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import api from '../services/api';
 
@@ -21,6 +21,20 @@ export const Settings = () => {
 
   const [timetable, setTimetable] = useState(user?.timetable || []);
   const [newTimetableRow, setNewTimetableRow] = useState({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '' });
+
+  const [pastResults, setPastResults] = useState(user?.pastResults || []);
+  const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', gpa: '' });
+
+  const handleAddResultRow = () => {
+    if (newResultRow.year && newResultRow.semester && newResultRow.gpa) {
+      setPastResults([...pastResults, { year: Number(newResultRow.year), semester: Number(newResultRow.semester), gpa: Number(newResultRow.gpa) }]);
+      setNewResultRow({ year: '', semester: '', gpa: '' });
+    }
+  };
+
+  const handleRemoveResultRow = (index) => {
+    setPastResults(pastResults.filter((_, i) => i !== index));
+  };
 
   const handleAddTimetableRow = () => {
     if (newTimetableRow.startTime && newTimetableRow.endTime && newTimetableRow.unitName) {
@@ -50,6 +64,7 @@ export const Settings = () => {
         course,
         currentSemester: Number(semester) || undefined,
         timetable,
+        pastResults,
         settings: {
           dailyGoalHours: Number(dailyGoalHours),
           breakInterval: Number(breakInterval),
@@ -344,6 +359,78 @@ export const Settings = () => {
                   className="w-full mt-2 flex items-center justify-center gap-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50"
                 >
                   Save Timetable
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Past Academic Results Manager */}
+          <div className="glass-panel rounded-3xl p-6 border border-white/5 space-y-6">
+            <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+              <FileText className="h-5 w-5 text-emerald-400" />
+              <h3 className="text-sm font-black uppercase tracking-wider text-white">Past Academic Results</h3>
+            </div>
+
+            <div className="space-y-4">
+              <div className="grid grid-cols-3 gap-2">
+                <input
+                  type="number"
+                  placeholder="Year (e.g. 1)"
+                  value={newResultRow.year}
+                  onChange={(e) => setNewResultRow({...newResultRow, year: e.target.value})}
+                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                />
+                <input
+                  type="number"
+                  placeholder="Sem (e.g. 1)"
+                  value={newResultRow.semester}
+                  onChange={(e) => setNewResultRow({...newResultRow, semester: e.target.value})}
+                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                />
+                <input
+                  type="number"
+                  step="0.01"
+                  placeholder="GPA (e.g. 3.5)"
+                  value={newResultRow.gpa}
+                  onChange={(e) => setNewResultRow({...newResultRow, gpa: e.target.value})}
+                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleAddResultRow}
+                className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-emerald-500/30 hover:bg-emerald-500/10 text-emerald-400 px-4 py-2 text-xs font-bold transition-colors"
+              >
+                <Plus className="h-4 w-4" /> Add Result
+              </button>
+
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                {pastResults.length === 0 ? (
+                  <div className="text-center text-xs text-slate-500 py-4">No past results logged.</div>
+                ) : (
+                  pastResults.map((row, idx) => (
+                    <div key={idx} className="flex items-center justify-between bg-navy-900/50 border border-white/5 rounded-lg p-2.5">
+                      <div className="flex items-center gap-4">
+                        <span className="text-[10px] font-black uppercase text-emerald-400 w-16">Year {row.year}</span>
+                        <span className="text-xs text-slate-300">Sem {row.semester}</span>
+                        <span className="text-xs font-bold text-white">GPA: {row.gpa?.toFixed(2)}</span>
+                      </div>
+                      <button onClick={() => handleRemoveResultRow(idx)} className="text-red-400/50 hover:text-red-400 transition-colors">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+              
+              {pastResults.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={submitting}
+                  className="w-full mt-2 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50"
+                >
+                  Save Results
                 </button>
               )}
             </div>

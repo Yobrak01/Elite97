@@ -105,7 +105,7 @@ exports.getMe = async (req, res, next) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge } = req.body;
+    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults } = req.body;
     
     if (settings) req.user.settings = { ...req.user.settings, ...settings };
     if (studyMode) req.user.studyMode = studyMode;
@@ -113,6 +113,7 @@ exports.updateSettings = async (req, res, next) => {
     if (course !== undefined) req.user.course = course;
     if (currentSemester !== undefined) req.user.currentSemester = currentSemester;
     if (timetable !== undefined) req.user.timetable = timetable;
+    if (pastResults !== undefined) req.user.pastResults = pastResults;
     if (studyGauge !== undefined) {
       req.user.studyGauge = { ...req.user.studyGauge, ...studyGauge };
     }

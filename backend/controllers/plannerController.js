@@ -13,7 +13,7 @@ exports.getDailyPlan = async (req, res, next) => {
     const currentMode = analytics ? analytics.mode : 'balanced';
 
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
-    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode);
+    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
 
     res.status(200).json({
       success: true,
@@ -36,7 +36,7 @@ exports.generatePlan = async (req, res, next) => {
     const currentMode = analytics ? analytics.mode : 'balanced';
 
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
-    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode);
+    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
 
     res.status(200).json({
       success: true,
