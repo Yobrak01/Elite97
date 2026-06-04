@@ -2,25 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Dumbbell, UtensilsCrossed, Home, ChevronRight, Check, RefreshCw, Clock, Sun, Moon, Sunrise, Sunset, Coffee, BookOpen, ShowerHead, Sparkles, Shirt, BedDouble } from 'lucide-react';
 import api from '../services/api';
 
+// Constants
 const TABS = [
   { key: 'gym', label: 'Gym Schedule', icon: Dumbbell, color: 'text-green-400', bg: 'bg-green-500/15', border: 'border-green-500/30' },
   { key: 'meal', label: 'Meal Plan', icon: UtensilsCrossed, color: 'text-orange-400', bg: 'bg-orange-500/15', border: 'border-orange-500/30' },
   { key: 'routine', label: 'Daily Routine', icon: Home, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30' }
-];
-
-const DAILY_ROUTINE = [
-  { time: '6:00 AM', label: 'Wake Up', icon: Sunrise, color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Rise early. No snooze. Discipline starts here.' },
-  { time: '6:15 AM', label: 'Morning Routine', icon: ShowerHead, color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Shower, brush teeth, skincare, get dressed.' },
-  { time: '6:45 AM', label: 'Breakfast Prep & Eat', icon: Coffee, color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Cook a proper breakfast. High protein, complex carbs.' },
-  { time: '7:30 AM', label: 'Begin Study Block', icon: BookOpen, color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Deep focus study session. Most important tasks first.' },
-  { time: '12:30 PM', label: 'Lunch Prep & Eat', icon: UtensilsCrossed, color: 'text-green-400', bg: 'bg-green-500/10', description: 'Cook lunch. Balanced meal with vegetables.' },
-  { time: '1:15 PM', label: 'Afternoon Study / Lecture', icon: BookOpen, color: 'text-purple-400', bg: 'bg-purple-500/10', description: 'Lectures, tutorials, or continued studying.' },
-  { time: '5:00 PM', label: 'Gym Session', icon: Dumbbell, color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'Strength training. Follow the weekly split.' },
-  { time: '6:30 PM', label: 'Cooking & Dinner', icon: UtensilsCrossed, color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Prepare dinner. Meal prep for tomorrow if possible.' },
-  { time: '7:30 PM', label: 'Evening Study', icon: BookOpen, color: 'text-indigo-400', bg: 'bg-indigo-500/10', description: 'Review notes, assignments, lighter study tasks.' },
-  { time: '9:00 PM', label: 'Cleaning / Laundry', icon: Shirt, color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Dishes, wipe surfaces, take out trash, laundry cycle.' },
-  { time: '10:00 PM', label: 'Wind Down', icon: Sunset, color: 'text-pink-400', bg: 'bg-pink-500/10', description: 'No screens. Read, stretch, plan tomorrow.' },
-  { time: '10:30 PM', label: 'Sleep', icon: BedDouble, color: 'text-slate-400', bg: 'bg-slate-500/10', description: '7.5 hours of sleep. Non-negotiable recovery.' }
 ];
 
 const MUSCLE_COLORS = {
@@ -359,7 +345,25 @@ const MealTab = () => {
 };
 
 // ===================== ROUTINE TAB =====================
+import * as LucideIcons from 'lucide-react';
+
 const RoutineTab = () => {
+  const [routine, setRoutine] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchRoutine = useCallback(async () => {
+    try {
+      const res = await api.life.getTodayRoutine();
+      setRoutine(res.data);
+    } catch (err) {
+      console.error('Failed to fetch routine:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchRoutine(); }, [fetchRoutine]);
+
   const now = new Date();
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
@@ -394,13 +398,14 @@ const RoutineTab = () => {
       <div className="relative">
         {/* Vertical Line */}
         <div className="absolute left-[2.15rem] top-0 bottom-0 w-px bg-gradient-to-b from-accent-gold/30 via-white/10 to-transparent"></div>
-
         <div className="space-y-1">
-          {DAILY_ROUTINE.map((item, index) => {
-            const Icon = item.icon;
-            const itemMinutes = parseTime(item.time);
-            const nextItem = DAILY_ROUTINE[index + 1];
-            const nextMinutes = nextItem ? parseTime(nextItem.time) : itemMinutes + 30;
+          {loading ? (
+            <div className="py-10 text-center text-xs font-bold text-slate-500">Loading dynamic routine...</div>
+          ) : routine.map((item, index) => {
+            const Icon = LucideIcons[item.icon] || LucideIcons.Circle;
+            const itemMinutes = item.minutes;
+            const nextItem = routine[index + 1];
+            const nextMinutes = nextItem ? nextItem.minutes : itemMinutes + 30;
             const isActive = currentTotalMinutes >= itemMinutes && currentTotalMinutes < nextMinutes;
             const isPast = currentTotalMinutes >= nextMinutes;
 
@@ -410,6 +415,8 @@ const RoutineTab = () => {
                 className={`relative flex items-start gap-4 rounded-2xl p-4 transition-all ${
                   isActive
                     ? 'bg-accent-gold/5 border border-accent-gold/20 shadow-lg shadow-accent-gold/5'
+                    : item.isLecture
+                    ? 'bg-cyan-500/5 border border-cyan-500/10'
                     : isPast
                     ? 'opacity-50'
                     : ''
@@ -421,6 +428,8 @@ const RoutineTab = () => {
                     ? 'bg-accent-gold shadow-lg shadow-accent-gold/50'
                     : isPast
                     ? 'bg-slate-600'
+                    : item.isLecture
+                    ? 'bg-cyan-500 shadow-glow-cyan/50'
                     : 'bg-white/10 border border-white/20'
                 }`}>
                   {isActive && (
@@ -436,7 +445,7 @@ const RoutineTab = () => {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-accent-gold' : 'text-slate-500'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-accent-gold' : item.isLecture ? 'text-cyan-400' : 'text-slate-500'}`}>
                       {item.time}
                     </span>
                     {isActive && (
@@ -444,11 +453,16 @@ const RoutineTab = () => {
                         Now
                       </span>
                     )}
+                    {item.isLecture && !isActive && (
+                      <span className="rounded-lg bg-cyan-500/20 border border-cyan-500/30 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-cyan-400">
+                        Class
+                      </span>
+                    )}
                   </div>
-                  <h4 className={`text-sm font-bold tracking-wide mt-0.5 ${isActive ? 'text-white' : 'text-slate-200'}`}>
+                  <h4 className={`text-sm font-bold tracking-wide mt-0.5 ${isActive ? 'text-white' : item.isLecture ? 'text-cyan-100' : 'text-slate-200'}`}>
                     {item.label}
                   </h4>
-                  <p className="text-xs text-slate-400 font-medium mt-0.5 leading-relaxed">{item.description}</p>
+                  <p className="mt-1 text-xs font-semibold text-slate-400">{item.description}</p>
                 </div>
               </div>
             );

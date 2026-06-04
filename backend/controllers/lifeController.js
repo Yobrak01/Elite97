@@ -193,7 +193,7 @@ exports.getDailyMeal = async (req, res, next) => {
   }
 };
 
-// @desc    Regenerate today's meal plan (delete old, create new)
+// @desc    Regenerate today's meal
 // @route   POST /api/life/meal/regenerate
 // @access  Private
 exports.regenerateMeal = async (req, res, next) => {
@@ -202,24 +202,97 @@ exports.regenerateMeal = async (req, res, next) => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // Delete existing meal plan for today
-    await MealPlan.deleteMany({
+    await MealPlan.findOneAndDelete({
       user: req.user._id,
       date: { $gte: today, $lt: tomorrow }
     });
 
-    // Generate a fresh meal plan
-    const generatedMeal = nutritionEngine.generateDailyMealPlan();
-
-    const mealPlan = await MealPlan.create({
+    const mealPlan = nutritionEngine.generateDailyMealPlan();
+    
+    const newMeal = await MealPlan.create({
       user: req.user._id,
-      date: today,
-      breakfast: generatedMeal.breakfast,
-      lunch: generatedMeal.lunch,
-      dinner: generatedMeal.dinner
+      date: new Date(),
+      meals: mealPlan
     });
 
-    res.status(201).json({ success: true, data: mealPlan });
+    res.status(200).json({ success: true, data: newMeal });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get dynamic daily routine merged with timetable
+// @route   GET /api/life/routine/today
+// @access  Private
+exports.getTodayRoutine = async (req, res, next) => {
+  try {
+    const BASELINE_ROUTINE = [
+      { time: '6:00 AM', minutes: 360, label: 'Wake Up', icon: 'Sunrise', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Rise early. No snooze. Discipline starts here.' },
+      { time: '6:15 AM', minutes: 375, label: 'Morning Routine', icon: 'ShowerHead', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Shower, brush teeth, skincare, get dressed.' },
+      { time: '6:45 AM', minutes: 405, label: 'Breakfast Prep & Eat', icon: 'Coffee', color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Cook a proper breakfast. High protein, complex carbs.' },
+      { time: '7:30 AM', minutes: 450, label: 'Morning Study Block', icon: 'BookOpen', color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Deep focus study session. Most important tasks first.' },
+      { time: '12:30 PM', minutes: 750, label: 'Lunch Prep & Eat', icon: 'UtensilsCrossed', color: 'text-green-400', bg: 'bg-green-500/10', description: 'Cook lunch. Balanced meal with vegetables.' },
+      { time: '1:15 PM', minutes: 795, label: 'Afternoon Study Block', icon: 'BookOpen', color: 'text-purple-400', bg: 'bg-purple-500/10', description: 'Continued studying or coursework.' },
+      { time: '5:00 PM', minutes: 1020, label: 'Gym Session', icon: 'Dumbbell', color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'Strength training. Follow the weekly split.' },
+      { time: '6:30 PM', minutes: 1110, label: 'Cooking & Dinner', icon: 'UtensilsCrossed', color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Prepare dinner. Meal prep for tomorrow if possible.' },
+      { time: '7:30 PM', minutes: 1170, label: 'Evening Study', icon: 'BookOpen', color: 'text-indigo-400', bg: 'bg-indigo-500/10', description: 'Review notes, assignments, lighter study tasks.' },
+      { time: '9:00 PM', minutes: 1260, label: 'Cleaning / Laundry', icon: 'Shirt', color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Dishes, wipe surfaces, take out trash, laundry cycle.' },
+      { time: '10:00 PM', minutes: 1320, label: 'Wind Down', icon: 'Sunset', color: 'text-pink-400', bg: 'bg-pink-500/10', description: 'No screens. Read, stretch, plan tomorrow.' },
+      { time: '10:30 PM', minutes: 1350, label: 'Sleep', icon: 'BedDouble', color: 'text-slate-400', bg: 'bg-slate-500/10', description: '7.5 hours of sleep. Non-negotiable recovery.' }
+    ];
+
+    // Get today's lectures from timetable
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const currentDay = dayNames[new Date().getDay()];
+    
+    let lectures = [];
+    if (req.user.timetable && req.user.timetable.length > 0) {
+      lectures = req.user.timetable.filter(t => t.dayOfWeek === currentDay);
+    }
+
+    const parseTime = (timeStr) => {
+      const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+      if (!match) return 0;
+      let hours = parseInt(match[1]);
+      const minutes = parseInt(match[2]);
+      const period = match[3].toUpperCase();
+      if (period === 'PM' && hours !== 12) hours += 12;
+      if (period === 'AM' && hours === 12) hours = 0;
+      return hours * 60 + minutes;
+    };
+
+    // Format lectures to match routine structure
+    const lectureRoutines = lectures.map(lec => {
+      const startMins = parseTime(lec.startTime);
+      return {
+        time: lec.startTime,
+        minutes: startMins,
+        label: `Lecture: ${lec.unitName}`,
+        icon: 'GraduationCap',
+        color: 'text-cyan-400',
+        bg: 'bg-cyan-500/20',
+        description: `University lecture. Ends at ${lec.endTime}.`,
+        isLecture: true
+      };
+    });
+
+    let mergedRoutine = [...BASELINE_ROUTINE, ...lectureRoutines];
+    
+    // Sort chronologically
+    mergedRoutine.sort((a, b) => a.minutes - b.minutes);
+
+    // Remove baseline study blocks that get completely overrun by a lecture at the exact same time
+    // Filter out baseline tasks that share the exact start time with a lecture, keeping the lecture
+    mergedRoutine = mergedRoutine.filter((item, index, self) => {
+      if (!item.isLecture) {
+        // If there's a lecture starting at the exact same time, drop this baseline task
+        const hasLectureConflict = self.some(other => other.isLecture && other.minutes === item.minutes);
+        if (hasLectureConflict) return false;
+      }
+      return true;
+    });
+
+    res.status(200).json({ success: true, data: mergedRoutine });
   } catch (error) {
     next(error);
   }

@@ -13,7 +13,7 @@ export const Courses = () => {
   const [semester, setSemester] = useState('1');
   const [year, setYear] = useState('1');
   const [credits, setCredits] = useState('3');
-  const [difficulty, setDifficulty] = useState('3');
+  const [difficulty, setDifficulty] = useState('0');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -38,7 +38,7 @@ export const Courses = () => {
     setSemester('1');
     setYear('1');
     setCredits('3');
-    setDifficulty('3');
+    setDifficulty('0');
     setEditingId(null);
     setModalOpen(true);
   };
@@ -201,8 +201,9 @@ export const Courses = () => {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Difficulty Level (1-5)</label>
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Difficulty Level</label>
                 <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none">
+                  <option value="0">✨ AI Auto-Rate</option>
                   <option value="5">5 - Brutal</option>
                   <option value="4">4 - Hard</option>
                   <option value="3">3 - Normal</option>

@@ -14,4 +14,7 @@ router.patch('/workout/:id/exercise', lifeController.completeExercise);
 router.get('/meal/today', lifeController.getDailyMeal);
 router.post('/meal/regenerate', lifeController.regenerateMeal);
 
+// Routine route
+router.get('/routine/today', lifeController.getTodayRoutine);
+
 module.exports = router;

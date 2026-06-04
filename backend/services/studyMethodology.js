@@ -54,7 +54,31 @@ function suggestStudyMethod(taskType, courseDifficulty) {
   return STUDY_METHODS.POMODORO_INTENSE;
 }
 
+/**
+ * Automatically predict course difficulty out of 5 based on keyword analysis of the unit name.
+ */
+function predictCourseDifficulty(unitName) {
+  if (!unitName) return 3;
+  const name = unitName.toLowerCase();
+  
+  // Difficulty 5: Heavy STEM / Abstract Math
+  if (name.match(/(calculus|thermodynamics|mechanics|fluid|electromagnetics|quantum|structures|advanced math|differential|machine learning|artificial intelligence)/)) {
+    return 5;
+  }
+  // Difficulty 4: Applied Sciences / Complex Logic
+  if (name.match(/(physics|chemistry|programming|algorithms|data structures|materials|kinematics|electronics|statistics|networking)/)) {
+    return 4;
+  }
+  // Difficulty 2: Soft Skills / General
+  if (name.match(/(communication|ethics|society|intro to|basics of|workshop|seminar|writing)/)) {
+    return 2;
+  }
+  // Difficulty 3: Standard Business / Humanities / Default
+  return 3;
+}
+
 module.exports = {
   STUDY_METHODS,
-  suggestStudyMethod
+  suggestStudyMethod,
+  predictCourseDifficulty
 };

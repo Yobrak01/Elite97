@@ -1,4 +1,5 @@
 const CourseUnit = require('../models/CourseUnit');
+const { predictCourseDifficulty } = require('../services/studyMethodology');
 
 // Suggest AI Tier based on difficulty and credits
 const suggestCourseTier = (difficulty, credits) => {
@@ -23,6 +24,11 @@ exports.createCourse = async (req, res, next) => {
   try {
     req.body.user = req.user._id;
     
+    // Auto-rate difficulty if AI option is selected (difficulty = 0)
+    if (Number(req.body.difficulty) === 0) {
+      req.body.difficulty = predictCourseDifficulty(req.body.unitName);
+    }
+    
     // Auto-compute AI tier based on difficulty and credits
     req.body.aiSuggestedTier = suggestCourseTier(req.body.difficulty, req.body.credits);
 
@@ -39,6 +45,11 @@ exports.updateCourse = async (req, res, next) => {
 
     if (!course) {
       return res.status(404).json({ message: 'Course not found or access denied.' });
+    }
+
+    // Auto-rate difficulty if AI option is selected
+    if (Number(req.body.difficulty) === 0) {
+      req.body.difficulty = predictCourseDifficulty(req.body.unitName || course.unitName);
     }
 
     const updatedData = { ...course.toObject(), ...req.body };

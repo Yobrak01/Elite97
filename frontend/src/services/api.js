@@ -348,6 +348,12 @@ export const api = {
         headers: getHeaders()
       });
       return handleResponse(res);
+    },
+    getTodayRoutine: async () => {
+      const res = await fetch(`${API_URL}/life/routine/today`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
     }
   }
 };
