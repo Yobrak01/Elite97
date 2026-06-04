@@ -65,8 +65,18 @@ export const Analytics = () => {
   const studyGauge = user?.studyGauge;
   let lowestPillar = null;
   let lowestScore = 101;
-  if (studyGauge?.scores) {
-    Object.entries(studyGauge.scores).forEach(([pillar, score]) => {
+
+  const normalizedScores = {
+    Priming: studyGauge?.priming || studyGauge?.scores?.Priming || 0,
+    Encoding: studyGauge?.encoding || studyGauge?.scores?.Encoding || 0,
+    Reference: studyGauge?.reference || studyGauge?.scores?.Reference || 0,
+    Retrieval: studyGauge?.retrieval || studyGauge?.scores?.Retrieval || 0,
+    Interleaving: studyGauge?.interleaving || studyGauge?.scores?.Interleaving || 0,
+    Overlearning: studyGauge?.overlearning || studyGauge?.scores?.Overlearning || 0,
+  };
+
+  if (studyGauge) {
+    Object.entries(normalizedScores).forEach(([pillar, score]) => {
       if (score < lowestScore) {
         lowestScore = score;
         lowestPillar = pillar;
@@ -87,12 +97,12 @@ export const Analytics = () => {
   };
 
   const gaugeRadarData = studyGauge ? [
-    { subject: 'Priming', A: studyGauge.scores.Priming, fullMark: 100 },
-    { subject: 'Encoding', A: studyGauge.scores.Encoding, fullMark: 100 },
-    { subject: 'Reference', A: studyGauge.scores.Reference, fullMark: 100 },
-    { subject: 'Retrieval', A: studyGauge.scores.Retrieval, fullMark: 100 },
-    { subject: 'Interleaving', A: studyGauge.scores.Interleaving, fullMark: 100 },
-    { subject: 'Overlearning', A: studyGauge.scores.Overlearning, fullMark: 100 }
+    { subject: 'Priming', A: normalizedScores.Priming, fullMark: 100 },
+    { subject: 'Encoding', A: normalizedScores.Encoding, fullMark: 100 },
+    { subject: 'Reference', A: normalizedScores.Reference, fullMark: 100 },
+    { subject: 'Retrieval', A: normalizedScores.Retrieval, fullMark: 100 },
+    { subject: 'Interleaving', A: normalizedScores.Interleaving, fullMark: 100 },
+    { subject: 'Overlearning', A: normalizedScores.Overlearning, fullMark: 100 }
   ] : [];
 
   const CustomTooltip = ({ active, payload, label }) => {
