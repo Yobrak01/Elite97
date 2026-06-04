@@ -32,7 +32,12 @@ exports.register = async (req, res, next) => {
         email: user.email,
         studyMode: user.studyMode,
         streak: user.streak,
-        settings: user.settings
+        settings: user.settings,
+        yearOfStudy: user.yearOfStudy,
+        course: user.course,
+        currentSemester: user.currentSemester,
+        timetable: user.timetable,
+        studyGauge: user.studyGauge
       }
     });
   } catch (error) {
@@ -63,7 +68,12 @@ exports.login = async (req, res, next) => {
         email: user.email,
         studyMode: user.studyMode,
         streak: user.streak,
-        settings: user.settings
+        settings: user.settings,
+        yearOfStudy: user.yearOfStudy,
+        course: user.course,
+        currentSemester: user.currentSemester,
+        timetable: user.timetable,
+        studyGauge: user.studyGauge
       }
     });
   } catch (error) {
@@ -80,7 +90,12 @@ exports.getMe = async (req, res, next) => {
         email: req.user.email,
         studyMode: req.user.studyMode,
         streak: req.user.streak,
-        settings: req.user.settings
+        settings: req.user.settings,
+        yearOfStudy: req.user.yearOfStudy,
+        course: req.user.course,
+        currentSemester: req.user.currentSemester,
+        timetable: req.user.timetable,
+        studyGauge: req.user.studyGauge
       }
     });
   } catch (error) {

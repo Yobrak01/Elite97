@@ -122,7 +122,7 @@ export const Dashboard = () => {
         />
         <StatCard
           title="Task Completion"
-          value={`${dashboardData?.completionPercentage || 0}%`}
+          value={`${taskStats?.total > 0 ? Math.round((taskStats.completed / taskStats.total) * 100) : 0}%`}
           subtitle={`Completed ${taskStats?.completed || 0} / ${taskStats?.total || 0} tasks`}
           icon={CheckCircle2}
           color="green"
