@@ -342,7 +342,65 @@ export const Analytics = () => {
 
       {/* GPA & MIT Ranking Section */}
       <div className="grid gap-6 md:grid-cols-2 mt-6">
+        
         {/* GPA Trajectory Card */}
+        <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
+          <div className="flex items-center gap-2">
+            <GraduationCap className="h-5 w-5 text-emerald-400" />
+            <h3 className="text-xs font-black uppercase tracking-wider text-white">GPA Trajectory</h3>
+          </div>
+
+          {gpaData ? (
+            <div className="flex items-center gap-8">
+              {/* Circular Progress */}
+              <div className="relative flex h-36 w-36 shrink-0 items-center justify-center">
+                <svg className="h-full w-full -rotate-90" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
+                  <circle
+                    cx="60" cy="60" r="52" fill="none"
+                    stroke="url(#gpaGradient)" strokeWidth="8"
+                    strokeLinecap="round"
+                    strokeDasharray={`${((gpaData.semesterGpa || gpaData.predictedGpa || 0) / 4.0) * 326.73} 326.73`}
+                  />
+                  <defs>
+                    <linearGradient id="gpaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#10b981" />
+                      <stop offset="100%" stopColor="#06b6d4" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="absolute text-center">
+                  <p className="text-3xl font-black text-white">{(gpaData.semesterGpa || gpaData.predictedGpa || 0).toFixed(2)}</p>
+                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Semester</p>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="flex-1 space-y-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Cumulative GPA</p>
+                  <p className="text-2xl font-black text-amber-400">{(gpaData.cumulativeGpa || gpaData.cumGpa || 0).toFixed(2)}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Target</p>
+                  <p className="text-lg font-black text-emerald-400">4.00</p>
+                </div>
+                <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-amber-400 transition-all duration-700"
+                    style={{ width: `${((gpaData.cumulativeGpa || gpaData.cumGpa || 0) / 4.0) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex h-36 items-center justify-center text-xs text-slate-500 font-semibold">
+              Loading GPA data...
+            </div>
+          )}
+        </div>
+
+        {/* Daily GPA Gauge (By Study Hours) */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-accent-gold" />
@@ -413,6 +471,66 @@ export const Analytics = () => {
                   <span className="text-2xl text-accent-gold">#</span>{Math.max(1, 100 - (mitRanking.percentile || 0))}
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Out of 100 Students</p>
+              </div>
+
+              {/* Gradient Progress Bar */}
+              <div className="h-3 w-full rounded-full bg-white/5 overflow-hidden relative">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 to-amber-400 transition-all duration-700"
+                  style={{ width: `${mitRanking.percentile || 0}%` }}
+                />
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 h-5 w-1 bg-white rounded-full shadow-lg shadow-white/50 transition-all duration-700"
+                  style={{ left: `${mitRanking.percentile || 0}%` }}
+                />
+              </div>
+
+              {/* Scoring Vectors */}
+              <div className="space-y-3">
+                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Scoring Vectors</p>
+                {[
+                  { label: 'Study Hours', value: mitRanking.vectors?.hours || mitRanking.hours || 0, color: 'from-yellow-500 to-amber-400' },
+                  { label: 'Focus Score', value: mitRanking.vectors?.focus || mitRanking.focus || 0, color: 'from-purple-500 to-pink-400' },
+                  { label: 'Completion Rate', value: mitRanking.vectors?.completion || mitRanking.completion || 0, color: 'from-green-500 to-emerald-400' },
+                  { label: 'Productivity', value: mitRanking.vectors?.productivity || mitRanking.productivity || 0, color: 'from-orange-500 to-yellow-400' }
+                ].map((vector) => (
+                  <div key={vector.label} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{vector.label}</span>
+                      <span className="text-xs font-black text-white">{vector.value}%</span>
+                    </div>
+                    <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
+                      <div
+                        className={`h-full rounded-full bg-gradient-to-r ${vector.color} transition-all duration-500`}
+                        style={{ width: `${vector.value}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="flex h-36 items-center justify-center text-xs text-slate-500 font-semibold">
+              Loading ranking data...
+            </div>
+          )}
+        </div>
+
+        {/* MIT Global Ranking Card */}
+        <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
+          <div className="flex items-center gap-2">
+            <Globe className="h-5 w-5 text-accent-gold" />
+            <h3 className="text-xs font-black uppercase tracking-wider text-white">MIT Global Ranking</h3>
+          </div>
+
+          {mitRanking ? (
+            <div className="space-y-5">
+              {/* Percentile Display */}
+              <div className="text-center py-2">
+                <p className="text-5xl font-black text-white">
+                  {mitRanking.percentile || 0}<span className="text-2xl text-accent-gold">%</span>
+                </p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Global Percentile</p>
               </div>
 
               {/* Gradient Progress Bar */}
