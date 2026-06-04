@@ -42,6 +42,7 @@ const UserSchema = new mongoose.Schema({
   pastResults: [{
     year: Number,
     semester: Number,
+    type: { type: String, enum: ['semester', 'year'], default: 'semester' },
     mark: Number
   }],
   cumulativeMark: {

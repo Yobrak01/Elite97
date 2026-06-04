@@ -44,16 +44,26 @@ function calculateHonoursScore(pastResults, currentSemesterPredictedMark, curren
   const yearlyMarks = {};
   if (pastResults && pastResults.length > 0) {
     pastResults.forEach(r => {
-      if (!yearlyMarks[r.year]) yearlyMarks[r.year] = { sum: 0, count: 0 };
-      yearlyMarks[r.year].sum += r.mark || r.gpa || 0; // fallback for old data
-      yearlyMarks[r.year].count += 1;
+      if (!yearlyMarks[r.year]) yearlyMarks[r.year] = { sum: 0, count: 0, override: false };
+      
+      // If the user specifically logged an entire year mark, it overrides individual semesters
+      if (r.type === 'year') {
+        yearlyMarks[r.year].sum = r.mark || r.gpa || 0;
+        yearlyMarks[r.year].count = 1;
+        yearlyMarks[r.year].override = true;
+      } else if (!yearlyMarks[r.year].override) {
+        yearlyMarks[r.year].sum += r.mark || r.gpa || 0;
+        yearlyMarks[r.year].count += 1;
+      }
     });
   }
 
   if (currentSemesterYear) {
-    if (!yearlyMarks[currentSemesterYear]) yearlyMarks[currentSemesterYear] = { sum: 0, count: 0 };
-    yearlyMarks[currentSemesterYear].sum += currentSemesterPredictedMark;
-    yearlyMarks[currentSemesterYear].count += 1;
+    if (!yearlyMarks[currentSemesterYear]) yearlyMarks[currentSemesterYear] = { sum: 0, count: 0, override: false };
+    if (!yearlyMarks[currentSemesterYear].override) {
+      yearlyMarks[currentSemesterYear].sum += currentSemesterPredictedMark;
+      yearlyMarks[currentSemesterYear].count += 1;
+    }
   }
 
   Object.keys(yearlyMarks).forEach(year => {

@@ -179,15 +179,28 @@ exports.getGpaPrediction = async (req, res, next) => {
     const courseUnits = await CourseUnit.find({ user: req.user._id });
     const tasks = await Task.find({ user: req.user._id });
 
+    // Calculate cumulative Honours Score purely from past results if no current courses exist
     if (courseUnits.length === 0) {
+      const cumulativeMark = gpaPredictor.calculateHonoursScore(
+        req.user.pastResults,
+        0,
+        req.user.yearOfStudy || 1
+      );
+      
+      const classification = gpaPredictor.getClassification(cumulativeMark);
+
+      // Persist to user model
+      req.user.cumulativeMark = cumulativeMark;
+      await req.user.save();
+
       return res.status(200).json({
         success: true,
         data: {
           predictedSemesterMark: 0,
-          cumulativeMark: req.user.cumulativeMark || 0,
-          classification: 'N/A',
+          cumulativeMark: cumulativeMark,
+          classification: classification,
           courseBreakdown: [],
-          message: 'No course units found. Add courses to get Honours predictions.'
+          message: 'No active course units. Honours predictions generated from Past Results only.'
         }
       });
     }

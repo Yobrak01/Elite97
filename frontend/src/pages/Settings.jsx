@@ -23,12 +23,17 @@ export const Settings = () => {
   const [newTimetableRow, setNewTimetableRow] = useState({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '' });
 
   const [pastResults, setPastResults] = useState(user?.pastResults || []);
-  const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', mark: '' });
+  const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', type: 'semester', mark: '' });
 
   const handleAddResultRow = () => {
-    if (newResultRow.year && newResultRow.semester && newResultRow.mark) {
-      setPastResults([...pastResults, { year: Number(newResultRow.year), semester: Number(newResultRow.semester), mark: Number(newResultRow.mark) }]);
-      setNewResultRow({ year: '', semester: '', mark: '' });
+    if (newResultRow.year && newResultRow.mark) {
+      setPastResults([...pastResults, { 
+        year: Number(newResultRow.year), 
+        semester: newResultRow.type === 'semester' ? Number(newResultRow.semester) : undefined, 
+        type: newResultRow.type,
+        mark: Number(newResultRow.mark) 
+      }]);
+      setNewResultRow({ year: '', semester: '', type: 'semester', mark: '' });
     }
   };
 
@@ -372,27 +377,36 @@ export const Settings = () => {
             </div>
 
             <div className="space-y-4">
-              <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-col sm:flex-row gap-3">
+                <select 
+                  value={newResultRow.type}
+                  onChange={(e) => setNewResultRow({...newResultRow, type: e.target.value})}
+                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                >
+                  <option value="semester">Single Semester</option>
+                  <option value="year">Entire Year</option>
+                </select>
                 <input
                   type="number"
                   placeholder="Year (e.g. 1)"
                   value={newResultRow.year}
                   onChange={(e) => setNewResultRow({...newResultRow, year: e.target.value})}
-                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                  className="flex-1 rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                 />
-                <input
-                  type="number"
-                  placeholder="Sem (e.g. 1)"
-                  value={newResultRow.semester}
-                  onChange={(e) => setNewResultRow({...newResultRow, semester: e.target.value})}
-                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
-                />
+                {newResultRow.type === 'semester' && (
+                  <input
+                    type="number"
+                    placeholder="Sem (1 or 2)"
+                    value={newResultRow.semester}
+                    onChange={(e) => setNewResultRow({...newResultRow, semester: e.target.value})}
+                    className="flex-1 rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                  />
+                )}
                 <input
                   type="number"
                   step="0.01"
                   placeholder="Mark (e.g. 75)"
                   value={newResultRow.mark}
-                  onChange={(e) => setNewResultRow({...newResultRow, mark: e.target.value})}
                   className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                 />
               </div>
@@ -412,7 +426,9 @@ export const Settings = () => {
                     <div key={idx} className="flex items-center justify-between bg-navy-900/50 border border-white/5 rounded-lg p-2.5">
                       <div className="flex items-center gap-4">
                         <span className="text-[10px] font-black uppercase text-emerald-400 w-16">Year {row.year}</span>
-                        <span className="text-xs text-slate-300">Sem {row.semester}</span>
+                        <span className="text-xs text-slate-300 w-16">
+                          {row.type === 'year' ? 'All Sems' : `Sem ${row.semester}`}
+                        </span>
                         <span className="text-xs font-bold text-white">Mark: {row.mark?.toFixed(2)}</span>
                       </div>
                       <button onClick={() => handleRemoveResultRow(idx)} className="text-red-400/50 hover:text-red-400 transition-colors">
