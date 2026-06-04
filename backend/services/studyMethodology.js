@@ -77,8 +77,30 @@ function predictCourseDifficulty(unitName) {
   return 3;
 }
 
+/**
+ * Automatically predict course credits out of 4 based on keyword analysis of the unit name.
+ */
+function predictCourseCredits(unitName) {
+  if (!unitName) return 3;
+  const name = unitName.toLowerCase();
+  
+  // 1-2 Credits: Labs, Workshops, Practicals, Seminar, Basic Soft Skills
+  if (name.match(/(lab|laboratory|workshop|practical|seminar|attachment|project|ethics|communication skills|hiv|development studies)/)) {
+    return 2;
+  }
+  
+  // 4 Credits: Heavy Math / Core Engineering / Abstract Sciences
+  if (name.match(/(calculus|thermodynamics|mechanics|fluid|electromagnetics|quantum|structures|engineering mathematics|machine learning|artificial intelligence)/)) {
+    return 4;
+  }
+  
+  // 3 Credits: Default / Standard / Applied
+  return 3;
+}
+
 module.exports = {
   STUDY_METHODS,
   suggestStudyMethod,
-  predictCourseDifficulty
+  predictCourseDifficulty,
+  predictCourseCredits
 };

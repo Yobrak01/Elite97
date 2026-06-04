@@ -1,5 +1,5 @@
 const CourseUnit = require('../models/CourseUnit');
-const { predictCourseDifficulty } = require('../services/studyMethodology');
+const { predictCourseDifficulty, predictCourseCredits } = require('../services/studyMethodology');
 
 // Suggest AI Tier based on difficulty and credits
 const suggestCourseTier = (difficulty, credits) => {
@@ -29,6 +29,11 @@ exports.createCourse = async (req, res, next) => {
       req.body.difficulty = predictCourseDifficulty(req.body.unitName);
     }
     
+    // Auto-assign credits if AI option is selected (credits = 0)
+    if (Number(req.body.credits) === 0) {
+      req.body.credits = predictCourseCredits(req.body.unitName);
+    }
+    
     // Auto-compute AI tier based on difficulty and credits
     req.body.aiSuggestedTier = suggestCourseTier(req.body.difficulty, req.body.credits);
 
@@ -50,6 +55,11 @@ exports.updateCourse = async (req, res, next) => {
     // Auto-rate difficulty if AI option is selected
     if (Number(req.body.difficulty) === 0) {
       req.body.difficulty = predictCourseDifficulty(req.body.unitName || course.unitName);
+    }
+    
+    // Auto-assign credits if AI option is selected
+    if (Number(req.body.credits) === 0) {
+      req.body.credits = predictCourseCredits(req.body.unitName || course.unitName);
     }
 
     const updatedData = { ...course.toObject(), ...req.body };

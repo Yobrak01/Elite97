@@ -180,7 +180,13 @@ export const Courses = () => {
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Credits</label>
-                  <input type="number" min="1" required value={credits} onChange={e => setCredits(e.target.value)} className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none" />
+                  <select value={credits} onChange={e => setCredits(e.target.value)} className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none">
+                    <option value="0">✨ AI Auto-Assign</option>
+                    <option value="4">4 Credits (Heavy)</option>
+                    <option value="3">3 Credits (Standard)</option>
+                    <option value="2">2 Credits (Moderate)</option>
+                    <option value="1">1 Credit (Light)</option>
+                  </select>
                 </div>
               </div>
 
