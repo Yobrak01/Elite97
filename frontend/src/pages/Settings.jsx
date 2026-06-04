@@ -407,6 +407,7 @@ export const Settings = () => {
                   step="0.01"
                   placeholder="Mark (e.g. 75)"
                   value={newResultRow.mark}
+                  onChange={(e) => setNewResultRow({...newResultRow, mark: e.target.value})}
                   className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                 />
               </div>
