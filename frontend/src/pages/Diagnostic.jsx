@@ -93,9 +93,9 @@ export const Diagnostic = () => {
     <div className="min-h-screen bg-[#030712] text-slate-200 flex flex-col items-center justify-center p-6">
       <div className="max-w-2xl w-full bg-[#0f172a] rounded-2xl p-8 border border-slate-800 shadow-2xl relative overflow-hidden">
         {/* Glow effect */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-cyan-500/10 blur-[100px] pointer-events-none"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-amber-500/10 blur-[100px] pointer-events-none"></div>
 
-        <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 mb-2 text-center">
+        <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500 mb-2 text-center">
           Diagnostic Assessment
         </h1>
         <p className="text-slate-400 text-center mb-8">
@@ -105,8 +105,8 @@ export const Diagnostic = () => {
         {/* Progress Bar */}
         <div className="w-full bg-slate-800 rounded-full h-2 mb-8 overflow-hidden">
           <div 
-            className="bg-cyan-500 h-2 rounded-full transition-all duration-500" 
-            style={{ width: \`\${progress}%\` }}
+            className="bg-amber-500 h-2 rounded-full transition-all duration-500" 
+            style={{ width: `${progress}%` }}
           ></div>
         </div>
 
@@ -123,11 +123,11 @@ export const Diagnostic = () => {
             <button
               key={opt.label}
               onClick={() => handleSelect(opt.value)}
-              className={\`w-full p-4 rounded-xl border text-left text-lg font-medium transition-all duration-200 \${
+              className={`w-full p-4 rounded-xl border text-left text-lg font-medium transition-all duration-200 ${
                 answers[currentQuestion] === opt.value
-                  ? 'bg-cyan-500/20 border-cyan-500 text-cyan-300'
+                  ? 'bg-amber-500/20 border-amber-500 text-cyan-300'
                   : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-500'
-              }\`}
+              }`}
             >
               {opt.label}
             </button>
@@ -148,7 +148,7 @@ export const Diagnostic = () => {
             <button
               onClick={handleSubmit}
               disabled={isSubmitting}
-              className="px-8 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-xl font-bold shadow-lg shadow-cyan-500/25 transition-all disabled:opacity-75"
+              className="px-8 py-3 bg-gradient-to-r from-amber-500 to-blue-600 hover:from-amber-400 hover:to-yellow-500 text-white rounded-xl font-bold shadow-lg shadow-amber-500/25 transition-all disabled:opacity-75"
             >
               {isSubmitting ? 'Analyzing...' : 'Submit & Analyze'}
             </button>

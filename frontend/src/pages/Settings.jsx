@@ -73,8 +73,6 @@ export const Settings = () => {
         </p>
       </div>
 
-      </div>
-
       {message && (
         <div className={`rounded-xl p-4 text-xs font-bold ${
           message.includes('compiled') ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'
@@ -214,7 +212,7 @@ export const Settings = () => {
           {/* Academic Profile */}
           <div className="glass-panel rounded-3xl p-6 border border-white/5 space-y-6">
             <div className="flex items-center gap-2 border-b border-white/5 pb-4">
-              <BookOpen className="h-5 w-5 text-cyan-400" />
+              <BookOpen className="h-5 w-5 text-amber-400" />
               <h3 className="text-sm font-black uppercase tracking-wider text-white">Academic Profile</h3>
             </div>
             
@@ -226,7 +224,7 @@ export const Settings = () => {
                   value={course}
                   onChange={(e) => setCourse(e.target.value)}
                   placeholder="e.g. BSc Computer Science"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-amber-500/50"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -237,7 +235,7 @@ export const Settings = () => {
                     value={yearOfStudy}
                     onChange={(e) => setYearOfStudy(e.target.value)}
                     placeholder="e.g. Year 2"
-                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-amber-500/50"
                   />
                 </div>
                 <div>
@@ -247,7 +245,7 @@ export const Settings = () => {
                     value={semester}
                     onChange={(e) => setSemester(e.target.value)}
                     placeholder="e.g. Semester 1"
-                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-amber-500/50"
                   />
                 </div>
               </div>
@@ -255,7 +253,7 @@ export const Settings = () => {
                 type="button"
                 onClick={handleSave}
                 disabled={submitting}
-                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50 mt-2"
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50 mt-2"
               >
                 Save Profile
               </button>

@@ -253,7 +253,7 @@ export const Analytics = () => {
             {/* System Profile Radar */}
             <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
               <div className="flex items-center gap-2">
-                <Compass className="h-5 w-5 text-cyan-400" />
+                <Compass className="h-5 w-5 text-amber-400" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">System Profile</h3>
               </div>
               <div className="h-48 w-full">
@@ -328,12 +328,12 @@ export const Analytics = () => {
           </div>
         ) : (
           <div className="glass-panel rounded-2xl p-8 border border-white/5 text-center space-y-4">
-            <Target className="h-10 w-10 text-cyan-500 mx-auto opacity-50" />
+            <Target className="h-10 w-10 text-amber-500 mx-auto opacity-50" />
             <h3 className="text-lg font-bold text-white">Gauge Uncalibrated</h3>
             <p className="text-sm text-slate-400 max-w-md mx-auto">
               Take the Study Diagnostic to calibrate your learning system and unlock personalized cognitive metrics.
             </p>
-            <button onClick={() => window.location.href = '/diagnostic'} className="mt-4 px-6 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm font-bold hover:bg-cyan-500/30 transition-colors">
+            <button onClick={() => window.location.href = '/diagnostic'} className="mt-4 px-6 py-2 bg-amber-500/20 text-amber-400 rounded-lg text-sm font-bold hover:bg-amber-500/30 transition-colors">
               Start Diagnostic
             </button>
           </div>
