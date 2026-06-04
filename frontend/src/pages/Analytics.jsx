@@ -438,7 +438,7 @@ export const Analytics = () => {
                     cx="60" cy="60" r="52" fill="none"
                     stroke="url(#gpaGradient)" strokeWidth="8"
                     strokeLinecap="round"
-                    strokeDasharray={`${((mitRanking?.vectors?.hours || 0) / 100) * 326.73} 326.73`}
+                    strokeDasharray={`${(mitRanking?.breakdown ? Math.min(100, (mitRanking.breakdown.weeklyStudyHours / mitRanking.breakdown.baseline.maxStudyHours) * 100) : 0) / 100 * 326.73} 326.73`}
                   />
                   <defs>
                     <linearGradient id="gpaGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -448,7 +448,7 @@ export const Analytics = () => {
                   </defs>
                 </svg>
                 <div className="absolute text-center">
-                  <p className="text-3xl font-black text-white">{(mitRanking?.vectors?.hours || 0).toFixed(2)}</p>
+                  <p className="text-3xl font-black text-white">{mitRanking?.breakdown ? Math.min(100, (mitRanking.breakdown.weeklyStudyHours / mitRanking.breakdown.baseline.maxStudyHours) * 100).toFixed(2) : '0.00'}</p>
                   <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Daily Mark</p>
                 </div>
               </div>
