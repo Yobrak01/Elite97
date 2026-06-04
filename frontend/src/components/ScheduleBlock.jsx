@@ -1,7 +1,7 @@
 import React from 'react';
-import { BookOpen, Coffee, Dumbbell, Award, Landmark, User } from 'lucide-react';
+import { BookOpen, Coffee, Dumbbell, Award, Landmark, User, CheckSquare } from 'lucide-react';
 
-export const ScheduleBlock = ({ block }) => {
+export const ScheduleBlock = ({ block, onComplete }) => {
   const getCategoryTheme = (cat) => {
     switch (cat) {
       case 'study':
@@ -42,8 +42,18 @@ export const ScheduleBlock = ({ block }) => {
           </p>
         </div>
 
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-navy-900 border border-white/5">
-          <Icon className="h-5 w-5" />
+        <div className="flex items-center gap-3">
+          {block.taskId && onComplete && (
+            <button
+              onClick={() => onComplete(block.taskId)}
+              className="flex items-center gap-1 rounded-lg bg-accent-gold/10 border border-accent-gold/20 text-accent-gold hover:bg-accent-gold hover:text-white px-2 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              <CheckSquare className="h-3.5 w-3.5" />
+            </button>
+          )}
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-navy-900 border border-white/5">
+            <Icon className="h-5 w-5" />
+          </div>
         </div>
       </div>
     </div>

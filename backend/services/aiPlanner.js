@@ -68,9 +68,11 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     currentTime.setMinutes(currentTime.getMinutes() + currentInterval);
 
     let currentActivity = 'Deep Work Revision';
+    let currentTaskId = null;
     if (activeTasks[taskIndex]) {
       const activeTask = activeTasks[taskIndex];
       currentActivity = `Work on: ${activeTask.title} (${activeTask.type})`;
+      currentTaskId = activeTask._id;
       
       // Reduce task estimation or cycle tasks
       activeTask.estimatedHours -= (currentInterval / 60);
@@ -86,7 +88,8 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
       endTime: formatTime(currentTime),
       activity: currentActivity,
       category: 'study',
-      duration: currentInterval
+      duration: currentInterval,
+      taskId: currentTaskId
     });
 
     remainingMinutes -= currentInterval;

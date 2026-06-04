@@ -15,9 +15,9 @@ export const Settings = () => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
 
-  const [yearOfStudy, setYearOfStudy] = useState(user?.academicProfile?.yearOfStudy || '');
-  const [course, setCourse] = useState(user?.academicProfile?.course || '');
-  const [semester, setSemester] = useState(user?.academicProfile?.semester || '');
+  const [yearOfStudy, setYearOfStudy] = useState(user?.yearOfStudy || '');
+  const [course, setCourse] = useState(user?.course || '');
+  const [semester, setSemester] = useState(user?.currentSemester || '');
 
   const [timetable, setTimetable] = useState(user?.timetable || []);
   const [newTimetableRow, setNewTimetableRow] = useState({ day: 'Monday', startTime: '', endTime: '', unitName: '' });
@@ -46,11 +46,9 @@ export const Settings = () => {
     try {
       const res = await api.auth.updateSettings({
         studyMode,
-        academicProfile: {
-          yearOfStudy,
-          course,
-          semester
-        },
+        yearOfStudy: Number(yearOfStudy) || undefined,
+        course,
+        currentSemester: Number(semester) || undefined,
         timetable,
         settings: {
           dailyGoalHours: Number(dailyGoalHours),
