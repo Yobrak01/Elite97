@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { Calendar, BarChart3, TrendingUp, Cpu, Target, Award, GraduationCap, Globe } from 'lucide-react';
+import { Calendar, BarChart3, TrendingUp, Cpu, Target, Award, GraduationCap, Globe, Compass, Zap, Activity } from 'lucide-react';
 import api from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 export const Analytics = () => {
   const [trends, setTrends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [gpaData, setGpaData] = useState(null);
   const [mitRanking, setMitRanking] = useState(null);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchTrends = async () => {
@@ -60,6 +62,39 @@ export const Analytics = () => {
     { subject: 'Resilience', A: Math.round(100 - (formattedData.reduce((acc, val) => acc + val.burnoutRisk, 0) / formattedData.length)), fullMark: 100 },
   ] : [];
 
+  const studyGauge = user?.studyGauge;
+  let lowestPillar = null;
+  let lowestScore = 101;
+  if (studyGauge?.scores) {
+    Object.entries(studyGauge.scores).forEach(([pillar, score]) => {
+      if (score < lowestScore) {
+        lowestScore = score;
+        lowestPillar = pillar;
+      }
+    });
+  }
+
+  const getImprovementTips = (pillar) => {
+    switch(pillar) {
+      case 'Priming': return ['Scan headers and summaries before class.', 'Write 3 questions you expect to be answered.', 'Review previous notes for context.'];
+      case 'Encoding': return ['Use the Feynman technique to explain concepts.', 'Create analogies for complex topics.', 'Focus on "why" rather than "what".'];
+      case 'Reference': return ['Centralize your notes in one app/folder.', 'Use tags and folders consistently.', 'Create a master index for each subject.'];
+      case 'Retrieval': return ['Use active recall without looking at notes.', 'Create flashcards (Anki/Quizlet).', 'Do practice tests under timed conditions.'];
+      case 'Interleaving': return ['Mix different subjects in one session.', 'Switch topics every 30-45 minutes.', 'Avoid studying one concept for hours.'];
+      case 'Overlearning': return ['Review older material spaced out over time.', 'Practice beyond initial mastery.', 'Teach the material to a peer.'];
+      default: return ['Complete your diagnostic to get personalized tips!'];
+    }
+  };
+
+  const gaugeRadarData = studyGauge ? [
+    { subject: 'Priming', A: studyGauge.scores.Priming, fullMark: 100 },
+    { subject: 'Encoding', A: studyGauge.scores.Encoding, fullMark: 100 },
+    { subject: 'Reference', A: studyGauge.scores.Reference, fullMark: 100 },
+    { subject: 'Retrieval', A: studyGauge.scores.Retrieval, fullMark: 100 },
+    { subject: 'Interleaving', A: studyGauge.scores.Interleaving, fullMark: 100 },
+    { subject: 'Overlearning', A: studyGauge.scores.Overlearning, fullMark: 100 }
+  ] : [];
+
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -83,7 +118,7 @@ export const Analytics = () => {
       <div className="flex h-96 items-center justify-center">
         <div className="relative h-10 w-10">
           <div className="absolute h-full w-full rounded-full border-4 border-navy-800"></div>
-          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-blue border-r-transparent border-b-transparent border-l-transparent"></div>
+          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-gold border-r-transparent border-b-transparent border-l-transparent"></div>
         </div>
       </div>
     );
@@ -104,7 +139,7 @@ export const Analytics = () => {
         {/* Productivity score trend */}
         <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4 lg:col-span-2">
           <div className="flex items-center gap-2">
-            <Cpu className="h-5 w-5 text-accent-blue" />
+            <Cpu className="h-5 w-5 text-accent-gold" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Productivity Vector (30 Days)</h3>
           </div>
           <div className="h-64 w-full">
@@ -187,7 +222,7 @@ export const Analytics = () => {
         {/* Study Hours Trend */}
         <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-cyan-400" />
+            <TrendingUp className="h-5 w-5 text-amber-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Study Duration</h3>
           </div>
           <div className="h-72 w-full">
@@ -210,8 +245,103 @@ export const Analytics = () => {
         </div>
       </div>
 
+      {/* Study Gauge Section */}
+      <div className="border-t border-white/5 pt-6 mt-6">
+        <h2 className="text-xl font-black tracking-wider text-white mb-6">STUDY GAUGE CALIBRATION</h2>
+        {studyGauge ? (
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* System Profile Radar */}
+            <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+              <div className="flex items-center gap-2">
+                <Compass className="h-5 w-5 text-cyan-400" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-white">System Profile</h3>
+              </div>
+              <div className="h-48 w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadarChart cx="50%" cy="50%" outerRadius="70%" data={gaugeRadarData}>
+                    <PolarGrid stroke="rgba(255,255,255,0.1)" />
+                    <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                    <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                    <Radar name="Score" dataKey="A" stroke="#06b6d4" fill="#06b6d4" fillOpacity={0.4} />
+                    <Tooltip content={<CustomTooltip />} />
+                  </RadarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Performance Tier Speedometer */}
+            <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4 flex flex-col items-center justify-center">
+              <div className="flex items-center gap-2 w-full justify-start">
+                <Activity className="h-5 w-5 text-amber-400" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-white">Performance Tier</h3>
+              </div>
+              <div className="relative flex flex-col items-center justify-center h-40 w-full">
+                <svg viewBox="0 0 100 50" className="w-full h-full max-w-[200px] overflow-visible">
+                  <path d="M 10 50 A 40 40 0 0 1 90 50" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="10" strokeLinecap="round" />
+                  <path 
+                    d="M 10 50 A 40 40 0 0 1 90 50" 
+                    fill="none" 
+                    stroke="url(#tierGrad)" 
+                    strokeWidth="10" 
+                    strokeLinecap="round" 
+                    strokeDasharray="125.6" 
+                    strokeDashoffset={125.6 - ((studyGauge.average / 100) * 125.6)} 
+                  />
+                  <defs>
+                    <linearGradient id="tierGrad" x1="0" y1="0" x2="1" y2="0">
+                      <stop offset="0%" stopColor="#ef4444" />
+                      <stop offset="50%" stopColor="#eab308" />
+                      <stop offset="100%" stopColor="#22c55e" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div className="absolute bottom-[-10px] flex flex-col items-center">
+                  <span className="text-4xl font-black text-white">{Math.round(studyGauge.average)}</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{studyGauge.tier}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Improvement Plan */}
+            <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-emerald-400" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-white">Improvement Plan</h3>
+              </div>
+              <div className="space-y-4 pt-2">
+                <p className="text-xs text-slate-300">
+                  Focus area: <span className="text-emerald-400 font-bold">{lowestPillar}</span> ({lowestScore}/100)
+                </p>
+                <ul className="space-y-3">
+                  {getImprovementTips(lowestPillar).map((tip, idx) => (
+                    <li key={idx} className="flex gap-3 text-xs text-slate-400">
+                      <span className="text-emerald-400 mt-0.5">•</span>
+                      <span>{tip}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button onClick={() => window.location.href = '/diagnostic'} className="w-full mt-4 py-2 bg-white/5 hover:bg-white/10 rounded-lg text-xs font-bold text-white transition-colors">
+                  Retake Diagnostic
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="glass-panel rounded-2xl p-8 border border-white/5 text-center space-y-4">
+            <Target className="h-10 w-10 text-cyan-500 mx-auto opacity-50" />
+            <h3 className="text-lg font-bold text-white">Gauge Uncalibrated</h3>
+            <p className="text-sm text-slate-400 max-w-md mx-auto">
+              Take the Study Diagnostic to calibrate your learning system and unlock personalized cognitive metrics.
+            </p>
+            <button onClick={() => window.location.href = '/diagnostic'} className="mt-4 px-6 py-2 bg-cyan-500/20 text-cyan-400 rounded-lg text-sm font-bold hover:bg-cyan-500/30 transition-colors">
+              Start Diagnostic
+            </button>
+          </div>
+        )}
+      </div>
+
       {/* GPA & MIT Ranking Section */}
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-2 mt-6">
         {/* GPA Trajectory Card */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
           <div className="flex items-center gap-2">
@@ -248,7 +378,7 @@ export const Analytics = () => {
               <div className="flex-1 space-y-4">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Cumulative GPA</p>
-                  <p className="text-2xl font-black text-cyan-400">{(gpaData.cumulativeGpa || gpaData.cumGpa || 0).toFixed(2)}</p>
+                  <p className="text-2xl font-black text-amber-400">{(gpaData.cumulativeGpa || gpaData.cumGpa || 0).toFixed(2)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Target</p>
@@ -256,7 +386,7 @@ export const Analytics = () => {
                 </div>
                 <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-all duration-700"
+                    className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-amber-400 transition-all duration-700"
                     style={{ width: `${((gpaData.cumulativeGpa || gpaData.cumGpa || 0) / 4.0) * 100}%` }}
                   />
                 </div>
@@ -272,7 +402,7 @@ export const Analytics = () => {
         {/* MIT Global Ranking Card */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
           <div className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-accent-blue" />
+            <Globe className="h-5 w-5 text-accent-gold" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">MIT Global Ranking</h3>
           </div>
 
@@ -281,7 +411,7 @@ export const Analytics = () => {
               {/* Percentile Display */}
               <div className="text-center py-2">
                 <p className="text-5xl font-black text-white">
-                  {mitRanking.percentile || 0}<span className="text-2xl text-accent-blue">%</span>
+                  {mitRanking.percentile || 0}<span className="text-2xl text-accent-gold">%</span>
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Global Percentile</p>
               </div>
@@ -289,7 +419,7 @@ export const Analytics = () => {
               {/* Gradient Progress Bar */}
               <div className="h-3 w-full rounded-full bg-white/5 overflow-hidden relative">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 to-cyan-400 transition-all duration-700"
+                  className="h-full rounded-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 to-amber-400 transition-all duration-700"
                   style={{ width: `${mitRanking.percentile || 0}%` }}
                 />
                 <div
@@ -302,7 +432,7 @@ export const Analytics = () => {
               <div className="space-y-3">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Scoring Vectors</p>
                 {[
-                  { label: 'Study Hours', value: mitRanking.vectors?.hours || mitRanking.hours || 0, color: 'from-blue-500 to-cyan-400' },
+                  { label: 'Study Hours', value: mitRanking.vectors?.hours || mitRanking.hours || 0, color: 'from-yellow-500 to-amber-400' },
                   { label: 'Focus Score', value: mitRanking.vectors?.focus || mitRanking.focus || 0, color: 'from-purple-500 to-pink-400' },
                   { label: 'Completion Rate', value: mitRanking.vectors?.completion || mitRanking.completion || 0, color: 'from-green-500 to-emerald-400' },
                   { label: 'Productivity', value: mitRanking.vectors?.productivity || mitRanking.productivity || 0, color: 'from-orange-500 to-yellow-400' }

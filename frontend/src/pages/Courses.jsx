@@ -107,7 +107,7 @@ export const Courses = () => {
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-accent-blue" />
+        <Loader2 className="h-10 w-10 animate-spin text-accent-gold" />
       </div>
     );
   }
@@ -123,7 +123,7 @@ export const Courses = () => {
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 border border-accent-blue/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-blue transition-all"
+          className="flex items-center gap-1.5 rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all"
         >
           <Plus className="h-4 w-4" />
           Add Course Unit
@@ -213,7 +213,7 @@ export const Courses = () => {
 
               <div className="flex justify-end gap-2 pt-2">
                 <button type="button" onClick={() => setModalOpen(false)} className="rounded-xl px-4 py-2 text-xs font-bold text-slate-400 hover:text-white">Cancel</button>
-                <button type="submit" disabled={submitting} className="rounded-xl bg-accent-blue text-white px-4 py-2 text-xs font-black uppercase disabled:opacity-50 tracking-widest">{editingId ? 'Update' : 'Confirm'}</button>
+                <button type="submit" disabled={submitting} className="rounded-xl bg-accent-gold text-white px-4 py-2 text-xs font-black uppercase disabled:opacity-50 tracking-widest">{editingId ? 'Update' : 'Confirm'}</button>
               </div>
             </form>
           </div>

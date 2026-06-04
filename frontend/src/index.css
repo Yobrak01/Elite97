@@ -25,7 +25,7 @@
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: #D4AF37;
 }
 
 /* Premium glassmorphic cards utility */
@@ -37,17 +37,17 @@
 }
 
 .glass-panel-hover:hover {
-  border-color: rgba(59, 130, 246, 0.4);
-  box-shadow: 0 0 25px rgba(59, 130, 246, 0.15);
+  border-color: rgba(212,175,55, 0.4);
+  box-shadow: 0 0 25px rgba(212,175,55, 0.15);
   transform: translateY(-2px);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Custom text glow utility */
-.text-glow-blue {
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.6);
+.text-glow-gold {
+  text-shadow: 0 0 10px rgba(212,175,55, 0.6);
 }
 
-.text-glow-cyan {
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
+.text-glow-amber {
+  text-shadow: 0 0 10px rgba(245,158,11, 0.6);
 }

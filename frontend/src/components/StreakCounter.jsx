@@ -9,7 +9,7 @@ export const StreakCounter = ({ streak = 0 }) => {
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-5 border border-white/5 flex items-center justify-between text-glow-blue bg-gradient-to-r from-accent-blue/5 to-transparent">
+    <div className="glass-panel rounded-2xl p-5 border border-white/5 flex items-center justify-between text-glow-gold bg-gradient-to-r from-accent-gold/5 to-transparent">
       <div className="space-y-1">
         <span className="text-xs font-black uppercase tracking-wider text-slate-400">Consistency Lock-In</span>
         <h4 className="text-3xl font-extrabold tracking-tight text-white">{streak} Days</h4>

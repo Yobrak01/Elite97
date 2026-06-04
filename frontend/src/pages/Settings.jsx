@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Sliders, Save, Award, Key, User, Bell } from 'lucide-react';
+import { Sliders, Save, Award, Key, User, Bell, BookOpen, Calendar, Plus, Trash2 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import api from '../services/api';
 
@@ -15,6 +15,24 @@ export const Settings = () => {
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
 
+  const [yearOfStudy, setYearOfStudy] = useState(user?.academicProfile?.yearOfStudy || '');
+  const [course, setCourse] = useState(user?.academicProfile?.course || '');
+  const [semester, setSemester] = useState(user?.academicProfile?.semester || '');
+
+  const [timetable, setTimetable] = useState(user?.timetable || []);
+  const [newTimetableRow, setNewTimetableRow] = useState({ day: 'Monday', startTime: '', endTime: '', unitName: '' });
+
+  const handleAddTimetableRow = () => {
+    if (newTimetableRow.startTime && newTimetableRow.endTime && newTimetableRow.unitName) {
+      setTimetable([...timetable, newTimetableRow]);
+      setNewTimetableRow({ ...newTimetableRow, startTime: '', endTime: '', unitName: '' });
+    }
+  };
+
+  const handleRemoveTimetableRow = (index) => {
+    setTimetable(timetable.filter((_, i) => i !== index));
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -22,6 +40,12 @@ export const Settings = () => {
     try {
       const res = await api.auth.updateSettings({
         studyMode,
+        academicProfile: {
+          yearOfStudy,
+          course,
+          semester
+        },
+        timetable,
         settings: {
           dailyGoalHours: Number(dailyGoalHours),
           breakInterval: Number(breakInterval),
@@ -49,20 +73,22 @@ export const Settings = () => {
         </p>
       </div>
 
-      <div className="max-w-2xl">
+      </div>
+
+      {message && (
+        <div className={`rounded-xl p-4 text-xs font-bold ${
+          message.includes('compiled') ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'
+        }`}>
+          {message}
+        </div>
+      )}
+
+      <div className="grid lg:grid-cols-2 gap-6">
         <form onSubmit={handleSave} className="glass-panel rounded-3xl p-6 border border-white/5 space-y-6">
           <div className="flex items-center gap-2 border-b border-white/5 pb-4">
-            <Sliders className="h-5 w-5 text-accent-blue" />
+            <Sliders className="h-5 w-5 text-accent-gold" />
             <h3 className="text-sm font-black uppercase tracking-wider text-white">Interval Configurations</h3>
           </div>
-
-          {message && (
-            <div className={`rounded-xl p-4 text-xs font-bold ${
-              message.includes('compiled') ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'
-            }`}>
-              {message}
-            </div>
-          )}
 
           {/* Daily study hours slider */}
           <div className="space-y-2">
@@ -77,7 +103,7 @@ export const Settings = () => {
               step="1"
               value={dailyGoalHours}
               onChange={(e) => setDailyGoalHours(e.target.value)}
-              className="w-full h-1.5 bg-navy-900 rounded-lg border border-white/5 appearance-none cursor-pointer accent-accent-blue"
+              className="w-full h-1.5 bg-navy-900 rounded-lg border border-white/5 appearance-none cursor-pointer accent-accent-gold"
             />
           </div>
 
@@ -94,7 +120,7 @@ export const Settings = () => {
               step="5"
               value={breakInterval}
               onChange={(e) => setBreakInterval(e.target.value)}
-              className="w-full h-1.5 bg-navy-900 rounded-lg border border-white/5 appearance-none cursor-pointer accent-accent-blue"
+              className="w-full h-1.5 bg-navy-900 rounded-lg border border-white/5 appearance-none cursor-pointer accent-accent-gold"
             />
           </div>
 
@@ -111,7 +137,7 @@ export const Settings = () => {
               step="5"
               value={breakDuration}
               onChange={(e) => setBreakDuration(e.target.value)}
-              className="w-full h-1.5 bg-navy-900 rounded-lg border border-white/5 appearance-none cursor-pointer accent-accent-blue"
+              className="w-full h-1.5 bg-navy-900 rounded-lg border border-white/5 appearance-none cursor-pointer accent-accent-gold"
             />
           </div>
 
@@ -162,7 +188,7 @@ export const Settings = () => {
               type="button"
               onClick={() => setNotifications(!notifications)}
               className={`relative h-6 w-11 shrink-0 rounded-full transition-all duration-200 border border-white/5 ${
-                notifications ? 'bg-accent-blue' : 'bg-navy-900'
+                notifications ? 'bg-accent-gold' : 'bg-navy-900'
               }`}
             >
               <span className={`absolute left-0.5 top-0.5 h-4.5 w-4.5 rounded-full bg-white transition-all ${
@@ -176,13 +202,146 @@ export const Settings = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 border border-accent-blue/20 text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest shadow-glow-blue transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               Compile settings
             </button>
           </div>
         </form>
+
+        <div className="space-y-6">
+          {/* Academic Profile */}
+          <div className="glass-panel rounded-3xl p-6 border border-white/5 space-y-6">
+            <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+              <BookOpen className="h-5 w-5 text-cyan-400" />
+              <h3 className="text-sm font-black uppercase tracking-wider text-white">Academic Profile</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Course</label>
+                <input
+                  type="text"
+                  value={course}
+                  onChange={(e) => setCourse(e.target.value)}
+                  placeholder="e.g. BSc Computer Science"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Year of Study</label>
+                  <input
+                    type="text"
+                    value={yearOfStudy}
+                    onChange={(e) => setYearOfStudy(e.target.value)}
+                    placeholder="e.g. Year 2"
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Semester</label>
+                  <input
+                    type="text"
+                    value={semester}
+                    onChange={(e) => setSemester(e.target.value)}
+                    placeholder="e.g. Semester 1"
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                  />
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={submitting}
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50 mt-2"
+              >
+                Save Profile
+              </button>
+            </div>
+          </div>
+
+          {/* Timetable Manager */}
+          <div className="glass-panel rounded-3xl p-6 border border-white/5 space-y-6">
+            <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+              <Calendar className="h-5 w-5 text-purple-400" />
+              <h3 className="text-sm font-black uppercase tracking-wider text-white">Timetable Manager</h3>
+            </div>
+
+            <div className="space-y-4">
+              {/* Add new row form */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <select
+                  value={newTimetableRow.day}
+                  onChange={(e) => setNewTimetableRow({...newTimetableRow, day: e.target.value})}
+                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                >
+                  {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+                <input
+                  type="time"
+                  value={newTimetableRow.startTime}
+                  onChange={(e) => setNewTimetableRow({...newTimetableRow, startTime: e.target.value})}
+                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                />
+                <input
+                  type="time"
+                  value={newTimetableRow.endTime}
+                  onChange={(e) => setNewTimetableRow({...newTimetableRow, endTime: e.target.value})}
+                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Unit"
+                  value={newTimetableRow.unitName}
+                  onChange={(e) => setNewTimetableRow({...newTimetableRow, unitName: e.target.value})}
+                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={handleAddTimetableRow}
+                className="w-full flex items-center justify-center gap-1.5 rounded-lg border border-purple-500/30 hover:bg-purple-500/10 text-purple-400 px-4 py-2 text-xs font-bold transition-colors"
+              >
+                <Plus className="h-4 w-4" /> Add Slot
+              </button>
+
+              {/* List of current rows */}
+              <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                {timetable.length === 0 ? (
+                  <div className="text-center text-xs text-slate-500 py-4">No slots configured.</div>
+                ) : (
+                  timetable.map((row, idx) => (
+                    <div key={idx} className="flex items-center justify-between bg-navy-900/50 border border-white/5 rounded-lg p-2.5">
+                      <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-black uppercase text-purple-400 w-16">{row.day.substring(0,3)}</span>
+                        <span className="text-xs text-slate-300">{row.startTime} - {row.endTime}</span>
+                        <span className="text-xs font-bold text-white truncate max-w-[100px]">{row.unitName}</span>
+                      </div>
+                      <button onClick={() => handleRemoveTimetableRow(idx)} className="text-red-400/50 hover:text-red-400 transition-colors">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+              
+              {timetable.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={submitting}
+                  className="w-full mt-2 flex items-center justify-center gap-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50"
+                >
+                  Save Timetable
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

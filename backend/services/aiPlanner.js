@@ -5,6 +5,16 @@ function determineMode(burnoutRisk, focusScore) {
 }
 
 function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal') {
+  if (mode === 'recovery') {
+    return [
+      { startTime: '08:00', endTime: '10:00', activity: 'Extended Sleep / Rest', category: 'recovery', duration: 120 },
+      { startTime: '10:00', endTime: '11:00', activity: 'Hydration & Light Walk', category: 'recovery', duration: 60 },
+      { startTime: '11:00', endTime: '13:00', activity: 'Hobby / Disconnect', category: 'recovery', duration: 120 },
+      { startTime: '13:00', endTime: '14:00', activity: 'Nutritious Meal', category: 'recovery', duration: 60 },
+      { startTime: '14:00', endTime: '16:00', activity: 'Zero-Screen Rest', category: 'recovery', duration: 120 }
+    ];
+  }
+
   // Sort tasks: completed filters out, then priority (highest first), then deadlines (earliest first)
   const activeTasks = tasks.filter(t => t.status !== 'completed')
     .sort((a, b) => (b.priority - a.priority) || (new Date(a.deadline) - new Date(b.deadline)));
@@ -13,11 +23,7 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
   let interval = settings.breakInterval || 25;
   let breakDuration = 5;
 
-  if (mode === 'recovery') {
-    availableHours = Math.min(availableHours, 4);
-    interval = 20;
-    breakDuration = 10;
-  } else if (mode === 'peak_performance') {
+  if (mode === 'peak_performance') {
     availableHours = Math.max(availableHours, 8);
     interval = 50;
     breakDuration = 10;

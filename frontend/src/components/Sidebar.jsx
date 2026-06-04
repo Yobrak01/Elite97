@@ -36,7 +36,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
         <div className="flex h-16 items-center justify-between px-6 border-b border-white/5">
           <div className="flex items-center gap-2">
             <span className="text-xl font-black tracking-widest text-white">
-              ELITE<span className="text-accent-blue">97</span>
+              ELITE<span className="text-accent-gold">97</span>
             </span>
           </div>
           <button
@@ -59,7 +59,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold tracking-wide transition-all ${
                     isActive
-                      ? 'bg-accent-blue/15 text-accent-blue border border-accent-blue/20 shadow-glow-blue'
+                      ? 'bg-accent-gold/15 text-accent-gold border border-accent-gold/20 shadow-glow-gold'
                       : 'text-slate-400 hover:bg-white/5 hover:text-white'
                   }`
                 }

@@ -58,7 +58,7 @@ export const Planner = () => {
       <div className="flex h-96 items-center justify-center">
         <div className="relative h-10 w-10">
           <div className="absolute h-full w-full rounded-full border-4 border-navy-800"></div>
-          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-blue border-r-transparent border-b-transparent border-l-transparent"></div>
+          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-gold border-r-transparent border-b-transparent border-l-transparent"></div>
         </div>
       </div>
     );
@@ -76,7 +76,7 @@ export const Planner = () => {
         <button
           onClick={handleGeneratePlan}
           disabled={actionLoading}
-          className="flex items-center gap-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-cyan transition-all cursor-pointer disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-500/90 border border-amber-500/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-amber transition-all cursor-pointer disabled:opacity-50"
         >
           <Sparkles className="h-4 w-4 animate-pulse" />
           Generate Daily Plan
@@ -93,7 +93,7 @@ export const Planner = () => {
           <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-accent-blue" />
+                <Calendar className="h-5 w-5 text-accent-gold" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">Target Core Timeline</h3>
               </div>
               <span className="text-[10px] font-black tracking-wider uppercase text-slate-400">
@@ -121,7 +121,7 @@ export const Planner = () => {
           {plan?.config && (
             <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4 bg-gradient-to-b from-navy-900/40 to-transparent">
               <div className="flex items-center gap-2">
-                <Cpu className="h-5 w-5 text-accent-blue" />
+                <Cpu className="h-5 w-5 text-accent-gold" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">Interval Parameter Matrix</h3>
               </div>
 
@@ -156,14 +156,14 @@ export const Planner = () => {
           {/* Smart AI recommendations */}
           <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-cyan-400" />
+              <Sparkles className="h-5 w-5 text-amber-400" />
               <h3 className="text-xs font-black uppercase tracking-wider text-white">AI Core Recommendations</h3>
             </div>
             
             <ul className="space-y-3.5 text-xs text-slate-300">
               {recommendations.map((rec, index) => (
                 <li key={index} className="flex items-start gap-2.5 leading-relaxed">
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 mt-1.5 shrink-0" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
                   <span className="font-semibold">{rec}</span>
                 </li>
               ))}

@@ -43,16 +43,16 @@ export const Register = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-navy-950 p-4 relative overflow-hidden">
       {/* Glow backgrounds */}
-      <div className="absolute top-[-20%] left-[-20%] h-[60%] w-[60%] rounded-full bg-accent-blue/10 blur-[120px]" />
-      <div className="absolute bottom-[-20%] right-[-20%] h-[60%] w-[60%] rounded-full bg-cyan-500/10 blur-[120px]" />
+      <div className="absolute top-[-20%] left-[-20%] h-[60%] w-[60%] rounded-full bg-accent-gold/10 blur-[120px]" />
+      <div className="absolute bottom-[-20%] right-[-20%] h-[60%] w-[60%] rounded-full bg-amber-500/10 blur-[120px]" />
 
       <div className="glass-panel w-full max-w-md rounded-3xl p-8 border border-white/5 shadow-2xl relative z-10">
         <div className="flex flex-col items-center text-center space-y-2 mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-blue/10 text-accent-blue border border-accent-blue/20 shadow-glow-blue">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-gold/10 text-accent-gold border border-accent-gold/20 shadow-glow-gold">
             <Award className="h-6 w-6" />
           </div>
           <h2 className="text-2xl font-black tracking-widest text-white mt-4">
-            ELITE<span className="text-accent-blue">97</span> REGISTRY
+            ELITE<span className="text-accent-gold">97</span> REGISTRY
           </h2>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
             Establish student node parameters
@@ -76,7 +76,7 @@ export const Register = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Tesla Maxwell"
-                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue focus:shadow-glow-blue transition-all"
+                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold focus:shadow-glow-gold transition-all"
               />
             </div>
           </div>
@@ -91,7 +91,7 @@ export const Register = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="engineering.student@elite97.com"
-                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue focus:shadow-glow-blue transition-all"
+                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold focus:shadow-glow-gold transition-all"
               />
             </div>
           </div>
@@ -106,7 +106,7 @@ export const Register = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Min 6 characters"
-                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue focus:shadow-glow-blue transition-all"
+                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold focus:shadow-glow-gold transition-all"
               />
               <button
                 type="button"
@@ -128,7 +128,7 @@ export const Register = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue focus:shadow-glow-blue transition-all"
+                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold focus:shadow-glow-gold transition-all"
               />
               <button
                 type="button"
@@ -143,7 +143,7 @@ export const Register = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full rounded-2xl bg-accent-blue hover:bg-accent-blue/90 border border-accent-blue/20 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-glow-blue hover:shadow-glow-blue/80 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
+            className="w-full rounded-2xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-glow-gold hover:shadow-glow-gold/80 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 mt-4"
           >
             {submitting ? (
               <>
@@ -158,7 +158,7 @@ export const Register = () => {
 
         <p className="mt-8 text-center text-xs text-slate-400 font-semibold">
           Already have a matrix system profile?{' '}
-          <Link to="/login" className="text-accent-blue hover:text-accent-blue/80 font-bold transition-all">
+          <Link to="/login" className="text-accent-gold hover:text-accent-gold/80 font-bold transition-all">
             Login
           </Link>
         </p>

@@ -52,6 +52,30 @@ const UserSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  yearOfStudy: {
+    type: Number
+  },
+  course: {
+    type: String
+  },
+  currentSemester: {
+    type: Number
+  },
+  timetable: [{
+    dayOfWeek: String,
+    startTime: String,
+    endTime: String,
+    unitName: String
+  }],
+  studyGauge: {
+    priming: { type: Number, default: 0 },
+    encoding: { type: Number, default: 0 },
+    reference: { type: Number, default: 0 },
+    retrieval: { type: Number, default: 0 },
+    interleaving: { type: Number, default: 0 },
+    overlearning: { type: Number, default: 0 },
+    tier: { type: String, default: 'Standard' }
+  },
   createdAt: {
     type: Date,
     default: Date.now

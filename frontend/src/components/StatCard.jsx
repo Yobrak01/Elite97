@@ -20,8 +20,8 @@ export const StatCard = ({ title, value, subtitle, icon: Icon, color = 'blue', t
         };
       default:
         return {
-          bg: 'bg-accent-blue/10 border-accent-blue/20 text-accent-blue',
-          glow: 'hover:shadow-glow-blue/25 hover:border-accent-blue/40'
+          bg: 'bg-accent-gold/10 border-accent-gold/20 text-accent-gold',
+          glow: 'hover:shadow-glow-gold/25 hover:border-accent-gold/40'
         };
     }
   };

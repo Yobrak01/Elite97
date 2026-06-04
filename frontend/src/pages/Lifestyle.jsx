@@ -5,14 +5,14 @@ import api from '../services/api';
 const TABS = [
   { key: 'gym', label: 'Gym Schedule', icon: Dumbbell, color: 'text-green-400', bg: 'bg-green-500/15', border: 'border-green-500/30' },
   { key: 'meal', label: 'Meal Plan', icon: UtensilsCrossed, color: 'text-orange-400', bg: 'bg-orange-500/15', border: 'border-orange-500/30' },
-  { key: 'routine', label: 'Daily Routine', icon: Home, color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/30' }
+  { key: 'routine', label: 'Daily Routine', icon: Home, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30' }
 ];
 
 const DAILY_ROUTINE = [
   { time: '6:00 AM', label: 'Wake Up', icon: Sunrise, color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Rise early. No snooze. Discipline starts here.' },
-  { time: '6:15 AM', label: 'Morning Routine', icon: ShowerHead, color: 'text-cyan-400', bg: 'bg-cyan-500/10', description: 'Shower, brush teeth, skincare, get dressed.' },
+  { time: '6:15 AM', label: 'Morning Routine', icon: ShowerHead, color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Shower, brush teeth, skincare, get dressed.' },
   { time: '6:45 AM', label: 'Breakfast Prep & Eat', icon: Coffee, color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Cook a proper breakfast. High protein, complex carbs.' },
-  { time: '7:30 AM', label: 'Begin Study Block', icon: BookOpen, color: 'text-blue-400', bg: 'bg-blue-500/10', description: 'Deep focus study session. Most important tasks first.' },
+  { time: '7:30 AM', label: 'Begin Study Block', icon: BookOpen, color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Deep focus study session. Most important tasks first.' },
   { time: '12:30 PM', label: 'Lunch Prep & Eat', icon: UtensilsCrossed, color: 'text-green-400', bg: 'bg-green-500/10', description: 'Cook lunch. Balanced meal with vegetables.' },
   { time: '1:15 PM', label: 'Afternoon Study / Lecture', icon: BookOpen, color: 'text-purple-400', bg: 'bg-purple-500/10', description: 'Lectures, tutorials, or continued studying.' },
   { time: '5:00 PM', label: 'Gym Session', icon: Dumbbell, color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'Strength training. Follow the weekly split.' },
@@ -25,7 +25,7 @@ const DAILY_ROUTINE = [
 
 const MUSCLE_COLORS = {
   chest: 'text-red-400 bg-red-500/10',
-  back: 'text-blue-400 bg-blue-500/10',
+  back: 'text-yellow-400 bg-yellow-500/10',
   shoulders: 'text-purple-400 bg-purple-500/10',
   legs: 'text-green-400 bg-green-500/10',
   arms: 'text-orange-400 bg-orange-500/10',
@@ -36,7 +36,7 @@ const MUSCLE_COLORS = {
   glutes: 'text-emerald-400 bg-emerald-500/10',
   hamstrings: 'text-teal-400 bg-teal-500/10',
   quads: 'text-lime-400 bg-lime-500/10',
-  calves: 'text-cyan-400 bg-cyan-500/10',
+  calves: 'text-amber-400 bg-amber-500/10',
   default: 'text-slate-400 bg-slate-500/10'
 };
 
@@ -381,8 +381,8 @@ const RoutineTab = () => {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/15 border border-blue-500/20">
-          <Home className="h-6 w-6 text-blue-400" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-yellow-500/15 border border-yellow-500/20">
+          <Home className="h-6 w-6 text-yellow-400" />
         </div>
         <div>
           <h3 className="text-lg font-black tracking-wider text-white uppercase">Daily Blueprint</h3>
@@ -393,7 +393,7 @@ const RoutineTab = () => {
       {/* Timeline */}
       <div className="relative">
         {/* Vertical Line */}
-        <div className="absolute left-[2.15rem] top-0 bottom-0 w-px bg-gradient-to-b from-accent-blue/30 via-white/10 to-transparent"></div>
+        <div className="absolute left-[2.15rem] top-0 bottom-0 w-px bg-gradient-to-b from-accent-gold/30 via-white/10 to-transparent"></div>
 
         <div className="space-y-1">
           {DAILY_ROUTINE.map((item, index) => {
@@ -409,7 +409,7 @@ const RoutineTab = () => {
                 key={index}
                 className={`relative flex items-start gap-4 rounded-2xl p-4 transition-all ${
                   isActive
-                    ? 'bg-accent-blue/5 border border-accent-blue/20 shadow-lg shadow-accent-blue/5'
+                    ? 'bg-accent-gold/5 border border-accent-gold/20 shadow-lg shadow-accent-gold/5'
                     : isPast
                     ? 'opacity-50'
                     : ''
@@ -418,13 +418,13 @@ const RoutineTab = () => {
                 {/* Timeline Dot */}
                 <div className={`relative z-10 flex h-[1.1rem] w-[1.1rem] shrink-0 items-center justify-center rounded-full mt-1 ${
                   isActive
-                    ? 'bg-accent-blue shadow-lg shadow-accent-blue/50'
+                    ? 'bg-accent-gold shadow-lg shadow-accent-gold/50'
                     : isPast
                     ? 'bg-slate-600'
                     : 'bg-white/10 border border-white/20'
                 }`}>
                   {isActive && (
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-blue opacity-40"></span>
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-gold opacity-40"></span>
                   )}
                 </div>
 
@@ -436,11 +436,11 @@ const RoutineTab = () => {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-accent-blue' : 'text-slate-500'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-accent-gold' : 'text-slate-500'}`}>
                       {item.time}
                     </span>
                     {isActive && (
-                      <span className="rounded-lg bg-accent-blue/20 border border-accent-blue/30 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-accent-blue">
+                      <span className="rounded-lg bg-accent-gold/20 border border-accent-gold/30 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-accent-gold">
                         Now
                       </span>
                     )}

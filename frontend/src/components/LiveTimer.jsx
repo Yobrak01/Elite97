@@ -3,7 +3,7 @@ import { Timer, Play, Square, ChevronDown, ChevronUp, BookOpen, GraduationCap, D
 import api from '../services/api';
 
 const ACTIVITIES = [
-  { key: 'personal_study', label: 'Study', icon: BookOpen, color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/30', glow: 'shadow-blue-500/20' },
+  { key: 'personal_study', label: 'Study', icon: BookOpen, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30', glow: 'shadow-yellow-500/20' },
   { key: 'lecture', label: 'Lecture', icon: GraduationCap, color: 'text-purple-400', bg: 'bg-purple-500/15', border: 'border-purple-500/30', glow: 'shadow-purple-500/20' },
   { key: 'gym', label: 'Gym', icon: Dumbbell, color: 'text-green-400', bg: 'bg-green-500/15', border: 'border-green-500/30', glow: 'shadow-green-500/20' },
   { key: 'chore', label: 'Chore', icon: Brush, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30', glow: 'shadow-yellow-500/20' },
@@ -60,11 +60,18 @@ export const LiveTimer = () => {
     return () => clearInterval(intervalRef.current);
   }, [isRunning]);
 
-  const handleStart = async () => {
+  const handleStart = async (overrideType = null) => {
     if (loadingAction) return;
     setLoadingAction(true);
+    
+    // Support passing in a type directly, especially for event listeners
+    const typeToUse = typeof overrideType === 'string' ? overrideType : activityType;
+    if (typeof overrideType === 'string' && overrideType !== activityType) {
+      setActivityType(overrideType);
+    }
+
     try {
-      const res = await api.tracker.startTimer({ activityType });
+      const res = await api.tracker.startTimer({ activityType: typeToUse });
       setActiveLogId(res.data?._id || res.data?.id);
       setElapsedSeconds(0);
       setIsRunning(true);
@@ -74,6 +81,20 @@ export const LiveTimer = () => {
       setLoadingAction(false);
     }
   };
+
+  useEffect(() => {
+    const handleStartTimerEvent = async (e) => {
+      const { type } = e.detail;
+      setIsExpanded(true);
+      
+      if (!isRunning) {
+        handleStart(type);
+      }
+    };
+
+    window.addEventListener('start-timer', handleStartTimerEvent);
+    return () => window.removeEventListener('start-timer', handleStartTimerEvent);
+  }, [isRunning, loadingAction]); // Need isRunning in deps so it doesn't double-start
 
   const handleStop = async () => {
     if (loadingAction || !activeLogId) return;
@@ -112,7 +133,7 @@ export const LiveTimer = () => {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Timer className="h-4 w-4 text-accent-blue" />
+              <Timer className="h-4 w-4 text-accent-gold" />
               <span className="text-[10px] font-black uppercase tracking-widest text-white">Live Tracker</span>
             </div>
             <button
@@ -167,7 +188,7 @@ export const LiveTimer = () => {
               <button
                 onClick={handleStart}
                 disabled={loadingAction}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent-blue/20 border border-accent-blue/30 text-accent-blue hover:bg-accent-blue hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-accent-blue/10 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent-gold/20 border border-accent-gold/30 text-accent-gold hover:bg-accent-gold hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-accent-gold/10 disabled:opacity-50"
               >
                 <Play className="h-4 w-4" />
                 {loadingAction ? 'Starting...' : 'Start Session'}
@@ -189,7 +210,7 @@ export const LiveTimer = () => {
             <div className="space-y-2 border-t border-white/5 pt-3">
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Today's Log</p>
-                <span className="text-[10px] font-black text-accent-blue">{formatMinutes(totalTodayMinutes)} total</span>
+                <span className="text-[10px] font-black text-accent-gold">{formatMinutes(totalTodayMinutes)} total</span>
               </div>
               <div className="space-y-1.5">
                 {todaySummary.map((entry) => {
@@ -216,7 +237,7 @@ export const LiveTimer = () => {
         className={`group relative flex h-14 w-14 items-center justify-center rounded-2xl border transition-all duration-300 shadow-2xl ${
           isRunning
             ? `${activeActivity.bg} ${activeActivity.border} ${activeActivity.color} shadow-lg ${activeActivity.glow}`
-            : 'glass-panel border-white/10 text-accent-blue hover:border-accent-blue/30 hover:shadow-lg hover:shadow-accent-blue/20'
+            : 'glass-panel border-white/10 text-accent-gold hover:border-accent-gold/30 hover:shadow-lg hover:shadow-accent-gold/20'
         }`}
       >
         {isRunning ? (

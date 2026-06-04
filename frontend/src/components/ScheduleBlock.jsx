@@ -5,13 +5,13 @@ export const ScheduleBlock = ({ block }) => {
   const getCategoryTheme = (cat) => {
     switch (cat) {
       case 'study':
-        return { icon: BookOpen, css: 'text-accent-blue bg-accent-blue/10 border-accent-blue/20' };
+        return { icon: BookOpen, css: 'text-accent-gold bg-accent-gold/10 border-accent-gold/20' };
       case 'break':
         return { icon: Coffee, css: 'text-green-400 bg-green-500/10 border-green-500/20' };
       case 'exercise':
         return { icon: Dumbbell, css: 'text-orange-400 bg-orange-500/10 border-orange-500/20' };
       case 'revision':
-        return { icon: Award, css: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' };
+        return { icon: Award, css: 'text-amber-400 bg-amber-500/10 border-amber-500/20' };
       case 'lecture':
         return { icon: Landmark, css: 'text-purple-400 bg-purple-500/10 border-purple-500/20' };
       default:

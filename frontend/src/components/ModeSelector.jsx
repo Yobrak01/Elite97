@@ -7,7 +7,7 @@ export const ModeSelector = ({ currentMode, onModeChange }) => {
       id: 'normal',
       name: 'Normal Mode',
       icon: Award,
-      color: 'text-accent-blue bg-accent-blue/10 border-accent-blue/20',
+      color: 'text-accent-gold bg-accent-gold/10 border-accent-gold/20',
       description: 'Standard pomodoro-based daily study sessions.'
     },
     {
@@ -58,7 +58,7 @@ export const ModeSelector = ({ currentMode, onModeChange }) => {
               onClick={() => onModeChange(m.id)}
               className={`glass-panel text-left rounded-2xl p-4 border transition-all duration-300 flex flex-col justify-between h-36 ${
                 isActive
-                  ? `${m.color} scale-[1.02] ring-1 ring-white/10 shadow-glow-blue/10`
+                  ? `${m.color} scale-[1.02] ring-1 ring-white/10 shadow-glow-gold/10`
                   : 'border-white/5 text-slate-400 hover:border-white/10 hover:text-white'
               }`}
             >
@@ -67,7 +67,7 @@ export const ModeSelector = ({ currentMode, onModeChange }) => {
                   <Icon className="h-5 w-5" />
                 </div>
                 {isActive && (
-                  <span className="text-[9px] font-black uppercase tracking-widest text-glow-blue px-2 py-0.5 rounded bg-white/5 border border-white/10">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-glow-gold px-2 py-0.5 rounded bg-white/5 border border-white/10">
                     ACTIVE
                   </span>
                 )}

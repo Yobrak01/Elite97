@@ -63,7 +63,7 @@ export const Dashboard = () => {
       <div className="flex h-96 items-center justify-center">
         <div className="relative h-10 w-10">
           <div className="absolute h-full w-full rounded-full border-4 border-navy-800"></div>
-          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-blue border-r-transparent border-b-transparent border-l-transparent"></div>
+          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-gold border-r-transparent border-b-transparent border-l-transparent"></div>
         </div>
       </div>
     );
@@ -76,7 +76,7 @@ export const Dashboard = () => {
         <div>
           <h1 className="text-2xl font-black tracking-wider text-white">SYSTEM DASHBOARD</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
-            Student node: <span className="text-accent-blue font-black">ACTIVE</span> • Operations: <span className="text-cyan-400 font-black">NOMINAL</span>
+            Student node: <span className="text-accent-gold font-black">ACTIVE</span> • Operations: <span className="text-amber-400 font-black">NOMINAL</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -89,7 +89,7 @@ export const Dashboard = () => {
           </button>
           <button
             onClick={() => setModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 border border-accent-blue/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-blue transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             Log Session
@@ -170,7 +170,7 @@ export const Dashboard = () => {
                   value={studyHours}
                   onChange={(e) => setStudyHours(e.target.value)}
                   placeholder="e.g. 4"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
                 />
               </div>
 
@@ -183,7 +183,7 @@ export const Dashboard = () => {
                   value={focusScoreInput}
                   onChange={(e) => setFocusScoreInput(e.target.value)}
                   placeholder="e.g. 85"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
                 />
               </div>
 
@@ -194,7 +194,7 @@ export const Dashboard = () => {
                   value={breaks}
                   onChange={(e) => setBreaks(e.target.value)}
                   placeholder="e.g. 3"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
                 />
               </div>
 
@@ -205,7 +205,7 @@ export const Dashboard = () => {
                   value={subjects}
                   onChange={(e) => setSubjects(e.target.value)}
                   placeholder="Engineering Math, Electromagnetics"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
                 />
               </div>
 
@@ -216,7 +216,7 @@ export const Dashboard = () => {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Today went well. Fast derivation of Maxwell equations."
                   rows="3"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-blue"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
                 />
               </div>
 
@@ -231,7 +231,7 @@ export const Dashboard = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-xl bg-accent-blue hover:bg-accent-blue/90 border border-accent-blue/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
+                  className="rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
                 >
                   Commit Log
                 </button>

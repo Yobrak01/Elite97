@@ -90,10 +90,17 @@ exports.getMe = async (req, res, next) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { settings, studyMode } = req.body;
+    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge } = req.body;
     
     if (settings) req.user.settings = { ...req.user.settings, ...settings };
     if (studyMode) req.user.studyMode = studyMode;
+    if (yearOfStudy !== undefined) req.user.yearOfStudy = yearOfStudy;
+    if (course !== undefined) req.user.course = course;
+    if (currentSemester !== undefined) req.user.currentSemester = currentSemester;
+    if (timetable !== undefined) req.user.timetable = timetable;
+    if (studyGauge !== undefined) {
+      req.user.studyGauge = { ...req.user.studyGauge, ...studyGauge };
+    }
 
     await req.user.save();
 
@@ -105,7 +112,12 @@ exports.updateSettings = async (req, res, next) => {
         email: req.user.email,
         studyMode: req.user.studyMode,
         streak: req.user.streak,
-        settings: req.user.settings
+        settings: req.user.settings,
+        yearOfStudy: req.user.yearOfStudy,
+        course: req.user.course,
+        currentSemester: req.user.currentSemester,
+        timetable: req.user.timetable,
+        studyGauge: req.user.studyGauge
       }
     });
   } catch (error) {

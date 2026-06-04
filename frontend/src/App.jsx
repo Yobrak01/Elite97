@@ -12,6 +12,7 @@ import Schedule from './pages/Schedule';
 import Settings from './pages/Settings';
 import Courses from './pages/Courses';
 import Lifestyle from './pages/Lifestyle';
+import Diagnostic from './pages/Diagnostic';
 
 export const App = () => {
   return (
@@ -31,6 +32,7 @@ export const App = () => {
           <Route path="/courses" element={<Courses />} />
           <Route path="/lifestyle" element={<Lifestyle />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/diagnostic" element={<Diagnostic />} />
         </Route>
       </Route>
     </Routes>

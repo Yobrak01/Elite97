@@ -78,7 +78,7 @@ export const Schedule = () => {
       <div className="flex h-96 items-center justify-center">
         <div className="relative h-10 w-10">
           <div className="absolute h-full w-full rounded-full border-4 border-navy-800"></div>
-          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-blue border-r-transparent border-b-transparent border-l-transparent"></div>
+          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-gold border-r-transparent border-b-transparent border-l-transparent"></div>
         </div>
       </div>
     );
@@ -124,7 +124,7 @@ export const Schedule = () => {
           </button>
           <button
             onClick={() => handleGenerateTemplate('church')}
-            className="flex items-center gap-1.5 rounded-xl border border-cyan-500/30 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
           >
             <Calendar className="h-4 w-4" />
             Sunday Reset Day
@@ -149,7 +149,7 @@ export const Schedule = () => {
                     key={s._id}
                     className={`rounded-2xl p-4 border transition-all duration-200 flex items-center justify-between gap-4 ${
                       isActive
-                        ? 'border-accent-blue/30 bg-accent-blue/10 text-glow-blue'
+                        ? 'border-accent-gold/30 bg-accent-gold/10 text-glow-gold'
                         : 'border-white/5 bg-navy-900/60 text-slate-400 hover:border-white/10'
                     }`}
                   >
@@ -169,7 +169,7 @@ export const Schedule = () => {
                       {!isActive && (
                         <button
                           onClick={() => handleActivate(s._id)}
-                          className="rounded-lg bg-accent-blue/10 hover:bg-accent-blue border border-accent-blue/20 hover:border-transparent text-accent-blue hover:text-white p-2 transition-all cursor-pointer"
+                          className="rounded-lg bg-accent-gold/10 hover:bg-accent-gold border border-accent-gold/20 hover:border-transparent text-accent-gold hover:text-white p-2 transition-all cursor-pointer"
                           title="Activate schedule"
                         >
                           <Play className="h-4 w-4" />

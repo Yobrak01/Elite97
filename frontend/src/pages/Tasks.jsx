@@ -98,7 +98,7 @@ export const Tasks = () => {
       <div className="flex h-96 items-center justify-center">
         <div className="relative h-10 w-10">
           <div className="absolute h-full w-full rounded-full border-4 border-navy-800"></div>
-          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-blue border-r-transparent border-b-transparent border-l-transparent"></div>
+          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-accent-gold border-r-transparent border-b-transparent border-l-transparent"></div>
         </div>
       </div>
     );
@@ -116,7 +116,7 @@ export const Tasks = () => {
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 border border-accent-blue/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-blue transition-all cursor-pointer self-start sm:self-auto"
+          className="flex items-center gap-1.5 rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
           Create Task
@@ -140,7 +140,7 @@ export const Tasks = () => {
           </div>
           <div className="glass-panel rounded-2xl p-4 border border-white/5 text-center">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">In Progress</span>
-            <p className="text-2xl font-black text-accent-blue mt-1">{stats.inProgress}</p>
+            <p className="text-2xl font-black text-accent-gold mt-1">{stats.inProgress}</p>
           </div>
         </div>
       )}
@@ -315,7 +315,7 @@ export const Tasks = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-xl bg-accent-blue hover:bg-accent-blue/90 border border-accent-blue/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
+                  className="rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
                 >
                   {editingId ? 'Update Task' : 'Confirm Task'}
                 </button>

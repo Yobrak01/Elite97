@@ -43,7 +43,7 @@ exports.getWeeklyWorkout = async (req, res, next) => {
 
     // If no workouts exist for this week, generate them
     if (workouts.length === 0) {
-      const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate);
+      const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable || []);
 
       // Save each day's workout as a separate Workout document
       const workoutDocs = weeklyPlan.map(day => ({
@@ -92,7 +92,7 @@ exports.getTodayWorkout = async (req, res, next) => {
 
       // Generate the full week if it doesn't exist yet
       if (weekExists === 0) {
-        const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate);
+        const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable || []);
         const workoutDocs = weeklyPlan.map(day => ({
           user: req.user._id,
           date: day.date,
