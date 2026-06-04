@@ -230,6 +230,10 @@ exports.getGpaPrediction = async (req, res, next) => {
       const completed = courseTasks.filter(t => t.status === 'completed').length;
       const completionRate = courseTasks.length > 0 ? completed / courseTasks.length : 0;
 
+      const projectedMark = gpaPredictor.predictCourseMark(course, courseTasks);
+      const grade = gpaPredictor.getGrade(projectedMark);
+      const gpa = gpaPredictor.getGpaPoint(projectedMark);
+
       return {
         unitCode: course.unitCode,
         unitName: course.unitName,
@@ -237,7 +241,10 @@ exports.getGpaPrediction = async (req, res, next) => {
         difficulty: course.difficulty,
         taskCount: courseTasks.length,
         tasksCompleted: completed,
-        completionRate: Number((completionRate * 100).toFixed(1))
+        completionRate: Number((completionRate * 100).toFixed(1)),
+        projectedMark: Number(projectedMark.toFixed(2)),
+        grade,
+        gpa
       };
     });
 

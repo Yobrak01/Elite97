@@ -597,6 +597,75 @@ export const Analytics = () => {
           )}
         </div>
       </div>
+
+      {/* Detailed Unit Projections */}
+      {gpaData?.courseBreakdown && gpaData.courseBreakdown.length > 0 && (
+        <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden mt-6">
+          <div className="p-6 border-b border-white/5">
+            <h3 className="text-lg font-black uppercase tracking-wider text-white">Detailed Unit Projections</h3>
+            <p className="text-xs text-slate-400 font-semibold mt-1">Projected end-of-semester marks based on current task completion and difficulty.</p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-white/5 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <th className="p-4 pl-6">Unit</th>
+                  <th className="p-4">Credits</th>
+                  <th className="p-4">Completion</th>
+                  <th className="p-4 text-center">GPA</th>
+                  <th className="p-4 text-center">Grade</th>
+                  <th className="p-4 pr-6 text-right">Projected Mark</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {gpaData.courseBreakdown.map((course, idx) => (
+                  <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
+                    <td className="p-4 pl-6">
+                      <div className="font-bold text-white text-sm">{course.unitCode}</div>
+                      <div className="text-xs font-semibold text-slate-400 truncate max-w-[200px]">{course.unitName}</div>
+                    </td>
+                    <td className="p-4 text-xs font-bold text-slate-300">{course.credits}</td>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2">
+                        <div className="text-xs font-bold text-slate-300 w-8">{course.completionRate}%</div>
+                        <div className="h-1.5 w-16 rounded-full bg-white/5 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-blue-500"
+                            style={{ width: `${course.completionRate}%` }}
+                          />
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-4 text-center text-sm font-black text-amber-400">{course.gpa !== undefined ? course.gpa.toFixed(1) : '0.0'}</td>
+                    <td className="p-4 text-center">
+                      <span className={`px-2 py-1 rounded text-xs font-black ${
+                        course.grade === 'A' ? 'bg-emerald-500/20 text-emerald-400' :
+                        course.grade === 'B' ? 'bg-blue-500/20 text-blue-400' :
+                        course.grade === 'C' ? 'bg-yellow-500/20 text-yellow-400' :
+                        course.grade === 'D' ? 'bg-orange-500/20 text-orange-400' :
+                        'bg-red-500/20 text-red-400'
+                      }`}>
+                        {course.grade || 'E'}
+                      </span>
+                    </td>
+                    <td className="p-4 pr-6 text-right">
+                      <span className={`text-xl font-black ${
+                        (course.projectedMark || 0) >= 70 ? 'text-emerald-400' :
+                        (course.projectedMark || 0) >= 60 ? 'text-blue-400' :
+                        (course.projectedMark || 0) >= 50 ? 'text-yellow-400' :
+                        (course.projectedMark || 0) >= 40 ? 'text-orange-400' :
+                        'text-red-400'
+                      }`}>
+                        {course.projectedMark !== undefined ? course.projectedMark.toFixed(1) : '0.0'}%
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

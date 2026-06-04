@@ -6,6 +6,37 @@ function getClassification(mark) {
   return 'Fail';
 }
 
+function getGrade(mark) {
+  if (mark >= 70) return 'A';
+  if (mark >= 60) return 'B';
+  if (mark >= 50) return 'C';
+  if (mark >= 40) return 'D';
+  return 'E';
+}
+
+function getGpaPoint(mark) {
+  if (mark >= 70) return 4.0;
+  if (mark >= 60) return 3.0;
+  if (mark >= 50) return 2.0;
+  if (mark >= 40) return 1.0;
+  return 0.0;
+}
+
+function predictCourseMark(course, courseTasks) {
+  // Base mark (D1=85, D3=75, D5=65)
+  let baseMark = 75 - ((course.difficulty - 3) * 5); 
+  
+  if (courseTasks && courseTasks.length > 0) {
+    const completed = courseTasks.filter(t => t.status === 'completed').length;
+    const completionRate = completed / courseTasks.length;
+    baseMark += (completionRate * 30 - 15); // ranges from -15 to +15
+  } else {
+    baseMark -= 10; // Penalty for no tasks
+  }
+
+  return Math.max(0, Math.min(100, baseMark));
+}
+
 function predictCurrentSemesterMark(courseUnits, tasks) {
   if (!courseUnits || courseUnits.length === 0) return 0;
 
@@ -13,20 +44,9 @@ function predictCurrentSemesterMark(courseUnits, tasks) {
   let totalMarks = 0;
 
   courseUnits.forEach(course => {
-    // Base mark (D1=85, D3=75, D5=65)
-    let baseMark = 75 - ((course.difficulty - 3) * 5); 
-
     const courseTasks = tasks.filter(t => t.title.includes(course.unitCode) || (t.description && t.description.includes(course.unitCode)));
     
-    if (courseTasks.length > 0) {
-      const completed = courseTasks.filter(t => t.status === 'completed').length;
-      const completionRate = completed / courseTasks.length;
-      baseMark += (completionRate * 30 - 15); // ranges from -15 to +15
-    } else {
-      baseMark -= 10; // Penalty for no tasks
-    }
-
-    let expectedMark = Math.max(0, Math.min(100, baseMark));
+    let expectedMark = predictCourseMark(course, courseTasks);
 
     totalCredits += course.credits;
     totalMarks += expectedMark * course.credits;
@@ -85,6 +105,9 @@ function calculateHonoursScore(pastResults, currentSemesterPredictedMark, curren
 
 module.exports = {
   predictCurrentSemesterMark,
+  predictCourseMark,
   calculateHonoursScore,
-  getClassification
+  getClassification,
+  getGrade,
+  getGpaPoint
 };
