@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Timer, Play, Square, ChevronDown, ChevronUp, BookOpen, GraduationCap, Dumbbell, Brush, Moon, Clock } from 'lucide-react';
+import { Timer, Play, Square, ChevronDown, ChevronUp, BookOpen, GraduationCap, Dumbbell, Brush, Moon, Clock, Check } from 'lucide-react';
 import api from '../services/api';
 
 const ACTIVITIES = [
