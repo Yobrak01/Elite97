@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Sliders, Save, Award, Key, User, Bell, BookOpen, Calendar, Plus, Trash2 } from 'lucide-react';
+import { Sliders, Save, Award, Key, User, Bell, BookOpen, Calendar, Plus, Trash2, Edit2 } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import api from '../services/api';
 
@@ -31,6 +31,12 @@ export const Settings = () => {
 
   const handleRemoveTimetableRow = (index) => {
     setTimetable(timetable.filter((_, i) => i !== index));
+  };
+
+  const handleEditTimetableRow = (index) => {
+    const row = timetable[index];
+    setNewTimetableRow({ day: row.day, startTime: row.startTime, endTime: row.endTime, unitName: row.unitName });
+    handleRemoveTimetableRow(index);
   };
 
   const handleSave = async (e) => {
@@ -319,9 +325,14 @@ export const Settings = () => {
                         <span className="text-xs text-slate-300">{row.startTime} - {row.endTime}</span>
                         <span className="text-xs font-bold text-white truncate max-w-[100px]">{row.unitName}</span>
                       </div>
-                      <button onClick={() => handleRemoveTimetableRow(idx)} className="text-red-400/50 hover:text-red-400 transition-colors">
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => handleEditTimetableRow(idx)} className="text-amber-400/50 hover:text-amber-400 transition-colors">
+                          <Edit2 className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => handleRemoveTimetableRow(idx)} className="text-red-400/50 hover:text-red-400 transition-colors">
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
                   ))
                 )}
