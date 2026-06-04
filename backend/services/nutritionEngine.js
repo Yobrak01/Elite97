@@ -55,10 +55,13 @@ function generateDailyMealPlan() {
     dinner.push({ ingredient: 'avocado', amount: 'Quarter' });
   }
 
+  // Map 'ingredient' to 'item' for the frontend
+  const mapIngredients = (arr) => arr.map(i => ({ item: i.ingredient, amount: i.amount }));
+
   return {
-    breakfast,
-    lunch,
-    dinner
+    breakfast: { name: 'Breakfast Menu', ingredients: mapIngredients(breakfast) },
+    lunch: { name: 'Balanced Lunch', ingredients: mapIngredients(lunch) },
+    dinner: { name: 'Recovery Dinner', ingredients: mapIngredients(dinner) }
   };
 }
 
