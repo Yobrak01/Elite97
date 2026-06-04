@@ -489,7 +489,7 @@ export const Analytics = () => {
               {/* Rank Display */}
               <div className="text-center py-2">
                 <p className="text-5xl font-black text-white">
-                  <span className="text-2xl text-accent-gold">#</span>{Math.max(1, 100 - (mitRanking.percentile || 0))}
+                  <span className="text-2xl text-accent-gold">#</span>{Math.max(1, Math.round(100 - (mitRanking.mitRankPercentile || 0)))}
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Out of 100 Students</p>
               </div>
@@ -498,11 +498,11 @@ export const Analytics = () => {
               <div className="h-3 w-full rounded-full bg-white/5 overflow-hidden relative">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 to-amber-400 transition-all duration-700"
-                  style={{ width: `${mitRanking.percentile || 0}%` }}
+                  style={{ width: `${mitRanking.mitRankPercentile || 0}%` }}
                 />
                 <div
                   className="absolute top-1/2 -translate-y-1/2 h-5 w-1 bg-white rounded-full shadow-lg shadow-white/50 transition-all duration-700"
-                  style={{ left: `${mitRanking.percentile || 0}%` }}
+                  style={{ left: `${mitRanking.mitRankPercentile || 0}%` }}
                 />
               </div>
 
@@ -510,10 +510,10 @@ export const Analytics = () => {
               <div className="space-y-3">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Scoring Vectors</p>
                 {[
-                  { label: 'Study Hours', value: mitRanking.vectors?.hours || mitRanking.hours || 0, color: 'from-yellow-500 to-amber-400' },
-                  { label: 'Focus Score', value: mitRanking.vectors?.focus || mitRanking.focus || 0, color: 'from-purple-500 to-pink-400' },
-                  { label: 'Completion Rate', value: mitRanking.vectors?.completion || mitRanking.completion || 0, color: 'from-green-500 to-emerald-400' },
-                  { label: 'Productivity', value: mitRanking.vectors?.productivity || mitRanking.productivity || 0, color: 'from-orange-500 to-yellow-400' }
+                  { label: 'Study Hours', value: mitRanking.breakdown ? Math.round(Math.min(100, (mitRanking.breakdown.weeklyStudyHours / mitRanking.breakdown.baseline.maxStudyHours) * 100)) : 0, color: 'from-yellow-500 to-amber-400' },
+                  { label: 'Focus Score', value: mitRanking.breakdown ? Math.round(Math.min(100, (mitRanking.breakdown.avgFocusScore / mitRanking.breakdown.baseline.maxFocusScore) * 100)) : 0, color: 'from-purple-500 to-pink-400' },
+                  { label: 'Completion Rate', value: mitRanking.breakdown ? Math.round(Math.min(100, (mitRanking.breakdown.avgCompletion / mitRanking.breakdown.baseline.maxCompletion) * 100)) : 0, color: 'from-green-500 to-emerald-400' },
+                  { label: 'Productivity', value: mitRanking.breakdown ? Math.round(Math.min(100, (mitRanking.breakdown.avgProductivity / mitRanking.breakdown.baseline.maxProductivity) * 100)) : 0, color: 'from-orange-500 to-yellow-400' }
                 ].map((vector) => (
                   <div key={vector.label} className="space-y-1">
                     <div className="flex items-center justify-between">
@@ -549,7 +549,7 @@ export const Analytics = () => {
               {/* Percentile Display */}
               <div className="text-center py-2">
                 <p className="text-5xl font-black text-white">
-                  {mitRanking.percentile || 0}<span className="text-2xl text-accent-gold">%</span>
+                  {mitRanking.mitRankPercentile || 0}<span className="text-2xl text-accent-gold">%</span>
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Global Percentile</p>
               </div>
@@ -558,11 +558,11 @@ export const Analytics = () => {
               <div className="h-3 w-full rounded-full bg-white/5 overflow-hidden relative">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 to-amber-400 transition-all duration-700"
-                  style={{ width: `${mitRanking.percentile || 0}%` }}
+                  style={{ width: `${mitRanking.mitRankPercentile || 0}%` }}
                 />
                 <div
                   className="absolute top-1/2 -translate-y-1/2 h-5 w-1 bg-white rounded-full shadow-lg shadow-white/50 transition-all duration-700"
-                  style={{ left: `${mitRanking.percentile || 0}%` }}
+                  style={{ left: `${mitRanking.mitRankPercentile || 0}%` }}
                 />
               </div>
 
@@ -570,10 +570,10 @@ export const Analytics = () => {
               <div className="space-y-3">
                 <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Scoring Vectors</p>
                 {[
-                  { label: 'Study Hours', value: mitRanking.vectors?.hours || mitRanking.hours || 0, color: 'from-yellow-500 to-amber-400' },
-                  { label: 'Focus Score', value: mitRanking.vectors?.focus || mitRanking.focus || 0, color: 'from-purple-500 to-pink-400' },
-                  { label: 'Completion Rate', value: mitRanking.vectors?.completion || mitRanking.completion || 0, color: 'from-green-500 to-emerald-400' },
-                  { label: 'Productivity', value: mitRanking.vectors?.productivity || mitRanking.productivity || 0, color: 'from-orange-500 to-yellow-400' }
+                  { label: 'Study Hours', value: mitRanking.breakdown ? Math.round(Math.min(100, (mitRanking.breakdown.weeklyStudyHours / mitRanking.breakdown.baseline.maxStudyHours) * 100)) : 0, color: 'from-yellow-500 to-amber-400' },
+                  { label: 'Focus Score', value: mitRanking.breakdown ? Math.round(Math.min(100, (mitRanking.breakdown.avgFocusScore / mitRanking.breakdown.baseline.maxFocusScore) * 100)) : 0, color: 'from-purple-500 to-pink-400' },
+                  { label: 'Completion Rate', value: mitRanking.breakdown ? Math.round(Math.min(100, (mitRanking.breakdown.avgCompletion / mitRanking.breakdown.baseline.maxCompletion) * 100)) : 0, color: 'from-green-500 to-emerald-400' },
+                  { label: 'Productivity', value: mitRanking.breakdown ? Math.round(Math.min(100, (mitRanking.breakdown.avgProductivity / mitRanking.breakdown.baseline.maxProductivity) * 100)) : 0, color: 'from-orange-500 to-yellow-400' }
                 ].map((vector) => (
                   <div key={vector.label} className="space-y-1">
                     <div className="flex items-center justify-between">
