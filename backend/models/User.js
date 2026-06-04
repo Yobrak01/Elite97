@@ -35,6 +35,8 @@ const UserSchema = new mongoose.Schema({
   settings: {
     dailyGoalHours: { type: Number, default: 6 },
     breakInterval: { type: Number, default: 25 },
+    breakDuration: { type: Number, default: 5 },
+    regenAfterSessions: { type: Number, default: 4 },
     notifications: { type: Boolean, default: true }
   },
   createdAt: {

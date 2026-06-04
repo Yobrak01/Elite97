@@ -8,6 +8,8 @@ export const Settings = () => {
 
   const [dailyGoalHours, setDailyGoalHours] = useState(user?.settings?.dailyGoalHours || 6);
   const [breakInterval, setBreakInterval] = useState(user?.settings?.breakInterval || 25);
+  const [breakDuration, setBreakDuration] = useState(user?.settings?.breakDuration || 5);
+  const [regenAfterSessions, setRegenAfterSessions] = useState(user?.settings?.regenAfterSessions || 4);
   const [notifications, setNotifications] = useState(user?.settings?.notifications ?? true);
   const [studyMode, setStudyMode] = useState(user?.studyMode || 'normal');
   const [submitting, setSubmitting] = useState(false);
@@ -23,6 +25,8 @@ export const Settings = () => {
         settings: {
           dailyGoalHours: Number(dailyGoalHours),
           breakInterval: Number(breakInterval),
+          breakDuration: Number(breakDuration),
+          regenAfterSessions: Number(regenAfterSessions),
           notifications
         }
       });
@@ -92,6 +96,38 @@ export const Settings = () => {
               onChange={(e) => setBreakInterval(e.target.value)}
               className="w-full h-1.5 bg-navy-900 rounded-lg border border-white/5 appearance-none cursor-pointer accent-accent-blue"
             />
+          </div>
+
+          {/* Break Duration slider */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wide">
+              <span>Short Break / Regeneration Duration</span>
+              <span className="text-white">{breakDuration} Minutes</span>
+            </div>
+            <input
+              type="range"
+              min="5"
+              max="30"
+              step="5"
+              value={breakDuration}
+              onChange={(e) => setBreakDuration(e.target.value)}
+              className="w-full h-1.5 bg-navy-900 rounded-lg border border-white/5 appearance-none cursor-pointer accent-accent-blue"
+            />
+          </div>
+
+          {/* Regeneration after sessions select */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Long Regeneration Trigger</label>
+            <select
+              value={regenAfterSessions}
+              onChange={(e) => setRegenAfterSessions(e.target.value)}
+              className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none"
+            >
+              <option value="2">After every 2 sessions</option>
+              <option value="3">After every 3 sessions</option>
+              <option value="4">After every 4 sessions</option>
+              <option value="5">After every 5 sessions</option>
+            </select>
           </div>
 
           {/* Global Study Presets */}

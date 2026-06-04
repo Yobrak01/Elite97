@@ -14,7 +14,7 @@ export const Tasks = () => {
   if (filterPriority) activeFilters.priority = filterPriority;
   if (filterStatus) activeFilters.status = filterStatus;
 
-  const { tasks, stats, loading, createTask, completeTask, deleteTask } = useTasks(activeFilters);
+  const { tasks, stats, loading, createTask, updateTask, completeTask, startTask, deleteTask } = useTasks(activeFilters);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [title, setTitle] = useState('');
@@ -25,18 +25,53 @@ export const Tasks = () => {
   const [deadline, setDeadline] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const handleCreate = async (e) => {
+  const [editingId, setEditingId] = useState(null);
+
+  const openEditModal = (task) => {
+    setTitle(task.title);
+    setDescription(task.description || '');
+    setPriority(task.priority.toString());
+    setEstimatedHours(task.estimatedHours.toString());
+    setType(task.type);
+    setDeadline(task.deadline ? task.deadline.split('T')[0] : '');
+    setEditingId(task._id);
+    setModalOpen(true);
+  };
+
+  const openCreateModal = () => {
+    setTitle('');
+    setDescription('');
+    setPriority('3');
+    setEstimatedHours('1');
+    setType('theory');
+    setDeadline('');
+    setEditingId(null);
+    setModalOpen(true);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     try {
-      await createTask({
-        title,
-        description,
-        priority: Number(priority),
-        estimatedHours: Number(estimatedHours),
-        type,
-        deadline: deadline || undefined
-      });
+      if (editingId) {
+        await updateTask(editingId, {
+          title,
+          description,
+          priority: Number(priority),
+          estimatedHours: Number(estimatedHours),
+          type,
+          deadline: deadline || undefined
+        });
+      } else {
+        await createTask({
+          title,
+          description,
+          priority: Number(priority),
+          estimatedHours: Number(estimatedHours),
+          type,
+          deadline: deadline || undefined
+        });
+      }
       setModalOpen(false);
       setTitle('');
       setDescription('');
@@ -44,9 +79,10 @@ export const Tasks = () => {
       setEstimatedHours('1');
       setType('theory');
       setDeadline('');
+      setEditingId(null);
     } catch (err) {
       console.error(err);
-      alert(err.message || 'Error occurred creating task.');
+      alert(err.message || 'Error occurred saving task.');
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +115,7 @@ export const Tasks = () => {
           </p>
         </div>
         <button
-          onClick={() => setModalOpen(true)}
+          onClick={openCreateModal}
           className="flex items-center gap-1.5 rounded-xl bg-accent-blue hover:bg-accent-blue/90 border border-accent-blue/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-blue transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
@@ -174,6 +210,8 @@ export const Tasks = () => {
               key={task._id}
               task={task}
               onComplete={completeTask}
+              onStart={startTask}
+              onEdit={openEditModal}
               onDelete={deleteTask}
             />
           ))}
@@ -184,9 +222,9 @@ export const Tasks = () => {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="glass-panel w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl relative">
-            <h3 className="text-lg font-black tracking-wide text-white mb-4 uppercase">Create New Task</h3>
+            <h3 className="text-lg font-black tracking-wide text-white mb-4 uppercase">{editingId ? 'Edit Task' : 'Create New Task'}</h3>
             
-            <form onSubmit={handleCreate} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Task Title</label>
                 <input
@@ -279,7 +317,7 @@ export const Tasks = () => {
                   disabled={submitting}
                   className="rounded-xl bg-accent-blue hover:bg-accent-blue/90 border border-accent-blue/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
                 >
-                  Confirm Task
+                  {editingId ? 'Update Task' : 'Confirm Task'}
                 </button>
               </div>
             </form>

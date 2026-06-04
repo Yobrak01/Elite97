@@ -40,6 +40,15 @@ const TaskSchema = new mongoose.Schema({
   completedAt: {
     type: Date
   },
+  aiSuggestedTier: {
+    type: String,
+    enum: ['tier1_critical', 'tier2_high', 'tier3_standard', 'tier4_low', 'tier5_minimal'],
+    default: 'tier3_standard'
+  },
+  tierScore: {
+    type: Number,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now

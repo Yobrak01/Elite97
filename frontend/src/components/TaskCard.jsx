@@ -1,7 +1,7 @@
 import React from 'react';
-import { Calendar, CheckSquare, Clock, Trash2 } from 'lucide-react';
+import { Calendar, CheckSquare, Clock, Trash2, Edit2, PlayCircle } from 'lucide-react';
 
-export const TaskCard = ({ task, onComplete, onDelete }) => {
+export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
   const getPriorityClasses = (p) => {
     if (p >= 5) return 'text-red-400 bg-red-500/10 border-red-500/20';
     if (p >= 4) return 'text-orange-400 bg-orange-500/10 border-orange-500/20';
@@ -66,6 +66,16 @@ export const TaskCard = ({ task, onComplete, onDelete }) => {
         </div>
 
         <div className="flex items-center gap-2">
+          {task.status === 'pending' && onStart && (
+            <button
+              onClick={() => onStart(task._id)}
+              className="flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              <PlayCircle className="h-3.5 w-3.5" />
+              Start
+            </button>
+          )}
+
           {task.status !== 'completed' && onComplete && (
             <button
               onClick={() => onComplete(task._id)}
@@ -73,6 +83,15 @@ export const TaskCard = ({ task, onComplete, onDelete }) => {
             >
               <CheckSquare className="h-3.5 w-3.5" />
               Complete
+            </button>
+          )}
+
+          {onEdit && (
+            <button
+              onClick={() => onEdit(task)}
+              className="rounded-lg border border-white/5 hover:border-slate-400/30 hover:bg-slate-500/10 text-slate-400 hover:text-white p-1.5 transition-all"
+            >
+              <Edit2 className="h-4 w-4" />
             </button>
           )}
 

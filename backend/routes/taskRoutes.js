@@ -19,4 +19,7 @@ router.route('/:id')
 router.route('/:id/complete')
   .patch(taskController.completeTask);
 
+router.route('/:id/start')
+  .patch(taskController.startTask);
+
 module.exports = router;

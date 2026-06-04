@@ -1,4 +1,5 @@
 const Task = require('../models/Task');
+const { computeAiTier } = require('../services/tierEngine');
 
 exports.getTasks = async (req, res, next) => {
   try {
@@ -19,6 +20,12 @@ exports.getTasks = async (req, res, next) => {
 exports.createTask = async (req, res, next) => {
   try {
     req.body.user = req.user._id;
+    
+    // Auto-compute AI tier
+    const aiData = computeAiTier(req.body);
+    req.body.aiSuggestedTier = aiData.tier;
+    req.body.tierScore = aiData.score;
+
     const task = await Task.create(req.body);
     res.status(201).json({ success: true, data: task });
   } catch (error) {
@@ -33,6 +40,12 @@ exports.updateTask = async (req, res, next) => {
     if (!task) {
       return res.status(404).json({ message: 'Task not found or access denied.' });
     }
+
+    // Auto-compute AI tier for updates
+    const updatedData = { ...task.toObject(), ...req.body };
+    const aiData = computeAiTier(updatedData);
+    req.body.aiSuggestedTier = aiData.tier;
+    req.body.tierScore = aiData.score;
 
     task = await Task.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -67,8 +80,33 @@ exports.completeTask = async (req, res, next) => {
       return res.status(404).json({ message: 'Task not found or access denied.' });
     }
 
+    if (task.status === 'completed') {
+      return res.status(400).json({ message: 'Task is already completed.' });
+    }
+
     task.status = 'completed';
     task.completedAt = new Date();
+    await task.save();
+
+    res.status(200).json({ success: true, data: task });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.startTask = async (req, res, next) => {
+  try {
+    const task = await Task.findOne({ _id: req.params.id, user: req.user._id });
+
+    if (!task) {
+      return res.status(404).json({ message: 'Task not found or access denied.' });
+    }
+
+    if (task.status === 'completed') {
+      return res.status(400).json({ message: 'Cannot start a completed task.' });
+    }
+
+    task.status = 'in_progress';
     await task.save();
 
     res.status(200).json({ success: true, data: task });

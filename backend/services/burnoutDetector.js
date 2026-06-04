@@ -1,4 +1,4 @@
-function detectBurnout(studyHours, focusScore, completionPercentage, restHours = 8) {
+function detectBurnout(studyHours, focusScore, completionPercentage, restHours = 8, streak = 0, consecutiveHighDays = 0, tasksCompleted = 0) {
   let risk = 0;
   const factors = [];
 
@@ -15,20 +15,44 @@ function detectBurnout(studyHours, focusScore, completionPercentage, restHours =
     factors.push('Low task conversion rate (Completion % < 50)');
   }
   if (restHours < 6) {
-    risk += 20;
+    risk += 25;
     factors.push('Insufficient physical recovery/sleep (< 6 hours rest)');
   }
+  if (streak > 14) {
+    risk += 15;
+    factors.push('Streak fatigue: No rest day in over 2 weeks');
+  }
+  if (consecutiveHighDays >= 3) {
+    risk += 20;
+    factors.push('Chronic load: 3+ consecutive days of >8 hours studying');
+  }
+  
+  const workloadDensity = studyHours > 0 ? tasksCompleted / studyHours : 0;
+  if (workloadDensity > 4) {
+    risk += 10;
+    factors.push('High workload density: Too many tasks crammed per hour');
+  }
+
+  // Cap risk at 100
+  risk = Math.min(100, risk);
 
   let level = 'low';
-  if (risk >= 60) {
+  let severity = 'System nominal';
+  if (risk >= 80) {
+    level = 'critical';
+    severity = 'Immediate Intervention Required';
+  } else if (risk >= 60) {
     level = 'high';
+    severity = 'Approaching Failure Point';
   } else if (risk >= 30) {
     level = 'moderate';
+    severity = 'Elevated Friction';
   }
 
   return {
     risk,
     level,
+    severity,
     factors,
     recommendations: generateBurnoutRecommendations(level)
   };

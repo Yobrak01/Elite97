@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, BarChart3, CheckSquare, Calendar, Sliders, X, Flame } from 'lucide-react';
+import { LayoutDashboard, BarChart3, CheckSquare, Calendar, Sliders, X, Flame, BookOpen } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 
 export const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -10,6 +10,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
     { name: 'Analytics', path: '/analytics', icon: BarChart3 },
     { name: 'Tasks', path: '/tasks', icon: CheckSquare },
+    { name: 'Course Units', path: '/courses', icon: BookOpen },
     { name: 'AI Planner', path: '/planner', icon: Calendar },
     { name: 'Schedule Presets', path: '/schedule', icon: Calendar },
     { name: 'Settings', path: '/settings', icon: Sliders },

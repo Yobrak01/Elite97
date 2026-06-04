@@ -10,6 +10,7 @@ import Tasks from './pages/Tasks';
 import Planner from './pages/Planner';
 import Schedule from './pages/Schedule';
 import Settings from './pages/Settings';
+import Courses from './pages/Courses';
 
 export const App = () => {
   return (
@@ -26,6 +27,7 @@ export const App = () => {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/planner" element={<Planner />} />
           <Route path="/schedule" element={<Schedule />} />
+          <Route path="/courses" element={<Courses />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
       </Route>

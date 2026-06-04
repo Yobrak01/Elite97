@@ -67,13 +67,41 @@ export const useTasks = (filters = {}) => {
     }
   };
 
+  const updateTask = async (id, taskData) => {
+    try {
+      const res = await api.tasks.update(id, taskData);
+      setTasks(prev => prev.map(t => t._id === id ? res.data : t));
+      const statsRes = await api.tasks.getStats();
+      setStats(statsRes.stats);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to update task:', err);
+      throw err;
+    }
+  };
+
+  const startTask = async (id) => {
+    try {
+      const res = await api.tasks.start(id);
+      setTasks(prev => prev.map(t => t._id === id ? res.data : t));
+      const statsRes = await api.tasks.getStats();
+      setStats(statsRes.stats);
+      return res.data;
+    } catch (err) {
+      console.error('Failed to start task:', err);
+      throw err;
+    }
+  };
+
   return {
     tasks,
     stats,
     loading,
     error,
     createTask,
+    updateTask,
     completeTask,
+    startTask,
     deleteTask,
     refresh: fetchTasks
   };

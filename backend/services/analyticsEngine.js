@@ -1,5 +1,12 @@
-function calculateFocusScore(completionPercentage, studyHours) {
-  return Math.min(100, Math.round((completionPercentage * 0.6) + (studyHours * 2)));
+function calculateFocusScore(completionPercentage, studyHours, currentStreak = 0) {
+  // Diminishing returns on hours: Logarithmic curve, plateaus around 8-10 hours
+  const hoursScore = Math.min(40, Math.log1p(studyHours) * 15);
+  // Completion weight: Up to 50 points
+  const completionScore = (completionPercentage / 100) * 50;
+  // Consistency bonus: Up to 10 points for streak
+  const streakBonus = Math.min(10, currentStreak * 2);
+  
+  return Math.min(100, Math.round(hoursScore + completionScore + streakBonus));
 }
 
 function calculateCompletionPercentage(tasksCompleted, totalTasks) {

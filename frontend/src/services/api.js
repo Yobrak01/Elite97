@@ -93,6 +93,13 @@ export const api = {
       });
       return handleResponse(res);
     },
+    start: async (id) => {
+      const res = await fetch(`${API_URL}/tasks/${id}/start`, {
+        method: 'PATCH',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
     getStats: async () => {
       const res = await fetch(`${API_URL}/tasks/stats`, {
         headers: getHeaders()
@@ -232,6 +239,37 @@ export const api = {
         method: 'PUT',
         headers: getHeaders(),
         body: JSON.stringify({ studyMode })
+      });
+      return handleResponse(res);
+    }
+  },
+  courses: {
+    getAll: async () => {
+      const res = await fetch(`${API_URL}/courses`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    create: async (courseData) => {
+      const res = await fetch(`${API_URL}/courses`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(courseData)
+      });
+      return handleResponse(res);
+    },
+    update: async (id, courseData) => {
+      const res = await fetch(`${API_URL}/courses/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(courseData)
+      });
+      return handleResponse(res);
+    },
+    delete: async (id) => {
+      const res = await fetch(`${API_URL}/courses/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
       });
       return handleResponse(res);
     }
