@@ -20,12 +20,12 @@ export const Settings = () => {
   const [semester, setSemester] = useState(user?.currentSemester || '');
 
   const [timetable, setTimetable] = useState(user?.timetable || []);
-  const [newTimetableRow, setNewTimetableRow] = useState({ day: 'Monday', startTime: '', endTime: '', unitName: '' });
+  const [newTimetableRow, setNewTimetableRow] = useState({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '' });
 
   const handleAddTimetableRow = () => {
     if (newTimetableRow.startTime && newTimetableRow.endTime && newTimetableRow.unitName) {
       setTimetable([...timetable, newTimetableRow]);
-      setNewTimetableRow({ ...newTimetableRow, startTime: '', endTime: '', unitName: '' });
+      setNewTimetableRow({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '' });
     }
   };
 
@@ -35,7 +35,7 @@ export const Settings = () => {
 
   const handleEditTimetableRow = (index) => {
     const row = timetable[index];
-    setNewTimetableRow({ day: row.day, startTime: row.startTime, endTime: row.endTime, unitName: row.unitName });
+    setNewTimetableRow({ dayOfWeek: row.dayOfWeek || row.day, startTime: row.startTime, endTime: row.endTime, unitName: row.unitName });
     handleRemoveTimetableRow(index);
   };
 
@@ -275,8 +275,8 @@ export const Settings = () => {
               {/* Add new row form */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <select
-                  value={newTimetableRow.day}
-                  onChange={(e) => setNewTimetableRow({...newTimetableRow, day: e.target.value})}
+                  value={newTimetableRow.dayOfWeek}
+                  onChange={(e) => setNewTimetableRow({...newTimetableRow, dayOfWeek: e.target.value})}
                   className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                 >
                   {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => (
@@ -319,7 +319,7 @@ export const Settings = () => {
                   timetable.map((row, idx) => (
                     <div key={idx} className="flex items-center justify-between bg-navy-900/50 border border-white/5 rounded-lg p-2.5">
                       <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black uppercase text-purple-400 w-16">{row.day.substring(0,3)}</span>
+                        <span className="text-[10px] font-black uppercase text-purple-400 w-16">{(row.dayOfWeek || row.day || '').substring(0,3)}</span>
                         <span className="text-xs text-slate-300">{row.startTime} - {row.endTime}</span>
                         <span className="text-xs font-bold text-white truncate max-w-[100px]">{row.unitName}</span>
                       </div>
