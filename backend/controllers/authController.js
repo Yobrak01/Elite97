@@ -37,7 +37,8 @@ exports.register = async (req, res, next) => {
         course: user.course,
         currentSemester: user.currentSemester,
         timetable: user.timetable,
-        studyGauge: user.studyGauge
+        studyGauge: user.studyGauge,
+        pastResults: user.pastResults
       }
     });
   } catch (error) {
@@ -73,7 +74,8 @@ exports.login = async (req, res, next) => {
         course: user.course,
         currentSemester: user.currentSemester,
         timetable: user.timetable,
-        studyGauge: user.studyGauge
+        studyGauge: user.studyGauge,
+        pastResults: user.pastResults
       }
     });
   } catch (error) {
@@ -95,7 +97,8 @@ exports.getMe = async (req, res, next) => {
         course: req.user.course,
         currentSemester: req.user.currentSemester,
         timetable: req.user.timetable,
-        studyGauge: req.user.studyGauge
+        studyGauge: req.user.studyGauge,
+        pastResults: req.user.pastResults
       }
     });
   } catch (error) {
@@ -133,7 +136,8 @@ exports.updateSettings = async (req, res, next) => {
         course: req.user.course,
         currentSemester: req.user.currentSemester,
         timetable: req.user.timetable,
-        studyGauge: req.user.studyGauge
+        studyGauge: req.user.studyGauge,
+        pastResults: req.user.pastResults
       }
     });
   } catch (error) {
