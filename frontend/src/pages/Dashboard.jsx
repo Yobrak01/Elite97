@@ -127,7 +127,7 @@ export const Dashboard = () => {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Daily Study Logs"
-          value={`${dashboardData?.studyHours || 0} hrs`}
+          value={`${Number(dashboardData?.studyHours || 0).toFixed(1)} hrs`}
           subtitle="Direct conceptual workload logged."
           icon={Clock}
           color="blue"
