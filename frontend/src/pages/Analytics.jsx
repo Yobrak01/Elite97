@@ -598,12 +598,19 @@ export const Analytics = () => {
         </div>
       </div>
 
-      {/* Detailed Unit Projections */}
-      {gpaData?.courseBreakdown && gpaData.courseBreakdown.length > 0 && (
+      {/* Detailed Unit Projections — V2 10-Factor Engine */}
+      {gpaData?.courseBreakdown && gpaData.courseBreakdown.length > 0 && (() => {
+        // Compute overall semester GPA (weighted)
+        const totalCredits = gpaData.courseBreakdown.reduce((s, c) => s + (c.credits || 0), 0);
+        const weightedGpa = totalCredits > 0
+          ? gpaData.courseBreakdown.reduce((s, c) => s + (c.gpa || 0) * (c.credits || 0), 0) / totalCredits
+          : 0;
+        
+        return (
         <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden mt-6">
           <div className="p-6 border-b border-white/5">
             <h3 className="text-lg font-black uppercase tracking-wider text-white">Detailed Unit Projections</h3>
-            <p className="text-xs text-slate-400 font-semibold mt-1">Projected end-of-semester marks based on current task completion and difficulty.</p>
+            <p className="text-xs text-slate-400 font-semibold mt-1">10-factor AI engine analyzing study hours, focus, attendance, consistency, topics, deadlines, and more.</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -618,53 +625,118 @@ export const Analytics = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {gpaData.courseBreakdown.map((course, idx) => (
-                  <tr key={idx} className="hover:bg-white/[0.02] transition-colors">
-                    <td className="p-4 pl-6">
-                      <div className="font-bold text-white text-sm">{course.unitCode}</div>
-                      <div className="text-xs font-semibold text-slate-400 truncate max-w-[200px]">{course.unitName}</div>
-                    </td>
-                    <td className="p-4 text-xs font-bold text-slate-300">{course.credits}</td>
-                    <td className="p-4">
-                      <div className="flex items-center gap-2">
-                        <div className="text-xs font-bold text-slate-300 w-8">{course.completionRate}%</div>
-                        <div className="h-1.5 w-16 rounded-full bg-white/5 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-blue-500"
-                            style={{ width: `${course.completionRate}%` }}
-                          />
+                {gpaData.courseBreakdown.map((course, idx) => {
+                  const factorLabels = {
+                    taskCompletion: '📋 Tasks',
+                    studyHours: '⏱️ Study Hours',
+                    topicsCoverage: '📖 Topics',
+                    focusQuality: '🎯 Focus',
+                    consistency: '🔥 Consistency',
+                    lectureAttendance: '🏫 Lectures',
+                    deadlineAdherence: '⏰ Deadlines',
+                    taskDiversity: '🔀 Diversity',
+                    burnout: '💤 Burnout'
+                  };
+                  
+                  return (
+                  <React.Fragment key={idx}>
+                    <tr className="hover:bg-white/[0.02] transition-colors cursor-pointer group"
+                        onClick={() => {
+                          const el = document.getElementById(`factors-${idx}`);
+                          if (el) el.classList.toggle('hidden');
+                        }}>
+                      <td className="p-4 pl-6">
+                        <div className="font-bold text-white text-sm">{course.unitCode}</div>
+                        <div className="text-xs font-semibold text-slate-400 truncate max-w-[200px]">{course.unitName}</div>
+                        <div className="text-[10px] text-slate-500 mt-0.5 group-hover:text-slate-400 transition-colors">
+                          ▸ Click to expand factors
                         </div>
-                      </div>
-                    </td>
-                    <td className="p-4 text-center text-sm font-black text-amber-400">{course.gpa !== undefined ? course.gpa.toFixed(1) : '0.0'}</td>
-                    <td className="p-4 text-center">
-                      <span className={`px-2 py-1 rounded text-xs font-black ${
-                        course.grade === 'A' ? 'bg-emerald-500/20 text-emerald-400' :
-                        course.grade === 'B' ? 'bg-blue-500/20 text-blue-400' :
-                        course.grade === 'C' ? 'bg-yellow-500/20 text-yellow-400' :
-                        course.grade === 'D' ? 'bg-orange-500/20 text-orange-400' :
-                        'bg-red-500/20 text-red-400'
-                      }`}>
-                        {course.grade || 'E'}
-                      </span>
-                    </td>
-                    <td className="p-4 pr-6 text-right">
-                      <span className={`text-xl font-black ${
-                        (course.projectedMark || 0) >= 70 ? 'text-emerald-400' :
-                        (course.projectedMark || 0) >= 60 ? 'text-blue-400' :
-                        (course.projectedMark || 0) >= 50 ? 'text-yellow-400' :
-                        (course.projectedMark || 0) >= 40 ? 'text-orange-400' :
-                        'text-red-400'
-                      }`}>
-                        {course.projectedMark !== undefined ? course.projectedMark.toFixed(1) : '0.0'}%
-                      </span>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="p-4 text-xs font-bold text-slate-300">{course.credits}</td>
+                      <td className="p-4">
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs font-bold text-slate-300 w-8">{course.completionRate}%</div>
+                          <div className="h-1.5 w-16 rounded-full bg-white/5 overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-blue-500"
+                              style={{ width: `${course.completionRate}%` }}
+                            />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="p-4 text-center text-sm font-black text-amber-400">{course.gpa !== undefined ? course.gpa.toFixed(1) : '0.0'}</td>
+                      <td className="p-4 text-center">
+                        <span className={`px-2 py-1 rounded text-xs font-black ${
+                          course.grade === 'A' ? 'bg-emerald-500/20 text-emerald-400' :
+                          course.grade === 'B' ? 'bg-blue-500/20 text-blue-400' :
+                          course.grade === 'C' ? 'bg-yellow-500/20 text-yellow-400' :
+                          course.grade === 'D' ? 'bg-orange-500/20 text-orange-400' :
+                          'bg-red-500/20 text-red-400'
+                        }`}>
+                          {course.grade || 'E'}
+                        </span>
+                      </td>
+                      <td className="p-4 pr-6 text-right">
+                        <span className={`text-xl font-black ${
+                          (course.projectedMark || 0) >= 70 ? 'text-emerald-400' :
+                          (course.projectedMark || 0) >= 60 ? 'text-blue-400' :
+                          (course.projectedMark || 0) >= 50 ? 'text-yellow-400' :
+                          (course.projectedMark || 0) >= 40 ? 'text-orange-400' :
+                          'text-red-400'
+                        }`}>
+                          {course.projectedMark !== undefined ? course.projectedMark.toFixed(1) : '0.0'}%
+                        </span>
+                      </td>
+                    </tr>
+                    {/* Expandable Factor Breakdown */}
+                    <tr id={`factors-${idx}`} className="hidden">
+                      <td colSpan="6" className="p-0">
+                        <div className="bg-navy-900/50 border-t border-b border-white/5 px-6 py-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Factor Breakdown</span>
+                            <span className="text-[10px] font-bold text-slate-500">
+                              Base: {course.baseline || 75} | Modifier: {course.totalModifier > 0 ? '+' : ''}{course.totalModifier || 0}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-3 sm:grid-cols-3 gap-2">
+                            {course.factors && Object.entries(course.factors).map(([key, factor]) => (
+                              <div key={key} className="flex items-center gap-2 bg-white/[0.02] rounded-lg p-2 border border-white/5">
+                                <span className={`text-xs font-black w-10 text-right ${
+                                  factor.score > 0 ? 'text-emerald-400' :
+                                  factor.score < 0 ? 'text-red-400' :
+                                  'text-slate-500'
+                                }`}>
+                                  {factor.score > 0 ? '+' : ''}{factor.score}
+                                </span>
+                                <div className="flex-1 min-w-0">
+                                  <div className="text-[10px] font-black text-slate-300 truncate">{factorLabels[key] || key}</div>
+                                  <div className="text-[9px] text-slate-500 font-semibold truncate">{factor.detail}</div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  </React.Fragment>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="bg-white/[0.02] border-t border-white/10">
-                  <td colSpan="5" className="p-4 pl-6 text-right text-xs font-black uppercase tracking-widest text-slate-400">Semester Mean Average:</td>
+                  <td colSpan="3" className="p-4 pl-6 text-right text-xs font-black uppercase tracking-widest text-slate-400">Semester Mean Average:</td>
+                  <td className="p-4 text-center text-sm font-black text-amber-400">{weightedGpa.toFixed(2)}</td>
+                  <td className="p-4 text-center">
+                    <span className={`px-2 py-1 rounded text-xs font-black ${
+                      gpaData.predictedSemesterMark >= 70 ? 'bg-emerald-500/20 text-emerald-400' :
+                      gpaData.predictedSemesterMark >= 60 ? 'bg-blue-500/20 text-blue-400' :
+                      gpaData.predictedSemesterMark >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
+                      gpaData.predictedSemesterMark >= 40 ? 'bg-orange-500/20 text-orange-400' :
+                      'bg-red-500/20 text-red-400'
+                    }`}>
+                      {gpaData.predictedSemesterMark >= 70 ? 'A' : gpaData.predictedSemesterMark >= 60 ? 'B' : gpaData.predictedSemesterMark >= 50 ? 'C' : gpaData.predictedSemesterMark >= 40 ? 'D' : 'E'}
+                    </span>
+                  </td>
                   <td className="p-4 pr-6 text-right text-2xl font-black text-white">
                     {gpaData.predictedSemesterMark !== undefined ? gpaData.predictedSemesterMark.toFixed(1) : '0.0'}%
                   </td>
@@ -673,7 +745,8 @@ export const Analytics = () => {
             </table>
           </div>
         </div>
-      )}
+        );
+      })()}
     </div>
   );
 };

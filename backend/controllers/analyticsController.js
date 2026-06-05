@@ -170,26 +170,21 @@ exports.recalculateAnalytics = async (req, res, next) => {
   }
 };
 
-// @desc    Predict current semester GPA and cumulative GPA
+// @desc    Predict current semester GPA and cumulative GPA (V2 — 10-Factor Engine)
 // @route   GET /api/analytics/gpa
 // @access  Private
 exports.getGpaPrediction = async (req, res, next) => {
   try {
-    // Fetch user's course units for the current semester
+    // ── Fetch all data sources ────────────────────────────────
     const courseUnits = await CourseUnit.find({ user: req.user._id });
     const tasks = await Task.find({ user: req.user._id });
 
-    // Calculate cumulative Honours Score purely from past results if no current courses exist
+    // No courses → fall back to past results only
     if (courseUnits.length === 0) {
       const cumulativeMark = gpaPredictor.calculateHonoursScore(
-        req.user.pastResults,
-        0,
-        req.user.yearOfStudy || 1
+        req.user.pastResults, 0, req.user.yearOfStudy || 1
       );
-      
       const classification = gpaPredictor.getClassification(cumulativeMark);
-
-      // Persist to user model
       req.user.cumulativeMark = cumulativeMark;
       await req.user.save();
 
@@ -197,31 +192,112 @@ exports.getGpaPrediction = async (req, res, next) => {
         success: true,
         data: {
           predictedSemesterMark: 0,
-          cumulativeMark: cumulativeMark,
-          classification: classification,
+          cumulativeMark,
+          classification,
           courseBreakdown: [],
           message: 'No active course units. Honours predictions generated from Past Results only.'
         }
       });
     }
 
-    // Predict semester Mean Mark using course difficulty and task completion
-    const predictedSemesterMark = gpaPredictor.predictCurrentSemesterMark(courseUnits, tasks);
+    // ── Time windows ─────────────────────────────────────────
+    const now = new Date();
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    fourteenDaysAgo.setHours(0, 0, 0, 0);
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
 
-    // Calculate cumulative Honours Score including past results and weightings
+    // ── Fetch TimeLogs (14 days) for study hours & lecture attendance ──
+    const timeLogs = await TimeLog.find({
+      user: req.user._id,
+      date: { $gte: fourteenDaysAgo, $lte: now }
+    });
+
+    // ── Fetch Analytics records (7 days) for focus & burnout ──
+    const recentAnalytics = await Analytics.find({
+      user: req.user._id,
+      date: { $gte: sevenDaysAgo }
+    }).sort({ date: -1 });
+
+    // ── Compute global metrics ───────────────────────────────
+    let avgFocusScore = null;
+    let avgBurnoutRisk = null;
+    if (recentAnalytics.length > 0) {
+      const sumFocus = recentAnalytics.reduce((s, a) => s + (a.focusScore || 0), 0);
+      const sumBurnout = recentAnalytics.reduce((s, a) => s + (a.burnoutRisk || 0), 0);
+      avgFocusScore = sumFocus / recentAnalytics.length;
+      avgBurnoutRisk = sumBurnout / recentAnalytics.length;
+    }
+
+    const streak = req.user.streak || 0;
+    const lastStudyDate = req.user.lastStudyDate;
+    const daysSinceLastStudy = lastStudyDate
+      ? Math.floor((now - new Date(lastStudyDate)) / (1000 * 60 * 60 * 24))
+      : 999;
+
+    const timetable = req.user.timetable || [];
+
+    // ── Count expected lectures per unit in the 14-day window ──
+    function countExpectedLectures(unitCode, windowDays) {
+      const unitSlots = timetable.filter(slot => 
+        slot.unitName && slot.unitName.toUpperCase().includes(unitCode.toUpperCase())
+      );
+      // Each slot repeats weekly, so slots × (windowDays / 7)
+      const weeks = Math.max(windowDays / 7, 1);
+      return Math.round(unitSlots.length * weeks);
+    }
+
+    // ── Count attended lectures per unit from TimeLogs ──
+    function countAttendedLectures(unitCode) {
+      return timeLogs.filter(log =>
+        log.activityType === 'lecture' &&
+        log.description &&
+        log.description.toUpperCase().includes(unitCode.toUpperCase())
+      ).length;
+    }
+
+    // ── Sum study minutes per unit from TimeLogs ──
+    function getUnitStudyMinutes(unitCode) {
+      return timeLogs
+        .filter(log =>
+          (log.activityType === 'personal_study' || log.activityType === 'lecture') &&
+          log.description &&
+          log.description.toUpperCase().includes(unitCode.toUpperCase())
+        )
+        .reduce((sum, log) => sum + (log.durationMinutes || 0), 0);
+    }
+
+    // ── Build per-unit context map ───────────────────────────
+    const daysInWindow = 14;
+    const contextMap = {};
+    courseUnits.forEach(course => {
+      contextMap[course.unitCode] = {
+        unitStudyMinutes: getUnitStudyMinutes(course.unitCode),
+        daysInWindow,
+        avgFocusScore,
+        streak,
+        daysSinceLastStudy,
+        expectedLectures: countExpectedLectures(course.unitCode, daysInWindow),
+        attendedLectures: countAttendedLectures(course.unitCode),
+        avgBurnoutRisk
+      };
+    });
+
+    // ── Predict semester mean (credit-weighted) ──────────────
+    const predictedSemesterMark = gpaPredictor.predictCurrentSemesterMark(courseUnits, tasks, contextMap);
+
+    // ── Calculate cumulative Honours Score ────────────────────
     const cumulativeMark = gpaPredictor.calculateHonoursScore(
-      req.user.pastResults,
-      predictedSemesterMark,
-      req.user.yearOfStudy || 1
+      req.user.pastResults, predictedSemesterMark, req.user.yearOfStudy || 1
     );
-
     const classification = gpaPredictor.getClassification(cumulativeMark);
 
-    // Persist to user model
     req.user.cumulativeMark = cumulativeMark;
     await req.user.save();
 
-    // Build per-course breakdown for frontend display
+    // ── Build rich per-course breakdown ───────────────────────
     const courseBreakdown = courseUnits.map(course => {
       const courseTasks = tasks.filter(t =>
         t.title.includes(course.unitCode) ||
@@ -230,9 +306,10 @@ exports.getGpaPrediction = async (req, res, next) => {
       const completed = courseTasks.filter(t => t.status === 'completed').length;
       const completionRate = courseTasks.length > 0 ? completed / courseTasks.length : 0;
 
-      const projectedMark = gpaPredictor.predictCourseMark(course, courseTasks);
-      const grade = gpaPredictor.getGrade(projectedMark);
-      const gpa = gpaPredictor.getGpaPoint(projectedMark);
+      const unitContext = contextMap[course.unitCode] || {};
+      const prediction = gpaPredictor.predictCourseMarkV2(course, courseTasks, unitContext);
+      const grade = gpaPredictor.getGrade(prediction.projectedMark);
+      const gpa = gpaPredictor.getGpaPoint(prediction.projectedMark);
 
       return {
         unitCode: course.unitCode,
@@ -242,9 +319,12 @@ exports.getGpaPrediction = async (req, res, next) => {
         taskCount: courseTasks.length,
         tasksCompleted: completed,
         completionRate: Number((completionRate * 100).toFixed(1)),
-        projectedMark: Number(projectedMark.toFixed(2)),
+        projectedMark: prediction.projectedMark,
         grade,
-        gpa
+        gpa,
+        factors: prediction.factors,
+        baseline: prediction.baseline,
+        totalModifier: prediction.totalModifier
       };
     });
 
