@@ -120,8 +120,8 @@ export const Planner = () => {
                 <Calendar className="h-5 w-5 text-accent-gold" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">Target Core Timeline</h3>
               </div>
-              <span className="text-[10px] font-black tracking-wider uppercase text-slate-400">
-                Start: 08:00 AM
+              <span className="text-[10px] font-black tracking-wider uppercase text-amber-400/90">
+                {plan?.planDate ? `Plan for: ${plan.planDate}` : 'Target: Today'}
               </span>
             </div>
 

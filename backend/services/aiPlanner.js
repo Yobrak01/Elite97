@@ -5,21 +5,49 @@ function determineMode(burnoutRisk, focusScore) {
 }
 
 function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal', timetable = []) {
+  const now = new Date();
+  let targetDate = new Date(now);
+  const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+  let dateString = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
   if (mode === 'recovery') {
-    return [
-      { startTime: '08:00', endTime: '10:00', activity: 'Extended Sleep / Rest', category: 'recovery', duration: 120 },
-      { startTime: '10:00', endTime: '11:00', activity: 'Hydration & Light Walk', category: 'recovery', duration: 60 },
-      { startTime: '11:00', endTime: '13:00', activity: 'Hobby / Disconnect', category: 'recovery', duration: 120 },
-      { startTime: '13:00', endTime: '14:00', activity: 'Nutritious Meal', category: 'recovery', duration: 60 },
-      { startTime: '14:00', endTime: '16:00', activity: 'Zero-Screen Rest', category: 'recovery', duration: 120 }
-    ];
+    return {
+      blocks: [
+        { startTime: '08:00', endTime: '10:00', activity: 'Extended Sleep / Rest', category: 'recovery', duration: 120 },
+        { startTime: '10:00', endTime: '11:00', activity: 'Hydration & Light Walk', category: 'recovery', duration: 60 },
+        { startTime: '11:00', endTime: '13:00', activity: 'Hobby / Disconnect', category: 'recovery', duration: 120 },
+        { startTime: '13:00', endTime: '14:00', activity: 'Nutritious Meal', category: 'recovery', duration: 60 },
+        { startTime: '14:00', endTime: '16:00', activity: 'Zero-Screen Rest', category: 'recovery', duration: 120 }
+      ],
+      dateString
+    };
+  }
+
+  const now = new Date();
+  let targetDate = new Date(now);
+  const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+  
+  let currentMinute = 8 * 60; // Start at 08:00 AM
+  
+  if (currentTotalMinutes >= 20 * 60) {
+    // It's after 8 PM, plan for tomorrow
+    targetDate.setDate(targetDate.getDate() + 1);
+  } else {
+    currentMinute = Math.max(8 * 60, currentTotalMinutes); 
+    // Round up to the next 15-minute mark
+    const remainder = currentMinute % 15;
+    if (remainder !== 0) {
+      currentMinute += (15 - remainder);
+    }
   }
 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const todayDayName = days[new Date().getDay()];
+  const targetDayName = days[targetDate.getDay()];
+  
+  const dateString = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
-  // Filter today's lectures from the timetable
-  const todayLectures = timetable.filter(t => t.dayOfWeek === todayDayName || t.day === todayDayName);
+  // Filter lectures for the target day
+  const targetLectures = timetable.filter(t => t.dayOfWeek === targetDayName || t.day === targetDayName);
   
   const parseTime = (timeStr) => {
     if (!timeStr) return 0;
@@ -27,7 +55,7 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     return h * 60 + m;
   };
 
-  const lectures = todayLectures.map(l => ({
+  const lectures = targetLectures.map(l => ({
     start: parseTime(l.startTime),
     end: parseTime(l.endTime),
     unitName: l.unitName
@@ -55,15 +83,6 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
   }
 
   const blocks = [];
-  const now = new Date();
-  const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
-  let currentMinute = Math.max(8 * 60, currentTotalMinutes); 
-  
-  // Round up to the next 15-minute mark for a neat schedule
-  const remainder = currentMinute % 15;
-  if (remainder !== 0) {
-    currentMinute += (15 - remainder);
-  }
 
   let remainingStudyMinutes = availableHours * 60;
   let taskIndex = 0;
@@ -152,7 +171,7 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     remainingStudyMinutes -= currentInterval;
   }
 
-  return blocks;
+  return { blocks, dateString };
 }
 
 function generateRecommendations(analytics, tasks, mode) {

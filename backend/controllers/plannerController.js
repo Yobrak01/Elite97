@@ -40,14 +40,15 @@ exports.getDailyPlan = async (req, res, next) => {
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
     
     // Call aiPlanner without needing courseUnits because tasks are real now
-    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
+    const planData = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
 
     res.status(200).json({
       success: true,
       mode: currentMode,
       studyMode: req.user.studyMode,
       config: modeManager.getModeConfig(req.user.studyMode),
-      blocks: planBlocks
+      blocks: planData.blocks,
+      planDate: planData.dateString
     });
   } catch (error) {
     next(error);
@@ -66,12 +67,13 @@ exports.generatePlan = async (req, res, next) => {
 
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
     
-    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
+    const planData = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
 
     res.status(200).json({
       success: true,
       message: 'AI schedule blocks computed.',
-      blocks: planBlocks
+      blocks: planData.blocks,
+      planDate: planData.dateString
     });
   } catch (error) {
     next(error);
