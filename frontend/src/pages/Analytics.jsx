@@ -635,7 +635,8 @@ export const Analytics = () => {
                     lectureAttendance: '🏫 Lectures',
                     deadlineAdherence: '⏰ Deadlines',
                     taskDiversity: '🔀 Diversity',
-                    burnout: '💤 Burnout'
+                    burnout: '💤 Burnout',
+                    hybridStatus: '🔒 Hybrid Predict'
                   };
                   
                   return (
@@ -700,17 +701,19 @@ export const Analytics = () => {
                           </div>
                           <div className="grid grid-cols-3 sm:grid-cols-3 gap-2">
                             {course.factors && Object.entries(course.factors).map(([key, factor]) => (
-                              <div key={key} className="flex items-center gap-2 bg-white/[0.02] rounded-lg p-2 border border-white/5">
-                                <span className={`text-xs font-black w-10 text-right ${
-                                  factor.score > 0 ? 'text-emerald-400' :
-                                  factor.score < 0 ? 'text-red-400' :
-                                  'text-slate-500'
-                                }`}>
-                                  {factor.score > 0 ? '+' : ''}{factor.score}
-                                </span>
+                              <div key={key} className={`flex items-center gap-2 rounded-lg p-2 border ${key === 'hybridStatus' ? 'col-span-3 bg-amber-500/10 border-amber-500/20' : 'bg-white/[0.02] border-white/5'}`}>
+                                {key !== 'hybridStatus' && (
+                                  <span className={`text-xs font-black w-10 text-right ${
+                                    factor.score > 0 ? 'text-emerald-400' :
+                                    factor.score < 0 ? 'text-red-400' :
+                                    'text-slate-500'
+                                  }`}>
+                                    {factor.score > 0 ? '+' : ''}{factor.score}
+                                  </span>
+                                )}
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-[10px] font-black text-slate-300 truncate">{factorLabels[key] || key}</div>
-                                  <div className="text-[9px] text-slate-500 font-semibold truncate">{factor.detail}</div>
+                                  <div className={`text-[10px] font-black truncate ${key === 'hybridStatus' ? 'text-amber-400' : 'text-slate-300'}`}>{factorLabels[key] || key}</div>
+                                  <div className={`text-[9px] font-semibold truncate ${key === 'hybridStatus' ? 'text-amber-200' : 'text-slate-500'}`}>{factor.detail}</div>
                                 </div>
                               </div>
                             ))}

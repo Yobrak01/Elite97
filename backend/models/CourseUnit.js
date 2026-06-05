@@ -44,6 +44,11 @@ const CourseUnitSchema = new mongoose.Schema({
     title: String,
     completed: { type: Boolean, default: false }
   }],
+  assessmentStructure: [{
+    name: String,
+    weight: Number,
+    achievedScore: { type: Number, default: null } // Score out of 100
+  }],
   aiSuggestedTier: {
     type: String,
     enum: ['tier1_critical', 'tier2_high', 'tier3_standard', 'tier4_low', 'tier5_minimal'],

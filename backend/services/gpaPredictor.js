@@ -254,7 +254,23 @@ function predictCourseMarkV2(course, courseTasks, context = {}) {
     avgBurnoutRisk = null
   } = context;
 
-  // Factor 1: Baseline
+  // Hybrid Calculation Step 1: Sum Locked-In Scores
+  let lockedInScore = 0;
+  let remainingWeight = 100;
+  
+  if (course.assessmentStructure && course.assessmentStructure.length > 0) {
+    course.assessmentStructure.forEach(item => {
+      if (item.achievedScore !== null && item.achievedScore !== undefined) {
+        // e.g. weight=20, achieved=80 -> locked in 16 points out of 100
+        const itemPoints = (item.achievedScore / 100) * item.weight;
+        lockedInScore += itemPoints;
+        remainingWeight -= item.weight;
+      }
+    });
+    remainingWeight = Math.max(0, remainingWeight);
+  }
+
+  // Factor 1: Baseline for the predicted portion
   const baseline = calcDifficultyBaseline(course.difficulty || 3);
 
   // Factors 2-10
@@ -272,8 +288,35 @@ function predictCourseMarkV2(course, courseTasks, context = {}) {
 
   // Sum all factor scores
   const totalModifier = Object.values(factors).reduce((sum, f) => sum + f.score, 0);
-  const rawMark = baseline + totalModifier;
-  const projectedMark = Math.max(0, Math.min(100, rawMark));
+  
+  // Calculate raw predicted mark for the REMAINING weight
+  let rawPredictedMark = baseline + totalModifier;
+  rawPredictedMark = Math.max(0, Math.min(100, rawPredictedMark)); // Cap at 100%
+
+  // Hybrid Calculation Step 2: Combine Locked In + Predicted
+  let projectedMark = 0;
+  
+  if (remainingWeight < 100 && remainingWeight > 0) {
+    // Has some locked-in marks
+    const predictedPoints = (rawPredictedMark / 100) * remainingWeight;
+    projectedMark = lockedInScore + predictedPoints;
+    factors.hybridStatus = {
+      score: 0,
+      detail: `Locked: ${lockedInScore.toFixed(1)}/${(100 - remainingWeight).toFixed(0)} | Predict: ${predictedPoints.toFixed(1)}/${remainingWeight.toFixed(0)}`
+    };
+  } else if (remainingWeight === 0) {
+    // All assessments completed!
+    projectedMark = lockedInScore;
+    factors.hybridStatus = {
+      score: 0,
+      detail: `Final Mark Locked In: ${lockedInScore.toFixed(1)}/100`
+    };
+  } else {
+    // Pure prediction
+    projectedMark = rawPredictedMark;
+  }
+  
+  projectedMark = Math.max(0, Math.min(100, projectedMark));
 
   return {
     projectedMark: Number(projectedMark.toFixed(2)),
