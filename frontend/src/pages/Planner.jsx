@@ -53,6 +53,18 @@ export const Planner = () => {
     }
   };
 
+  const handleStartTask = async (taskId) => {
+    setActionLoading(true);
+    try {
+      await api.tasks.start(taskId);
+      await fetchPlanData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleModeChange = async (mode) => {
     setLoading(true);
     try {
@@ -116,7 +128,7 @@ export const Planner = () => {
             <div className="space-y-4 pt-2">
               {plan?.blocks && plan.blocks.length > 0 ? (
                 plan.blocks.map((block, idx) => (
-                  <ScheduleBlock key={idx} block={block} onComplete={handleCompleteTask} />
+                  <ScheduleBlock key={idx} block={block} onComplete={handleCompleteTask} onStart={handleStartTask} />
                 ))
               ) : (
                 <div className="text-center py-12 text-xs text-slate-500 font-semibold">

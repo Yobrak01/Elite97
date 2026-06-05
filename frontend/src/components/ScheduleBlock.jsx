@@ -1,7 +1,7 @@
 import React from 'react';
-import { BookOpen, Coffee, Dumbbell, Award, Landmark, User, CheckSquare } from 'lucide-react';
+import { BookOpen, Coffee, Dumbbell, Award, Landmark, User, CheckSquare, Play } from 'lucide-react';
 
-export const ScheduleBlock = ({ block, onComplete }) => {
+export const ScheduleBlock = ({ block, onComplete, onStart }) => {
   const getCategoryTheme = (cat) => {
     switch (cat) {
       case 'study':
@@ -43,9 +43,19 @@ export const ScheduleBlock = ({ block, onComplete }) => {
         </div>
 
         <div className="flex items-center gap-3">
+          {block.taskId && onStart && (
+            <button
+              onClick={() => onStart(block.taskId)}
+              title="Mark In Progress"
+              className="flex items-center gap-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-white px-2 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              <Play className="h-3.5 w-3.5" />
+            </button>
+          )}
           {block.taskId && onComplete && (
             <button
               onClick={() => onComplete(block.taskId)}
+              title="Mark Completed"
               className="flex items-center gap-1 rounded-lg bg-accent-gold/10 border border-accent-gold/20 text-accent-gold hover:bg-accent-gold hover:text-white px-2 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
             >
               <CheckSquare className="h-3.5 w-3.5" />

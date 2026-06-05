@@ -4,7 +4,7 @@ function determineMode(burnoutRisk, focusScore) {
   return 'balanced';
 }
 
-function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal', timetable = [], courseUnits = []) {
+function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal', timetable = []) {
   if (mode === 'recovery') {
     return [
       { startTime: '08:00', endTime: '10:00', activity: 'Extended Sleep / Rest', category: 'recovery', duration: 120 },
@@ -33,35 +33,8 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     unitName: l.unitName
   })).sort((a, b) => a.start - b.start);
 
-  const tierWeights = { 'tier1_critical': 4, 'tier2_high': 3, 'tier3_maintain': 2, 'tier4_monitor': 1 };
-  
-  // Auto-allocate study blocks for course units to ensure no unit is left behind (Req #1 & #3)
-  const autoTasks = (courseUnits || []).map(cu => ({
-    _id: `auto_${cu._id}`,
-    title: `Focus Area: ${cu.unitName} (${cu.unitCode})`,
-    type: 'revision',
-    // Increase priority of weak units
-    priority: tierWeights[cu.aiSuggestedTier] || 2,
-    estimatedHours: 1.0,
-    isAuto: true
-  }));
-
-  // Combine user tasks with auto tasks. Bump user task priority slightly to prioritize explicit tasks over general study.
-  const allTasks = [
-    ...tasks.filter(t => t.status !== 'completed').map(t => {
-      // Create a shallow copy to modify priority without mutating original
-      const tCopy = t.toObject ? t.toObject() : { ...t };
-      tCopy.priority = (tCopy.priority || 1) + 0.5;
-      return tCopy;
-    }),
-    ...autoTasks
-  ];
-
-  const activeTasks = allTasks.sort((a, b) => {
-    if (b.priority !== a.priority) return b.priority - a.priority;
-    if (a.deadline && b.deadline) return new Date(a.deadline) - new Date(b.deadline);
-    return 0;
-  });
+  const activeTasks = tasks.filter(t => t.status !== 'completed')
+    .sort((a, b) => (b.priority - a.priority) || (new Date(a.deadline) - new Date(b.deadline)));
 
   let availableHours = settings.dailyGoalHours || 6;
   let interval = settings.breakInterval || 25;
@@ -148,10 +121,7 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     if (activeTasks[taskIndex]) {
       const activeTask = activeTasks[taskIndex];
       currentActivity = `Work on: ${activeTask.title} (${activeTask.type})`;
-      // Only set taskId if it's a real user task, not an auto-generated one
-      if (!activeTask.isAuto) {
-        currentTaskId = activeTask._id;
-      }
+      currentTaskId = activeTask._id;
       
       activeTask.estimatedHours -= (currentInterval / 60);
       if (activeTask.estimatedHours <= 0) {
