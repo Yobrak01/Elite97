@@ -26,14 +26,20 @@ async function buildContext(userId, today, streak) {
     completedAt: { $gte: today, $lte: new Date(today.getTime() + 86400000) }
   });
 
-  const studyHours = session ? session.studyHours : 0;
+  // TimeLogs for today
+  const logsToday = await TimeLog.find({ user: userId, date: today });
+  
+  const personalStudyTimeLogs = logsToday
+    .filter(l => l.activityType === 'personal_study' || l.activityType === 'lecture')
+    .reduce((s, l) => s + (l.durationMinutes / 60), 0);
+    
+  const studyHours = (session ? session.studyHours : 0) + personalStudyTimeLogs;
+  
   const tasksCompleted = completedTasksToday;
   const totalTasks = totalTasksToday;
   const breaks = session ? session.breaks : 0;
   const subjectsCount = session && session.subjects && session.subjects.length > 0 ? session.subjects.length : 1;
 
-  // TimeLogs for today
-  const logsToday = await TimeLog.find({ user: userId, date: today });
   const restHours = logsToday.filter(l => l.activityType === 'rest').reduce((s, l) => s + (l.durationMinutes / 60), 0);
   const hasGym = logsToday.some(l => l.activityType === 'gym');
   
@@ -292,7 +298,7 @@ exports.getGpaPrediction = async (req, res, next) => {
     // ── Count expected lectures per unit in the 14-day window ──
     function countExpectedLectures(unitCode, windowDays) {
       const unitSlots = timetable.filter(slot => 
-        slot.unitName && slot.unitName.toUpperCase().includes(unitCode.toUpperCase())
+        slot && slot.unitName && slot.unitName.toUpperCase().includes(unitCode.toUpperCase())
       );
       // Each slot repeats weekly, so slots × (windowDays / 7)
       const weeks = Math.max(windowDays / 7, 1);

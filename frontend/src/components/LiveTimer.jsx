@@ -33,6 +33,8 @@ export const LiveTimer = () => {
   const [manualMode, setManualMode] = useState(false);
   const [manualDuration, setManualDuration] = useState('');
   const [todayLogs, setTodayLogs] = useState([]);
+  const [courses, setCourses] = useState([]);
+  const [selectedCourse, setSelectedCourse] = useState('');
   const [loadingAction, setLoadingAction] = useState(false);
   const intervalRef = useRef(null);
 
@@ -46,9 +48,19 @@ export const LiveTimer = () => {
     }
   }, []);
 
+  const fetchCourses = useCallback(async () => {
+    try {
+      const res = await api.courses.getAll();
+      setCourses(res.data || []);
+    } catch (err) {
+      console.error('Failed to fetch courses:', err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchTodayLogs();
-  }, [fetchTodayLogs]);
+    fetchCourses();
+  }, [fetchTodayLogs, fetchCourses]);
 
   // Timer tick
   useEffect(() => {
@@ -62,7 +74,7 @@ export const LiveTimer = () => {
     return () => clearInterval(intervalRef.current);
   }, [isRunning]);
 
-  const handleStart = async (overrideType = null) => {
+  const handleStart = async (overrideType = null, description = null) => {
     if (loadingAction) return;
     setLoadingAction(true);
     
@@ -71,9 +83,11 @@ export const LiveTimer = () => {
     if (typeof overrideType === 'string' && overrideType !== activityType) {
       setActivityType(overrideType);
     }
+    
+    const finalDesc = description || (selectedCourse ? `[Unit: ${selectedCourse}]` : undefined);
 
     try {
-      const res = await api.tracker.startTimer({ activityType: typeToUse });
+      const res = await api.tracker.startTimer({ activityType: typeToUse, description: finalDesc });
       setActiveLogId(res.data?._id || res.data?.id);
       setElapsedSeconds(0);
       setIsRunning(true);
@@ -86,11 +100,11 @@ export const LiveTimer = () => {
 
   useEffect(() => {
     const handleStartTimerEvent = async (e) => {
-      const { type } = e.detail;
+      const { type, name } = e.detail;
       setIsExpanded(true);
       
       if (!isRunning) {
-        handleStart(type);
+        handleStart(type, name);
       }
     };
 
@@ -118,10 +132,12 @@ export const LiveTimer = () => {
   const handleManualLog = async () => {
     if (loadingAction || !manualDuration || Number(manualDuration) <= 0) return;
     setLoadingAction(true);
+    const finalDesc = selectedCourse ? `[Unit: ${selectedCourse}]` : undefined;
     try {
       await api.tracker.manualLog({
         activityType,
-        durationMinutes: Number(manualDuration)
+        durationMinutes: Number(manualDuration),
+        description: finalDesc
       });
       setManualDuration('');
       fetchTodayLogs();
@@ -233,6 +249,23 @@ export const LiveTimer = () => {
               })}
             </div>
           </div>
+          
+          {/* Course Unit Selector */}
+          {(!isRunning && (activityType === 'personal_study' || activityType === 'lecture')) && (
+            <div className="space-y-2 animate-fade-in">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Course Unit (Optional)</p>
+              <select
+                value={selectedCourse}
+                onChange={(e) => setSelectedCourse(e.target.value)}
+                className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-accent-gold/30 transition-colors"
+              >
+                <option value="">-- No specific unit --</option>
+                {courses.map(c => (
+                  <option key={c._id} value={c.unitCode}>{c.unitCode} - {c.unitName}</option>
+                ))}
+              </select>
+            </div>
+          )}
 
           {/* Start / Stop / Log Button */}
           <div>

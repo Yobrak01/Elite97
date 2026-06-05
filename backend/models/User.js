@@ -62,12 +62,15 @@ const UserSchema = new mongoose.Schema({
   currentSemester: {
     type: Number
   },
-  timetable: [{
-    dayOfWeek: String,
-    startTime: String,
-    endTime: String,
-    unitName: String
-  }],
+  timetable: {
+    type: [{
+      dayOfWeek: String,
+      startTime: String,
+      endTime: String,
+      unitName: { type: String, required: true }
+    }],
+    default: []
+  },
   studyGauge: {
     priming: { type: Number, default: 0 },
     encoding: { type: Number, default: 0 },

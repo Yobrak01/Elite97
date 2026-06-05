@@ -206,7 +206,7 @@ export const Diagnostic = () => {
         </div>
         
         <div className="mt-4 text-center text-sm text-slate-500">
-          Question {currentQuestion + 1} of {QUESTIONS.length}
+          Question {currentQuestion + 1} of {questions.length}
         </div>
       </div>
     </div>

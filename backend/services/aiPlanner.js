@@ -55,8 +55,16 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
   }
 
   const blocks = [];
+  const now = new Date();
+  const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+  let currentMinute = Math.max(8 * 60, currentTotalMinutes); 
   
-  let currentMinute = 8 * 60; // Start daily schedule at 08:00 AM
+  // Round up to the next 15-minute mark for a neat schedule
+  const remainder = currentMinute % 15;
+  if (remainder !== 0) {
+    currentMinute += (15 - remainder);
+  }
+
   let remainingStudyMinutes = availableHours * 60;
   let taskIndex = 0;
   let lectureIndex = 0;
