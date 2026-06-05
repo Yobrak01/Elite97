@@ -20,7 +20,7 @@ const AnalyticsSchema = new mongoose.Schema({
   },
   burnoutLevel: {
     type: String,
-    enum: ['low', 'moderate', 'high'],
+    enum: ['low', 'moderate', 'high', 'critical'],
     default: 'low'
   },
   completionPercentage: {

@@ -9,49 +9,121 @@ const aiPlanner = require('../services/aiPlanner');
 const gpaPredictor = require('../services/gpaPredictor');
 const mitBenchmarker = require('../services/mitBenchmarker');
 
+// Helper function to build comprehensive context
+async function buildContext(userId, today, streak) {
+  const last7Days = new Date(today);
+  last7Days.setDate(last7Days.getDate() - 7);
+
+  const session = await StudySession.findOne({ user: userId, date: today });
+  
+  const totalTasksToday = await Task.countDocuments({
+    user: userId,
+    createdAt: { $lte: new Date(today.getTime() + 86400000) }
+  });
+  const completedTasksToday = await Task.countDocuments({
+    user: userId,
+    status: 'completed',
+    completedAt: { $gte: today, $lte: new Date(today.getTime() + 86400000) }
+  });
+
+  const studyHours = session ? session.studyHours : 0;
+  const tasksCompleted = completedTasksToday;
+  const totalTasks = totalTasksToday;
+  const breaks = session ? session.breaks : 0;
+  const subjectsCount = session && session.subjects && session.subjects.length > 0 ? session.subjects.length : 1;
+
+  // TimeLogs for today
+  const logsToday = await TimeLog.find({ user: userId, date: today });
+  const restHours = logsToday.filter(l => l.activityType === 'rest').reduce((s, l) => s + (l.durationMinutes / 60), 0);
+  const hasGym = logsToday.some(l => l.activityType === 'gym');
+  
+  const hasMorning = logsToday.some(l => {
+    const h = new Date(l.startTime || l.createdAt).getHours();
+    return h >= 5 && h < 12;
+  });
+  const hasAfternoon = logsToday.some(l => {
+    const h = new Date(l.startTime || l.createdAt).getHours();
+    return h >= 12 && h < 18;
+  });
+  const hasLateNight = logsToday.some(l => {
+    const h = new Date(l.startTime || l.createdAt).getHours();
+    return h >= 22 || h < 4;
+  });
+
+  // Consecutive high days (>8h)
+  const recentSessions = await StudySession.find({ user: userId, date: { $gte: last7Days } }).sort({ date: -1 });
+  let consecutiveHighDays = 0;
+  for (let s of recentSessions) {
+    if (s.studyHours > 8) consecutiveHighDays++;
+    else break;
+  }
+
+  // Trend worsening
+  const recentAnalytics = await Analytics.find({ user: userId, date: { $gte: last7Days } }).sort({ date: -1 }).limit(2);
+  let trendWorsening = false;
+  if (recentAnalytics.length === 2) {
+    trendWorsening = recentAnalytics[0].burnoutRisk > recentAnalytics[1].burnoutRisk;
+  }
+
+  const completionPercentage = analyticsEngine.calculateCompletionPercentage(tasksCompleted, totalTasks);
+  const finalRestHours = restHours > 0 ? restHours : Math.max(4, 9 - (studyHours * 0.4) - (breaks * 0.1));
+
+  return {
+    studyHours,
+    completionPercentage,
+    breaks,
+    hasMorning,
+    hasAfternoon,
+    hasLateNight,
+    subjectsCount,
+    streak,
+    restHours: finalRestHours,
+    hasGym,
+    consecutiveHighDays,
+    tasksCompleted,
+    trendWorsening
+  };
+}
+
 exports.getDashboard = async (req, res, next) => {
   try {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Fetch or create today's analytics
-    let analytics = await Analytics.findOne({ user: req.user._id, date: today });
+    const context = await buildContext(req.user._id, today, req.user.streak || 0);
+    
+    // Check if session has overridden focusScore
+    const session = await StudySession.findOne({ user: req.user._id, date: today });
+    const focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
+    
+    context.focusScore = focusScore;
 
-    if (!analytics) {
-      // Find today's session
-      const session = await StudySession.findOne({ user: req.user._id, date: today });
-      const studyHours = session ? session.studyHours : 0;
-      const tasksCompleted = session ? session.tasksCompleted : 0;
-      const totalTasks = session ? session.totalTasks : 0;
+    const burnoutResult = burnoutDetector.detectBurnout(context);
+    const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
+    const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0);
+    
+    const tasks = await Task.find({ user: req.user._id });
+    const recommendations = aiPlanner.generateRecommendations(
+      { focusScore, completionPercentage: context.completionPercentage, studyHours: context.studyHours },
+      tasks,
+      calculatedMode
+    );
 
-      const completionPercentage = analyticsEngine.calculateCompletionPercentage(tasksCompleted, totalTasks);
-      const focusScore = session ? session.focusScore : analyticsEngine.calculateFocusScore(completionPercentage, studyHours);
-      
-      const burnoutResult = burnoutDetector.detectBurnout(studyHours, focusScore, completionPercentage);
-      const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
-      const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, completionPercentage, req.user.streak);
-      
-      const tasks = await Task.find({ user: req.user._id });
-      const recommendations = aiPlanner.generateRecommendations(
-        { focusScore, completionPercentage, studyHours },
-        tasks,
-        calculatedMode
-      );
-
-      analytics = await Analytics.create({
-        user: req.user._id,
-        date: today,
+    const analytics = await Analytics.findOneAndUpdate(
+      { user: req.user._id, date: today },
+      {
         focusScore,
         burnoutRisk: burnoutResult.risk,
         burnoutLevel: burnoutResult.level,
-        completionPercentage,
+        completionPercentage: context.completionPercentage,
         productivityScore,
-        streak: req.user.streak,
-        studyHours,
+        streak: req.user.streak || 0,
+        studyHours: context.studyHours,
         mode: calculatedMode,
         recommendations
-      });
-    }
+      },
+      { upsert: true, new: true }
+    );
 
     res.status(200).json({ success: true, data: analytics });
   } catch (error) {
@@ -81,20 +153,11 @@ exports.getBurnoutAssessment = async (req, res, next) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const context = await buildContext(req.user._id, today, req.user.streak || 0);
     const session = await StudySession.findOne({ user: req.user._id, date: today });
-    
-    const studyHours = session ? session.studyHours : 0;
-    const focusScore = session ? session.focusScore : 0;
-    const tasksCompleted = session ? session.tasksCompleted : 0;
-    const totalTasks = session ? session.totalTasks : 0;
-    const breaks = session ? session.breaks : 0;
+    context.focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
 
-    const completionPercentage = analyticsEngine.calculateCompletionPercentage(tasksCompleted, totalTasks);
-    
-    // Check rest: assume 8 hours base rest, subtract studyHours/2
-    const assumedRest = Math.max(4, 9 - (studyHours * 0.4) - (breaks * 0.1));
-
-    const burnout = burnoutDetector.detectBurnout(studyHours, focusScore, completionPercentage, assumedRest);
+    const burnout = burnoutDetector.detectBurnout(context);
     res.status(200).json({ success: true, data: burnout });
   } catch (error) {
     next(error);
@@ -122,28 +185,18 @@ exports.recalculateAnalytics = async (req, res, next) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const context = await buildContext(req.user._id, today, req.user.streak || 0);
     const session = await StudySession.findOne({ user: req.user._id, date: today });
     const tasks = await Task.find({ user: req.user._id });
+    
+    const focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
+    context.focusScore = focusScore;
 
-    const totalTasksToday = await Task.countDocuments({
-      user: req.user._id,
-      createdAt: { $lte: new Date(today.getTime() + 86400000) }
-    });
-    const completedTasksToday = await Task.countDocuments({
-      user: req.user._id,
-      status: 'completed',
-      completedAt: { $gte: today, $lte: new Date(today.getTime() + 86400000) }
-    });
-
-    const studyHours = session ? session.studyHours : 0;
-    const completionPercentage = analyticsEngine.calculateCompletionPercentage(completedTasksToday, totalTasksToday);
-    const focusScore = session ? session.focusScore : analyticsEngine.calculateFocusScore(completionPercentage, studyHours);
-    const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, completionPercentage, req.user.streak);
-
-    const burnoutResult = burnoutDetector.detectBurnout(studyHours, focusScore, completionPercentage);
+    const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0);
+    const burnoutResult = burnoutDetector.detectBurnout(context);
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
     const recommendations = aiPlanner.generateRecommendations(
-      { focusScore, completionPercentage, studyHours },
+      { focusScore, completionPercentage: context.completionPercentage, studyHours: context.studyHours },
       tasks,
       calculatedMode
     );
@@ -154,10 +207,10 @@ exports.recalculateAnalytics = async (req, res, next) => {
         focusScore,
         burnoutRisk: burnoutResult.risk,
         burnoutLevel: burnoutResult.level,
-        completionPercentage,
+        completionPercentage: context.completionPercentage,
         productivityScore,
-        streak: req.user.streak,
-        studyHours,
+        streak: req.user.streak || 0,
+        studyHours: context.studyHours,
         mode: calculatedMode,
         recommendations
       },
@@ -170,9 +223,6 @@ exports.recalculateAnalytics = async (req, res, next) => {
   }
 };
 
-// @desc    Predict current semester GPA and cumulative GPA (V2 — 10-Factor Engine)
-// @route   GET /api/analytics/gpa
-// @access  Private
 exports.getGpaPrediction = async (req, res, next) => {
   try {
     // ── Fetch all data sources ────────────────────────────────
@@ -342,9 +392,6 @@ exports.getGpaPrediction = async (req, res, next) => {
   }
 };
 
-// @desc    Calculate MIT Engineering global ranking percentile
-// @route   GET /api/analytics/mit-ranking
-// @access  Private
 exports.getMitRanking = async (req, res, next) => {
   try {
     const now = new Date();
@@ -352,7 +399,6 @@ exports.getMitRanking = async (req, res, next) => {
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
     sevenDaysAgo.setHours(0, 0, 0, 0);
 
-    // Aggregate study-related hours from TimeLogs (personal_study + lecture)
     const studyAggregation = await TimeLog.aggregate([
       {
         $match: {
@@ -372,7 +418,6 @@ exports.getMitRanking = async (req, res, next) => {
     const weeklyStudyMinutes = studyAggregation.length > 0 ? studyAggregation[0].totalStudyMinutes : 0;
     const weeklyStudyHours = Number((weeklyStudyMinutes / 60).toFixed(1));
 
-    // Get the latest analytics records for performance metrics
     const recentAnalytics = await Analytics.find({
       user: req.user._id,
       date: { $gte: sevenDaysAgo }
@@ -392,7 +437,6 @@ exports.getMitRanking = async (req, res, next) => {
       avgProductivity = Number((sumProductivity / recentAnalytics.length).toFixed(1));
     }
 
-    // Calculate MIT percentile using the benchmarker
     const percentile = mitBenchmarker.calculateMitPercentile(
       weeklyStudyHours,
       avgFocusScore,
@@ -400,7 +444,6 @@ exports.getMitRanking = async (req, res, next) => {
       avgProductivity
     );
 
-    // Save the percentile to the user profile
     req.user.mitRankPercentile = percentile;
     await req.user.save();
 
