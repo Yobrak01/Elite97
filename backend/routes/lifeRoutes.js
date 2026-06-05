@@ -7,6 +7,7 @@ router.use(authMiddleware);
 
 // Workout routes
 router.get('/workout/weekly', lifeController.getWeeklyWorkout);
+router.post('/workout/regenerate', lifeController.regenerateWeeklyWorkout);
 router.get('/workout/today', lifeController.getTodayWorkout);
 router.patch('/workout/:id/exercise', lifeController.completeExercise);
 

@@ -4,6 +4,8 @@ const StudySession = require('../models/StudySession');
 const aiPlanner = require('../services/aiPlanner');
 const modeManager = require('../services/modeManager');
 
+const CourseUnit = require('../models/CourseUnit');
+
 exports.getDailyPlan = async (req, res, next) => {
   try {
     const today = new Date();
@@ -13,7 +15,10 @@ exports.getDailyPlan = async (req, res, next) => {
     const currentMode = analytics ? analytics.mode : 'balanced';
 
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
-    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
+    const courseUnits = await CourseUnit.find({ user: req.user._id });
+    
+    // Pass courseUnits as the 6th argument
+    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable, courseUnits);
 
     res.status(200).json({
       success: true,
@@ -36,7 +41,9 @@ exports.generatePlan = async (req, res, next) => {
     const currentMode = analytics ? analytics.mode : 'balanced';
 
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
-    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
+    const courseUnits = await CourseUnit.find({ user: req.user._id });
+    
+    const planBlocks = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable, courseUnits);
 
     res.status(200).json({
       success: true,

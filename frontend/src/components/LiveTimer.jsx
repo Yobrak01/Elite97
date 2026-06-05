@@ -107,6 +107,7 @@ export const LiveTimer = () => {
       setActiveLogId(null);
       setElapsedSeconds(0);
       fetchTodayLogs();
+      window.dispatchEvent(new CustomEvent('time-logged'));
     } catch (err) {
       console.error('Failed to stop timer:', err);
     } finally {

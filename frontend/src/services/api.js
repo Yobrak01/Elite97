@@ -330,6 +330,13 @@ export const api = {
       });
       return handleResponse(res);
     },
+    regenerateWeeklyWorkout: async () => {
+      const res = await fetch(`${API_URL}/life/workout/regenerate`, {
+        method: 'POST',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
     getTodayWorkout: async () => {
       const res = await fetch(`${API_URL}/life/workout/today`, {
         headers: getHeaders()

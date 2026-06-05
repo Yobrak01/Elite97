@@ -211,11 +211,49 @@ exports.regenerateMeal = async (req, res, next) => {
     
     const newMeal = await MealPlan.create({
       user: req.user._id,
-      date: new Date(),
-      meals: mealPlan
+      date: today, // Fixed date boundary to avoid midnight-shift bugs
+      breakfast: mealPlan.breakfast,
+      lunch: mealPlan.lunch,
+      dinner: mealPlan.dinner
     });
 
     res.status(200).json({ success: true, data: newMeal });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Regenerate the entire week's workout plan
+// @route   POST /api/life/workout/regenerate
+// @access  Private
+exports.regenerateWeeklyWorkout = async (req, res, next) => {
+  try {
+    const mondayDate = getMondayOfWeek(new Date());
+    const sundayDate = new Date(mondayDate);
+    sundayDate.setDate(sundayDate.getDate() + 6);
+    sundayDate.setHours(23, 59, 59, 999);
+
+    // Delete existing workouts for this week
+    await Workout.deleteMany({
+      user: req.user._id,
+      date: { $gte: mondayDate, $lte: sundayDate }
+    });
+
+    // Generate new workouts
+    const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable || []);
+    
+    const workoutDocs = weeklyPlan.map(day => ({
+      user: req.user._id,
+      date: day.date,
+      splitType: day.splitType,
+      exercises: day.exercises,
+      isCompleted: false,
+      durationMinutes: 0
+    }));
+
+    const workouts = await Workout.insertMany(workoutDocs);
+
+    res.status(200).json({ success: true, data: workouts });
   } catch (error) {
     next(error);
   }

@@ -61,7 +61,7 @@ const GymTab = () => {
   const handleGenerateWeekly = async () => {
     setGenerating(true);
     try {
-      await api.life.getWeeklyWorkout();
+      await api.life.regenerateWeeklyWorkout();
       await fetchWorkout();
     } catch (err) {
       console.error('Failed to generate weekly plan:', err);
