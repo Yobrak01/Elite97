@@ -120,10 +120,23 @@ export const Diagnostic = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     const results = calculateResults();
+    
+    // Map to Mongoose schema exact fields
+    const payload = {
+      priming: results.scores.Priming,
+      encoding: results.scores.Encoding,
+      reference: results.scores.Reference,
+      retrieval: results.scores.Retrieval,
+      interleaving: results.scores.Interleaving,
+      overlearning: results.scores.Overlearning,
+      tier: results.tier
+    };
+
     try {
-      const res = await api.auth.updateSettings({ studyGauge: results });
-      // Update local context
-      updateUser({ ...user, studyGauge: results, settings: res.user?.settings || user.settings });
+      const res = await api.auth.updateSettings({ studyGauge: payload });
+      if (user) {
+        updateUser({ ...user, studyGauge: payload, settings: res.user?.settings || user.settings });
+      }
       navigate('/analytics');
     } catch (err) {
       console.error(err);
