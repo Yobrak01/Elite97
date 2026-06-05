@@ -118,7 +118,8 @@ exports.updateSettings = async (req, res, next) => {
     if (timetable !== undefined) req.user.timetable = timetable;
     if (pastResults !== undefined) req.user.pastResults = pastResults;
     if (studyGauge !== undefined) {
-      req.user.studyGauge = { ...req.user.studyGauge, ...studyGauge };
+      // Use Object.assign to avoid spreading a mongoose subdocument which causes circular reference crashes
+      Object.assign(req.user.studyGauge, studyGauge);
     }
 
     await req.user.save();
