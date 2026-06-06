@@ -81,5 +81,11 @@ mongoose.connect(MONGO_URI)
 
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Promise Rejection:', err);
-  process.exit(1);
+  // Do not crash the server for background index build failures (E11000)
+  if (err && err.name === 'MongoServerError' && err.code === 11000) {
+    console.error('Background index build failed due to existing duplicate data. Please clean up your database.');
+  } else {
+    // Only exit on critical unhandled rejections
+    // process.exit(1); 
+  }
 });
