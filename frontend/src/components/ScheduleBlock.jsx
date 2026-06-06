@@ -47,18 +47,20 @@ export const ScheduleBlock = ({ block, onComplete, onStart }) => {
             <button
               onClick={() => onStart(block.taskId)}
               title="Mark In Progress"
-              className="flex items-center gap-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 hover:bg-amber-500 hover:text-white px-2 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+              className="flex items-center gap-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all"
             >
               <Play className="h-3.5 w-3.5" />
+              <span>Start</span>
             </button>
           )}
           {block.taskId && onComplete && (
             <button
               onClick={() => onComplete(block.taskId)}
               title="Mark Completed"
-              className="flex items-center gap-1 rounded-lg bg-accent-gold/10 border border-accent-gold/20 text-accent-gold hover:bg-accent-gold hover:text-white px-2 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+              className="flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all"
             >
               <CheckSquare className="h-3.5 w-3.5" />
+              <span>Complete</span>
             </button>
           )}
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-navy-900 border border-white/5">

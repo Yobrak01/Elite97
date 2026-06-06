@@ -1,5 +1,6 @@
 const Task = require('../models/Task');
 const { computeAiTier } = require('../services/tierEngine');
+const mongoose = require('mongoose');
 
 exports.getTasks = async (req, res, next) => {
   try {
@@ -15,17 +16,12 @@ exports.getTasks = async (req, res, next) => {
     const endOfToday = new Date();
     endOfToday.setHours(23, 59, 59, 999);
     
-    let modified = false;
-    for (let t of tasks) {
-      if (t.status !== 'completed' && t.deadline && new Date(t.deadline) <= endOfToday && t.priority < 5) {
-        t.priority = 5;
-        t.aiSuggestedTier = 'tier1_critical';
-        await t.save();
-        modified = true;
-      }
-    }
+    const updateResult = await Task.updateMany(
+      { user: req.user._id, status: { $ne: 'completed' }, deadline: { $lte: endOfToday }, priority: { $lt: 5 } },
+      { $set: { priority: 5, aiSuggestedTier: 'tier1_critical' } }
+    );
 
-    if (modified) {
+    if (updateResult.modifiedCount > 0) {
       tasks = await Task.find(query).sort({ priority: -1, deadline: 1 });
     }
 
@@ -141,12 +137,12 @@ exports.getTaskStats = async (req, res, next) => {
     const inProgress = await Task.countDocuments({ user: req.user._id, status: 'in_progress' });
 
     const byType = await Task.aggregate([
-      { $match: { user: req.user._id } },
+      { $match: { user: new mongoose.Types.ObjectId(req.user._id) } },
       { $group: { _id: '$type', count: { $sum: 1 } } }
     ]);
 
     const byPriority = await Task.aggregate([
-      { $match: { user: req.user._id } },
+      { $match: { user: new mongoose.Types.ObjectId(req.user._id) } },
       { $group: { _id: '$priority', count: { $sum: 1 } } }
     ]);
 

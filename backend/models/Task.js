@@ -57,5 +57,6 @@ const TaskSchema = new mongoose.Schema({
 
 // Index for query optimization
 TaskSchema.index({ user: 1, status: 1 });
+TaskSchema.index({ user: 1, deadline: 1 });
 
 module.exports = mongoose.model('Task', TaskSchema);

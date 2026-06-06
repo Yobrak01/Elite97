@@ -39,7 +39,11 @@ exports.createSession = async (req, res, next) => {
     });
 
     const completionPercentage = analyticsEngine.calculateCompletionPercentage(completedTasks, totalTasks);
-    const calculatedFocusScore = focusScore || analyticsEngine.calculateFocusScore(completionPercentage, studyHours);
+    const calculatedFocusScore = focusScore || analyticsEngine.calculateFocusScore({
+      studyHours,
+      completionPercentage,
+      breaks: breaks || 0
+    });
 
     // Create session
     const session = await StudySession.create({
@@ -61,7 +65,11 @@ exports.createSession = async (req, res, next) => {
     await req.user.save();
 
     // Recalculate and update Analytics object for the day
-    const burnoutResult = burnoutDetector.detectBurnout(studyHours, calculatedFocusScore, completionPercentage);
+    const burnoutResult = burnoutDetector.detectBurnout({
+      studyHours,
+      focusScore: calculatedFocusScore,
+      completionPercentage
+    });
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, calculatedFocusScore);
     const productivityScore = analyticsEngine.calculateProductivityScore(calculatedFocusScore, completionPercentage, newStreak);
     

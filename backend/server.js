@@ -5,6 +5,11 @@ const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+if (!process.env.JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set.');
+  process.exit(1);
+}
+
 const authRoutes = require('./routes/authRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
@@ -23,7 +28,7 @@ app.use(helmet());
 
 // CORS Setup
 app.use(cors({
-  origin: '*', // Dynamic configuration in production
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -73,3 +78,8 @@ mongoose.connect(MONGO_URI)
     console.error('MongoDB connection error:', err);
     process.exit(1);
   });
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Promise Rejection:', err);
+  process.exit(1);
+});

@@ -1,4 +1,4 @@
-exports.classifyUnit = (course, unitName) => {
+exports.classifyUnit = (unitName) => {
   if (!unitName) return 3;
 
   const lowerUnit = unitName.toLowerCase();

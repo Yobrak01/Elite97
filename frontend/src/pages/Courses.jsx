@@ -205,7 +205,7 @@ export const Courses = () => {
                   <div className="flex justify-between items-start">
                     <h4 className="text-lg font-bold tracking-wide text-white">{course.unitCode}</h4>
                     <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${getTierBadgeClasses(course.aiSuggestedTier)}`}>
-                      {course.aiSuggestedTier.replace('_', ' ')}
+                      {(course.aiSuggestedTier || 'unranked').replace('_', ' ')}
                     </div>
                   </div>
                   <p className="text-sm font-semibold text-slate-300">{course.unitName}</p>

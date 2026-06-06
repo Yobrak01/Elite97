@@ -96,6 +96,16 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
             </button>
           )}
 
+          {task.status === 'pending' && onStart && (
+            <button
+              onClick={() => onStart(task._id)}
+              className="flex items-center gap-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              <PlayCircle className="h-3.5 w-3.5" />
+              In Progress
+            </button>
+          )}
+
           {task.status !== 'completed' && onComplete && (
             <button
               onClick={() => onComplete(task._id)}

@@ -43,8 +43,8 @@ function generateDailyMealPlan() {
 
   // Dinner: Carb + protein + veg (Different from lunch if possible)
   const dinner = [];
-  let dCarb = getRandom(['rice', 'ugali']);
-  while (dCarb === lCarb) { dCarb = getRandom(['rice', 'ugali']); } // try to vary
+  const dinnerCarbs = ['rice', 'ugali'].filter(c => c !== lCarb);
+  const dCarb = dinnerCarbs.length > 0 ? getRandom(dinnerCarbs) : getRandom(['rice', 'ugali']);
   
   let dProtein = getRandom(['beans', 'meat', 'liver']);
   

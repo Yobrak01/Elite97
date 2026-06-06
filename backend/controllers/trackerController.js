@@ -1,4 +1,5 @@
 const TimeLog = require('../models/TimeLog');
+const mongoose = require('mongoose');
 
 // @desc    Start a new timer (creates a TimeLog entry with startTime = now)
 // @route   POST /api/tracker/start
@@ -11,7 +12,7 @@ exports.startTimer = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'activityType is required.' });
     }
 
-    const validTypes = ['personal_study', 'lecture', 'chore', 'gym', 'rest'];
+    const validTypes = ['personal_study', 'lecture', 'chore', 'gym', 'rest', 'group_discussion', 'project'];
     if (!validTypes.includes(activityType)) {
       return res.status(400).json({
         success: false,
@@ -84,7 +85,7 @@ exports.manualLog = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'activityType and durationMinutes are required.' });
     }
 
-    const validTypes = ['personal_study', 'lecture', 'chore', 'gym', 'rest'];
+    const validTypes = ['personal_study', 'lecture', 'chore', 'gym', 'rest', 'group_discussion', 'project'];
     if (!validTypes.includes(activityType)) {
       return res.status(400).json({
         success: false,
@@ -150,7 +151,7 @@ exports.getWeeklySummary = async (req, res, next) => {
     const byActivity = await TimeLog.aggregate([
       {
         $match: {
-          user: req.user._id,
+          user: new mongoose.Types.ObjectId(req.user._id),
           date: { $gte: sevenDaysAgo, $lte: now }
         }
       },
@@ -170,7 +171,7 @@ exports.getWeeklySummary = async (req, res, next) => {
     const dailyBreakdown = await TimeLog.aggregate([
       {
         $match: {
-          user: req.user._id,
+          user: new mongoose.Types.ObjectId(req.user._id),
           date: { $gte: sevenDaysAgo, $lte: now }
         }
       },

@@ -2,10 +2,25 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 
 const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'elite97_super_secret_key', {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '30d'
   });
 };
+
+const formatUserResponse = (user) => ({
+  id: user._id || user.id,
+  name: user.name,
+  email: user.email,
+  studyMode: user.studyMode,
+  streak: user.streak,
+  settings: user.settings,
+  yearOfStudy: user.yearOfStudy,
+  course: user.course,
+  currentSemester: user.currentSemester,
+  timetable: user.timetable,
+  studyGauge: user.studyGauge,
+  pastResults: user.pastResults
+});
 
 exports.register = async (req, res, next) => {
   try {
@@ -26,20 +41,7 @@ exports.register = async (req, res, next) => {
 
     res.status(201).json({
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        studyMode: user.studyMode,
-        streak: user.streak,
-        settings: user.settings,
-        yearOfStudy: user.yearOfStudy,
-        course: user.course,
-        currentSemester: user.currentSemester,
-        timetable: user.timetable,
-        studyGauge: user.studyGauge,
-        pastResults: user.pastResults
-      }
+      user: formatUserResponse(user)
     });
   } catch (error) {
     next(error);
@@ -63,20 +65,7 @@ exports.login = async (req, res, next) => {
 
     res.status(200).json({
       token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        studyMode: user.studyMode,
-        streak: user.streak,
-        settings: user.settings,
-        yearOfStudy: user.yearOfStudy,
-        course: user.course,
-        currentSemester: user.currentSemester,
-        timetable: user.timetable,
-        studyGauge: user.studyGauge,
-        pastResults: user.pastResults
-      }
+      user: formatUserResponse(user)
     });
   } catch (error) {
     next(error);
@@ -86,20 +75,7 @@ exports.login = async (req, res, next) => {
 exports.getMe = async (req, res, next) => {
   try {
     res.status(200).json({
-      user: {
-        id: req.user._id,
-        name: req.user.name,
-        email: req.user.email,
-        studyMode: req.user.studyMode,
-        streak: req.user.streak,
-        settings: req.user.settings,
-        yearOfStudy: req.user.yearOfStudy,
-        course: req.user.course,
-        currentSemester: req.user.currentSemester,
-        timetable: req.user.timetable,
-        studyGauge: req.user.studyGauge,
-        pastResults: req.user.pastResults
-      }
+      user: formatUserResponse(req.user)
     });
   } catch (error) {
     next(error);
@@ -111,7 +87,13 @@ exports.updateSettings = async (req, res, next) => {
     const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults } = req.body;
     
     if (settings) req.user.settings = { ...req.user.settings, ...settings };
-    if (studyMode) req.user.studyMode = studyMode;
+    if (studyMode) {
+      const allowedModes = ['normal', 'cat_prep', 'exam_prep', 'recovery', 'unexpected_event'];
+      if (!allowedModes.includes(studyMode)) {
+        return res.status(400).json({ message: 'Invalid study mode.' });
+      }
+      req.user.studyMode = studyMode;
+    }
     if (yearOfStudy !== undefined) req.user.yearOfStudy = yearOfStudy;
     if (course !== undefined) req.user.course = course;
     if (currentSemester !== undefined) req.user.currentSemester = currentSemester;
@@ -133,20 +115,7 @@ exports.updateSettings = async (req, res, next) => {
 
     res.status(200).json({
       message: 'Settings updated successfully.',
-      user: {
-        id: req.user._id,
-        name: req.user.name,
-        email: req.user.email,
-        studyMode: req.user.studyMode,
-        streak: req.user.streak,
-        settings: req.user.settings,
-        yearOfStudy: req.user.yearOfStudy,
-        course: req.user.course,
-        currentSemester: req.user.currentSemester,
-        timetable: req.user.timetable,
-        studyGauge: req.user.studyGauge,
-        pastResults: req.user.pastResults
-      }
+      user: formatUserResponse(req.user)
     });
   } catch (error) {
     next(error);

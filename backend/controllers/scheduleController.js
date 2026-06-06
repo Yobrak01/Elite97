@@ -58,7 +58,7 @@ exports.activateSchedule = async (req, res, next) => {
     }
 
     // Set all other user schedules to active: false
-    await Schedule.updateMany({ user: req.user._id }, { isActive: false });
+    await Schedule.updateMany({ user: req.user._id, _id: { $ne: schedule._id } }, { isActive: false });
 
     schedule.isActive = true;
     await schedule.save();

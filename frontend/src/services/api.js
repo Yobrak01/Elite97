@@ -19,7 +19,8 @@ const handleResponse = async (res) => {
     }
     throw new Error(errorData.message || 'Something went wrong.');
   }
-  return res.json();
+  const text = await res.text();
+  return text ? JSON.parse(text) : {};
 };
 
 export const api = {

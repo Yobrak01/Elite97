@@ -37,6 +37,6 @@ const WorkoutSchema = new mongoose.Schema({
   }
 });
 
-WorkoutSchema.index({ user: 1, date: 1 });
+WorkoutSchema.index({ user: 1, date: 1 }, { unique: true });
 
 module.exports = mongoose.model('Workout', WorkoutSchema);

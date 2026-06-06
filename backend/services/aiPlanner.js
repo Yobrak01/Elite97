@@ -23,9 +23,7 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     };
   }
 
-  const now = new Date();
-  let targetDate = new Date(now);
-  const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+  // Duplicate declarations removed
   
   let currentMinute = 8 * 60; // Start at 08:00 AM
   
@@ -44,7 +42,7 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const targetDayName = days[targetDate.getDay()];
   
-  const dateString = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  dateString = targetDate.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   // Filter lectures for the target day
   const targetLectures = timetable.filter(t => t.dayOfWeek === targetDayName || t.day === targetDayName);
@@ -63,6 +61,8 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
 
   const activeTasks = tasks.filter(t => t.status !== 'completed')
     .sort((a, b) => (b.priority - a.priority) || (new Date(a.deadline) - new Date(b.deadline)));
+
+  const taskHoursRemaining = new Map(activeTasks.map(t => [t._id.toString(), t.estimatedHours]));
 
   let availableHours = settings.dailyGoalHours || 6;
   let interval = settings.breakInterval || 25;
@@ -150,8 +150,9 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
       currentActivity = `Work on: ${activeTask.title} (${activeTask.type})`;
       currentTaskId = activeTask._id;
       
-      activeTask.estimatedHours -= (currentInterval / 60);
-      if (activeTask.estimatedHours <= 0) {
+      let rem = taskHoursRemaining.get(activeTask._id.toString()) - (currentInterval / 60);
+      taskHoursRemaining.set(activeTask._id.toString(), rem);
+      if (rem <= 0) {
         taskIndex++;
       }
     } else {
@@ -196,10 +197,6 @@ function generateRecommendations(analytics, tasks, mode) {
   }
 
   return list.filter(Boolean);
-}
-
-function formatTime(date) {
-  return date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
 }
 
 module.exports = {

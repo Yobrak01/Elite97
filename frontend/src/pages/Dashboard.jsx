@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, CheckCircle2, RefreshCw, BarChart2, Plus, Sparkles, Award, AlertTriangle } from 'lucide-react';
 import useAnalytics from '../hooks/useAnalytics';
 import useTasks from '../hooks/useTasks';
@@ -13,6 +14,7 @@ import AIRecommendation from '../components/AIRecommendation';
 export const Dashboard = () => {
   const { dashboardData, weeklyData, burnoutData, loading, error, refresh } = useAnalytics();
   const { tasks, stats: taskStats } = useTasks();
+  const navigate = useNavigate();
 
   const todayStart = new Date();
   todayStart.setHours(0,0,0,0);
@@ -79,6 +81,21 @@ export const Dashboard = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="flex h-96 items-center justify-center">
+        <div className="glass-panel p-8 rounded-3xl border border-red-500/30 bg-red-500/5 text-center max-w-md">
+          <AlertTriangle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-xl font-black text-white tracking-wide uppercase">System Error</h3>
+          <p className="text-sm text-red-400 mt-2 font-medium">{typeof error === 'string' ? error : error.message || 'An unexpected error occurred.'}</p>
+          <button onClick={refresh} className="mt-6 px-6 py-2.5 bg-red-500/20 hover:bg-red-500 border border-red-500/30 text-red-400 hover:text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all">
+            Retry Initialization
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 animate-fade-in">
       {/* Top Header Row */}
@@ -117,7 +134,7 @@ export const Dashboard = () => {
               <p className="text-xs text-red-200 mt-0.5">You have {dueTodayOrOverdue.length} pending task(s) that are due today or overdue. Priority auto-escalated to Critical.</p>
             </div>
           </div>
-          <button onClick={() => window.location.href='/tasks'} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">
+          <button onClick={() => navigate('/tasks')} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">
             Execute Now
           </button>
         </div>

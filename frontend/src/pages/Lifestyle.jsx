@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Dumbbell, UtensilsCrossed, Home, ChevronRight, Check, RefreshCw, Clock, Sun, Moon, Sunrise, Sunset, Coffee, BookOpen, ShowerHead, Sparkles, Shirt, BedDouble } from 'lucide-react';
+import { Dumbbell, UtensilsCrossed, Home, ChevronRight, Check, RefreshCw, Clock, Sun, Moon, Sunrise, Sunset, Coffee, BookOpen, ShowerHead, Sparkles, Shirt, BedDouble, Circle } from 'lucide-react';
+
+const ICON_MAP = {
+  Dumbbell, UtensilsCrossed, Home, ChevronRight, Check, RefreshCw, Clock, Sun, Moon, Sunrise, Sunset, Coffee, BookOpen, ShowerHead, Sparkles, Shirt, BedDouble, Circle
+};
 import api from '../services/api';
 
 // Constants
@@ -345,7 +349,6 @@ const MealTab = () => {
 };
 
 // ===================== ROUTINE TAB =====================
-import * as LucideIcons from 'lucide-react';
 
 const RoutineTab = () => {
   const [routine, setRoutine] = useState([]);
@@ -402,7 +405,7 @@ const RoutineTab = () => {
           {loading ? (
             <div className="py-10 text-center text-xs font-bold text-slate-500">Loading dynamic routine...</div>
           ) : routine.map((item, index) => {
-            const Icon = LucideIcons[item.icon] || LucideIcons.Circle;
+            const Icon = ICON_MAP[item.icon] || Circle;
             const itemMinutes = item.minutes;
             const nextItem = routine[index + 1];
             const nextMinutes = nextItem ? nextItem.minutes : itemMinutes + 30;

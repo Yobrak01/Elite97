@@ -1,5 +1,6 @@
 const Analytics = require('../models/Analytics');
 const StudySession = require('../models/StudySession');
+const mongoose = require('mongoose');
 const Task = require('../models/Task');
 const CourseUnit = require('../models/CourseUnit');
 const TimeLog = require('../models/TimeLog');
@@ -30,10 +31,10 @@ async function buildContext(userId, today, streak) {
   const logsToday = await TimeLog.find({ user: userId, date: today });
   
   const personalStudyTimeLogs = logsToday
-    .filter(l => l.activityType === 'personal_study' || l.activityType === 'lecture')
+    .filter(l => l.activityType === 'personal_study' || l.activityType === 'lecture' || l.activityType === 'group_discussion' || l.activityType === 'project')
     .reduce((s, l) => s + (l.durationMinutes / 60), 0);
     
-  const studyHours = (session ? session.studyHours : 0) + personalStudyTimeLogs;
+  const studyHours = Math.max(session ? session.studyHours : 0, personalStudyTimeLogs);
   
   const tasksCompleted = completedTasksToday;
   const totalTasks = totalTasksToday;
@@ -87,7 +88,8 @@ async function buildContext(userId, today, streak) {
     hasGym,
     consecutiveHighDays,
     tasksCompleted,
-    trendWorsening
+    trendWorsening,
+    session
   };
 }
 
@@ -99,7 +101,7 @@ exports.getDashboard = async (req, res, next) => {
     const context = await buildContext(req.user._id, today, req.user.streak || 0);
     
     // Check if session has overridden focusScore
-    const session = await StudySession.findOne({ user: req.user._id, date: today });
+    const session = context.session;
     const focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
     
     context.focusScore = focusScore;
@@ -108,7 +110,7 @@ exports.getDashboard = async (req, res, next) => {
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
     const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0);
     
-    const tasks = await Task.find({ user: req.user._id });
+    const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
     const recommendations = aiPlanner.generateRecommendations(
       { focusScore, completionPercentage: context.completionPercentage, studyHours: context.studyHours },
       tasks,
@@ -408,7 +410,7 @@ exports.getMitRanking = async (req, res, next) => {
     const studyAggregation = await TimeLog.aggregate([
       {
         $match: {
-          user: req.user._id,
+          user: new mongoose.Types.ObjectId(req.user._id),
           date: { $gte: sevenDaysAgo, $lte: now },
           activityType: { $in: ['personal_study', 'lecture'] }
         }

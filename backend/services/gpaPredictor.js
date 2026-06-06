@@ -391,7 +391,7 @@ function calculateHonoursScore(pastResults, currentSemesterPredictedMark, curren
 
   Object.keys(yearlyMarks).forEach(year => {
     const y = Number(year);
-    if (weightings[y]) {
+    if (weightings[y] && yearlyMarks[y].count > 0) {
       const avgMark = yearlyMarks[y].sum / yearlyMarks[y].count;
       weightedSum += avgMark * weightings[y];
       totalWeight += weightings[y];

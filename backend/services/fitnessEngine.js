@@ -102,12 +102,6 @@ function generateWeeklyWorkoutPlan(startDate, userTimetable = []) {
   return plan;
 }
 
-function getTodayWorkout(date, weeklyPlan) {
-  const targetDate = new Date(date).setHours(0,0,0,0);
-  return weeklyPlan.find(w => new Date(w.date).setHours(0,0,0,0) === targetDate) || null;
-}
-
 module.exports = {
-  generateWeeklyWorkoutPlan,
-  getTodayWorkout
+  generateWeeklyWorkoutPlan
 };

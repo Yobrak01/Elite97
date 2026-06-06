@@ -34,8 +34,9 @@ export const AuthProvider = ({ children }) => {
       setUser(res.user);
       return res.user;
     } catch (err) {
-      setLoading(false);
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,8 +49,9 @@ export const AuthProvider = ({ children }) => {
       setUser(res.user);
       return res.user;
     } catch (err) {
-      setLoading(false);
       throw err;
+    } finally {
+      setLoading(false);
     }
   };
 

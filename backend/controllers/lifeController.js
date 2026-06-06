@@ -45,17 +45,26 @@ exports.getWeeklyWorkout = async (req, res, next) => {
     if (workouts.length === 0) {
       const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable || []);
 
-      // Save each day's workout as a separate Workout document
-      const workoutDocs = weeklyPlan.map(day => ({
-        user: req.user._id,
-        date: day.date,
-        splitType: day.splitType,
-        exercises: day.exercises,
-        isCompleted: false,
-        durationMinutes: 0
+      const ops = weeklyPlan.map(day => ({
+        updateOne: {
+          filter: { user: req.user._id, date: day.date },
+          update: {
+            $setOnInsert: {
+              splitType: day.splitType,
+              exercises: day.exercises,
+              isCompleted: false,
+              durationMinutes: 0
+            }
+          },
+          upsert: true
+        }
       }));
+      await Workout.bulkWrite(ops);
 
-      workouts = await Workout.insertMany(workoutDocs);
+      workouts = await Workout.find({
+        user: req.user._id,
+        date: { $gte: mondayDate, $lte: sundayDate }
+      }).sort({ date: 1 });
     }
 
     res.status(200).json({ success: true, data: workouts });
@@ -93,15 +102,22 @@ exports.getTodayWorkout = async (req, res, next) => {
       // Generate the full week if it doesn't exist yet
       if (weekExists === 0) {
         const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable || []);
-        const workoutDocs = weeklyPlan.map(day => ({
-          user: req.user._id,
-          date: day.date,
-          splitType: day.splitType,
-          exercises: day.exercises,
-          isCompleted: false,
-          durationMinutes: 0
+        
+        const ops = weeklyPlan.map(day => ({
+          updateOne: {
+            filter: { user: req.user._id, date: day.date },
+            update: {
+              $setOnInsert: {
+                splitType: day.splitType,
+                exercises: day.exercises,
+                isCompleted: false,
+                durationMinutes: 0
+              }
+            },
+            upsert: true
+          }
         }));
-        await Workout.insertMany(workoutDocs);
+        await Workout.bulkWrite(ops);
 
         // Fetch today's workout from the newly created docs
         workout = await Workout.findOne({
@@ -178,13 +194,17 @@ exports.getDailyMeal = async (req, res, next) => {
     if (!mealPlan) {
       const generatedMeal = nutritionEngine.generateDailyMealPlan();
 
-      mealPlan = await MealPlan.create({
-        user: req.user._id,
-        date: today,
-        breakfast: generatedMeal.breakfast,
-        lunch: generatedMeal.lunch,
-        dinner: generatedMeal.dinner
-      });
+      mealPlan = await MealPlan.findOneAndUpdate(
+        { user: req.user._id, date: today },
+        {
+          $setOnInsert: {
+            breakfast: generatedMeal.breakfast,
+            lunch: generatedMeal.lunch,
+            dinner: generatedMeal.dinner
+          }
+        },
+        { upsert: true, new: true }
+      );
     }
 
     res.status(200).json({ success: true, data: mealPlan });

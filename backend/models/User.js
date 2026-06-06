@@ -4,7 +4,8 @@ const bcrypt = require('bcryptjs');
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: [true, 'Please add a name']
+    required: [true, 'Please add a name'],
+    maxlength: [100, 'Name cannot be more than 100 characters']
   },
   email: {
     type: String,
@@ -12,7 +13,7 @@ const UserSchema = new mongoose.Schema({
     unique: true,
     lowercase: true,
     trim: true,
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please add a valid email']
+    match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please add a valid email']
   },
   password: {
     type: String,
@@ -43,7 +44,7 @@ const UserSchema = new mongoose.Schema({
     year: Number,
     semester: Number,
     type: { type: String, enum: ['semester', 'year'], default: 'semester' },
-    mark: Number
+    mark: { type: Number, min: 0, max: 100 }
   }],
   cumulativeMark: {
     type: Number,
@@ -89,7 +90,7 @@ const UserSchema = new mongoose.Schema({
 // Pre-save hook: Hash password
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
   const salt = await bcrypt.genSalt(12);
   this.password = await bcrypt.hash(this.password, salt);

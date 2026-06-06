@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Timer, Play, Square, ChevronDown, ChevronUp, BookOpen, GraduationCap, Dumbbell, Brush, Moon, Clock, Check } from 'lucide-react';
+import { Timer, Play, Square, ChevronDown, ChevronUp, BookOpen, GraduationCap, Dumbbell, Brush, Moon, Clock, Check, Users, Briefcase } from 'lucide-react';
 import api from '../services/api';
 
 const ACTIVITIES = [
   { key: 'personal_study', label: 'Study', icon: BookOpen, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30', glow: 'shadow-yellow-500/20' },
+  { key: 'group_discussion', label: 'Group', icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/30', glow: 'shadow-blue-500/20' },
+  { key: 'project', label: 'Project', icon: Briefcase, color: 'text-orange-400', bg: 'bg-orange-500/15', border: 'border-orange-500/30', glow: 'shadow-orange-500/20' },
   { key: 'lecture', label: 'Lecture', icon: GraduationCap, color: 'text-purple-400', bg: 'bg-purple-500/15', border: 'border-purple-500/30', glow: 'shadow-purple-500/20' },
   { key: 'gym', label: 'Gym', icon: Dumbbell, color: 'text-green-400', bg: 'bg-green-500/15', border: 'border-green-500/30', glow: 'shadow-green-500/20' },
   { key: 'chore', label: 'Chore', icon: Brush, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30', glow: 'shadow-yellow-500/20' },
@@ -74,7 +76,7 @@ export const LiveTimer = () => {
     return () => clearInterval(intervalRef.current);
   }, [isRunning]);
 
-  const handleStart = async (overrideType = null, description = null) => {
+  const handleStart = useCallback(async (overrideType = null, description = null) => {
     if (loadingAction) return;
     setLoadingAction(true);
     
@@ -96,7 +98,7 @@ export const LiveTimer = () => {
     } finally {
       setLoadingAction(false);
     }
-  };
+  }, [loadingAction, activityType, selectedCourse]);
 
   useEffect(() => {
     const handleStartTimerEvent = async (e) => {
@@ -110,7 +112,7 @@ export const LiveTimer = () => {
 
     window.addEventListener('start-timer', handleStartTimerEvent);
     return () => window.removeEventListener('start-timer', handleStartTimerEvent);
-  }, [isRunning, loadingAction]); // Need isRunning in deps so it doesn't double-start
+  }, [isRunning, handleStart]);
 
   const handleStop = async () => {
     if (loadingAction || !activeLogId) return;
@@ -227,7 +229,7 @@ export const LiveTimer = () => {
           {/* Activity Selector */}
           <div className="space-y-2">
             <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Activity Type</p>
-            <div className="grid grid-cols-5 gap-1.5">
+            <div className="grid grid-cols-4 gap-1.5">
               {ACTIVITIES.map((act) => {
                 const Icon = act.icon;
                 const isSelected = activityType === act.key;
@@ -251,7 +253,7 @@ export const LiveTimer = () => {
           </div>
           
           {/* Course Unit Selector */}
-          {(!isRunning && (activityType === 'personal_study' || activityType === 'lecture')) && (
+          {(!isRunning && (activityType === 'personal_study' || activityType === 'lecture' || activityType === 'group_discussion' || activityType === 'project')) && (
             <div className="space-y-2 animate-fade-in">
               <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Course Unit (Optional)</p>
               <select

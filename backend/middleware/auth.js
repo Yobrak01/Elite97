@@ -13,7 +13,7 @@ module.exports = async (req, res, next) => {
       return res.status(401).json({ message: 'Authentication required. No token provided.' });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'elite97_super_secret_key');
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
 
     if (!user) {

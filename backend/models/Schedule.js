@@ -38,4 +38,6 @@ const ScheduleSchema = new mongoose.Schema({
   }
 });
 
+ScheduleSchema.index({ user: 1, isActive: 1 });
+
 module.exports = mongoose.model('Schedule', ScheduleSchema);
