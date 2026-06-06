@@ -118,8 +118,15 @@ exports.updateSettings = async (req, res, next) => {
     if (timetable !== undefined) req.user.timetable = timetable;
     if (pastResults !== undefined) req.user.pastResults = pastResults;
     if (studyGauge !== undefined) {
-      // Use Object.assign to avoid spreading a mongoose subdocument which causes circular reference crashes
-      Object.assign(req.user.studyGauge, studyGauge);
+      req.user.studyGauge = {
+        priming: studyGauge.priming !== undefined ? studyGauge.priming : (req.user.studyGauge?.priming || 0),
+        encoding: studyGauge.encoding !== undefined ? studyGauge.encoding : (req.user.studyGauge?.encoding || 0),
+        reference: studyGauge.reference !== undefined ? studyGauge.reference : (req.user.studyGauge?.reference || 0),
+        retrieval: studyGauge.retrieval !== undefined ? studyGauge.retrieval : (req.user.studyGauge?.retrieval || 0),
+        interleaving: studyGauge.interleaving !== undefined ? studyGauge.interleaving : (req.user.studyGauge?.interleaving || 0),
+        overlearning: studyGauge.overlearning !== undefined ? studyGauge.overlearning : (req.user.studyGauge?.overlearning || 0),
+        tier: studyGauge.tier !== undefined ? studyGauge.tier : (req.user.studyGauge?.tier || 'Standard')
+      };
     }
 
     await req.user.save();

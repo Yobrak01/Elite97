@@ -134,8 +134,8 @@ export const Diagnostic = () => {
 
     try {
       const res = await api.auth.updateSettings({ studyGauge: payload });
-      if (user) {
-        updateUser({ ...user, studyGauge: payload, settings: res.user?.settings || user.settings });
+      if (res?.user) {
+        updateUser(res.user);
       }
       navigate('/analytics');
     } catch (err) {

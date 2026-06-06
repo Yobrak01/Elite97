@@ -88,6 +88,15 @@ export const Analytics = () => {
     Overlearning: studyGauge?.overlearning || studyGauge?.scores?.Overlearning || 0,
   };
 
+  const studyGaugeAverage = studyGauge ? Math.round(
+    (normalizedScores.Priming +
+     normalizedScores.Encoding +
+     normalizedScores.Reference +
+     normalizedScores.Retrieval +
+     normalizedScores.Interleaving +
+     normalizedScores.Overlearning) / 6
+  ) : 0;
+
   if (studyGauge) {
     Object.entries(normalizedScores).forEach(([pillar, score]) => {
       if (score < lowestScore) {
@@ -308,7 +317,7 @@ export const Analytics = () => {
                     strokeWidth="10" 
                     strokeLinecap="round" 
                     strokeDasharray="125.6" 
-                    strokeDashoffset={125.6 - ((studyGauge.average / 100) * 125.6)} 
+                    strokeDashoffset={125.6 - ((studyGaugeAverage / 100) * 125.6)} 
                   />
                   <defs>
                     <linearGradient id="tierGrad" x1="0" y1="0" x2="1" y2="0">
@@ -319,7 +328,7 @@ export const Analytics = () => {
                   </defs>
                 </svg>
                 <div className="absolute bottom-[-10px] flex flex-col items-center">
-                  <span className="text-4xl font-black text-white">{Math.round(studyGauge.average)}</span>
+                  <span className="text-4xl font-black text-white">{studyGaugeAverage}</span>
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{studyGauge.tier}</span>
                 </div>
               </div>
