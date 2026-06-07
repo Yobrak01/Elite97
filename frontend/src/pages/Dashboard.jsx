@@ -101,9 +101,9 @@ export const Dashboard = () => {
       {/* Top Header Row */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">SYSTEM DASHBOARD</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">SYSTEM DASHBOARD</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
-            Student node: <span className="text-accent-gold font-black">ACTIVE</span> • Operations: <span className="text-amber-400 font-black">NOMINAL</span>
+            Student node: <span className="text-cyan-400 font-black">ACTIVE</span> • Operations: <span className="text-blue-400 font-black">NOMINAL</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -116,7 +116,7 @@ export const Dashboard = () => {
           </button>
           <button
             onClick={() => setModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-cyan transition-all cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             Log Session
@@ -201,7 +201,7 @@ export const Dashboard = () => {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="glass-panel w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl relative">
-            <h3 className="text-2xl font-display font-black tracking-widest text-accent-gold mb-4 uppercase text-glow-gold">Log Study Session</h3>
+            <h3 className="text-2xl font-display font-black tracking-widest text-cyan-400 mb-4 uppercase text-glow-gold">Log Study Session</h3>
             
             <form onSubmit={handleLogSession} className="space-y-4">
               <div className="space-y-1">
@@ -213,7 +213,7 @@ export const Dashboard = () => {
                   value={studyHours}
                   onChange={(e) => setStudyHours(e.target.value)}
                   placeholder="e.g. 4"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -226,7 +226,7 @@ export const Dashboard = () => {
                   value={focusScoreInput}
                   onChange={(e) => setFocusScoreInput(e.target.value)}
                   placeholder="e.g. 85"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -237,7 +237,7 @@ export const Dashboard = () => {
                   value={breaks}
                   onChange={(e) => setBreaks(e.target.value)}
                   placeholder="e.g. 3"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -248,7 +248,7 @@ export const Dashboard = () => {
                   value={subjects}
                   onChange={(e) => setSubjects(e.target.value)}
                   placeholder="Engineering Math, Electromagnetics"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -259,7 +259,7 @@ export const Dashboard = () => {
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Today went well. Fast derivation of Maxwell equations."
                   rows="3"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent-gold"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
                 />
               </div>
 
@@ -274,7 +274,7 @@ export const Dashboard = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
+                  className="rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
                 >
                   Commit Log
                 </button>
@@ -287,4 +287,5 @@ export const Dashboard = () => {
   );
 };
 export default Dashboard;
+
 

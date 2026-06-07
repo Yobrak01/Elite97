@@ -87,7 +87,7 @@ export const Schedule = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="border-b border-white/5 pb-4">
-        <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">SCHEDULE PRESETS</h1>
+        <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">SCHEDULE PRESETS</h1>
         <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
           Preset blueprints for specific structural days.
         </p>
@@ -110,7 +110,7 @@ export const Schedule = () => {
           </button>
           <button
             onClick={() => handleGenerateTemplate('gym')}
-            className="flex items-center gap-1.5 rounded-xl border border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-indigo-600/30 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
           >
             <Dumbbell className="h-4 w-4" />
             Gym Conditioning Day
@@ -124,7 +124,7 @@ export const Schedule = () => {
           </button>
           <button
             onClick={() => handleGenerateTemplate('church')}
-            className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-blue-600/30 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
           >
             <Calendar className="h-4 w-4" />
             Sunday Reset Day
@@ -149,7 +149,7 @@ export const Schedule = () => {
                     key={s._id}
                     className={`rounded-2xl p-4 border transition-all duration-200 flex items-center justify-between gap-4 ${
                       isActive
-                        ? 'border-accent-gold/30 bg-accent-gold/10 text-glow-gold'
+                        ? 'border-cyan-500/30 bg-cyan-500/10 text-glow-gold'
                         : 'border-white/5 bg-navy-900/60 text-slate-400 hover:border-white/10'
                     }`}
                   >
@@ -169,7 +169,7 @@ export const Schedule = () => {
                       {!isActive && (
                         <button
                           onClick={() => handleActivate(s._id)}
-                          className="rounded-lg bg-accent-gold/10 hover:bg-accent-gold border border-accent-gold/20 hover:border-transparent text-accent-gold hover:text-white p-2 transition-all cursor-pointer"
+                          className="rounded-lg bg-cyan-500/10 hover:bg-cyan-500 border border-cyan-500/20 hover:border-transparent text-cyan-400 hover:text-white p-2 transition-all cursor-pointer"
                           title="Activate schedule"
                         >
                           <Play className="h-4 w-4" />
@@ -216,4 +216,5 @@ export const Schedule = () => {
   );
 };
 export default Schedule;
+
 

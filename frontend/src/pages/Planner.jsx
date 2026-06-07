@@ -92,7 +92,7 @@ export const Planner = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">AI PRODUCTIVITY PLANNER</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">AI PRODUCTIVITY PLANNER</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
             Dynamic Pomodoro scheduling customized to cognitive levels.
           </p>
@@ -100,7 +100,7 @@ export const Planner = () => {
         <button
           onClick={handleGeneratePlan}
           disabled={actionLoading}
-          className="flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-500/90 border border-amber-500/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-amber transition-all cursor-pointer disabled:opacity-50"
+          className="flex items-center gap-1.5 rounded-xl bg-blue-600 hover:bg-blue-600/90 border border-blue-600/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-amber transition-all cursor-pointer disabled:opacity-50"
         >
           <Sparkles className="h-4 w-4 animate-pulse" />
           Generate Daily Plan
@@ -117,10 +117,10 @@ export const Planner = () => {
           <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-accent-gold" />
+                <Calendar className="h-5 w-5 text-cyan-400" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">Target Core Timeline</h3>
               </div>
-              <span className="text-[10px] font-black tracking-wider uppercase text-amber-400/90">
+              <span className="text-[10px] font-black tracking-wider uppercase text-blue-400/90">
                 {plan?.planDate ? `Plan for: ${plan.planDate}` : 'Target: Today'}
               </span>
             </div>
@@ -145,7 +145,7 @@ export const Planner = () => {
           {plan?.config && (
             <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4 bg-gradient-to-b from-navy-900/40 to-transparent">
               <div className="flex items-center gap-2">
-                <Cpu className="h-5 w-5 text-accent-gold" />
+                <Cpu className="h-5 w-5 text-cyan-400" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">Interval Parameter Matrix</h3>
               </div>
 
@@ -180,7 +180,7 @@ export const Planner = () => {
           {/* Smart AI recommendations */}
           <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-amber-400" />
+              <Sparkles className="h-5 w-5 text-blue-400" />
               <h3 className="text-xs font-black uppercase tracking-wider text-white">AI Core Recommendations</h3>
             </div>
             
@@ -199,4 +199,5 @@ export const Planner = () => {
   );
 };
 export default Planner;
+
 

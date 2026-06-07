@@ -9,7 +9,7 @@ import api from '../services/api';
 // Constants
 const TABS = [
   { key: 'gym', label: 'Gym Schedule', icon: Dumbbell, color: 'text-green-400', bg: 'bg-green-500/15', border: 'border-green-500/30' },
-  { key: 'meal', label: 'Meal Plan', icon: UtensilsCrossed, color: 'text-orange-400', bg: 'bg-orange-500/15', border: 'border-orange-500/30' },
+  { key: 'meal', label: 'Meal Plan', icon: UtensilsCrossed, color: 'text-indigo-400', bg: 'bg-indigo-600/15', border: 'border-indigo-600/30' },
   { key: 'pantry', label: 'My Pantry', icon: Coffee, color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/30' },
   { key: 'routine', label: 'Daily Routine', icon: Home, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30' }
 ];
@@ -19,15 +19,15 @@ const MUSCLE_COLORS = {
   back: 'text-yellow-400 bg-yellow-500/10',
   shoulders: 'text-purple-400 bg-purple-500/10',
   legs: 'text-green-400 bg-green-500/10',
-  arms: 'text-orange-400 bg-orange-500/10',
-  biceps: 'text-orange-400 bg-orange-500/10',
+  arms: 'text-indigo-400 bg-indigo-600/10',
+  biceps: 'text-indigo-400 bg-indigo-600/10',
   triceps: 'text-yellow-400 bg-yellow-500/10',
   core: 'text-pink-400 bg-pink-500/10',
   abs: 'text-pink-400 bg-pink-500/10',
   glutes: 'text-emerald-400 bg-emerald-500/10',
   hamstrings: 'text-teal-400 bg-teal-500/10',
   quads: 'text-lime-400 bg-lime-500/10',
-  calves: 'text-amber-400 bg-amber-500/10',
+  calves: 'text-blue-400 bg-blue-600/10',
   default: 'text-slate-400 bg-slate-500/10'
 };
 
@@ -263,8 +263,8 @@ const MealTab = () => {
   }
 
   const MEAL_SECTIONS = [
-    { key: 'breakfast', label: 'Breakfast', icon: Sunrise, color: 'text-amber-400', gradient: 'from-amber-500/10 to-orange-500/10', border: 'border-amber-500/20' },
-    { key: 'lunch', label: 'Lunch', icon: Sun, color: 'text-orange-400', gradient: 'from-orange-500/10 to-red-500/10', border: 'border-orange-500/20' },
+    { key: 'breakfast', label: 'Breakfast', icon: Sunrise, color: 'text-blue-400', gradient: 'from-amber-500/10 to-orange-500/10', border: 'border-blue-600/20' },
+    { key: 'lunch', label: 'Lunch', icon: Sun, color: 'text-indigo-400', gradient: 'from-orange-500/10 to-red-500/10', border: 'border-indigo-600/20' },
     { key: 'dinner', label: 'Dinner', icon: Moon, color: 'text-rose-400', gradient: 'from-rose-500/10 to-purple-500/10', border: 'border-rose-500/20' }
   ];
 
@@ -273,8 +273,8 @@ const MealTab = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/15 border border-orange-500/20">
-            <UtensilsCrossed className="h-6 w-6 text-orange-400" />
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600/15 border border-indigo-600/20">
+            <UtensilsCrossed className="h-6 w-6 text-indigo-400" />
           </div>
           <div>
             <h3 className="text-lg font-black tracking-wider text-white uppercase">Today's Meals</h3>
@@ -284,7 +284,7 @@ const MealTab = () => {
         <button
           onClick={handleRegenerate}
           disabled={regenerating}
-          className="flex items-center gap-2 rounded-xl bg-orange-500/15 border border-orange-500/20 text-orange-400 hover:bg-orange-500 hover:text-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+          className="flex items-center gap-2 rounded-xl bg-indigo-600/15 border border-indigo-600/20 text-indigo-400 hover:bg-indigo-600 hover:text-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
         >
           <RefreshCw className={`h-3.5 w-3.5 ${regenerating ? 'animate-spin' : ''}`} />
           Regenerate Menu
@@ -430,7 +430,7 @@ const PantryTab = () => {
   }
 
   const PANTRY_SECTIONS = [
-    { key: 'carbs', label: 'Carbohydrates', color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/30' },
+    { key: 'carbs', label: 'Carbohydrates', color: 'text-blue-400', bg: 'bg-blue-600/15', border: 'border-blue-600/30' },
     { key: 'proteins', label: 'Proteins', color: 'text-red-400', bg: 'bg-red-500/15', border: 'border-red-500/30' },
     { key: 'veg', label: 'Vegetables', color: 'text-green-400', bg: 'bg-green-500/15', border: 'border-green-500/30' },
     { key: 'fruits_fats', label: 'Fruits & Fats', color: 'text-purple-400', bg: 'bg-purple-500/15', border: 'border-purple-500/30' }
@@ -570,7 +570,7 @@ const RoutineTab = () => {
                 key={index}
                 className={`relative flex items-start gap-4 rounded-2xl p-4 transition-all ${
                   isActive
-                    ? 'bg-accent-gold/5 border border-accent-gold/20 shadow-lg shadow-accent-gold/5'
+                    ? 'bg-cyan-500/5 border border-cyan-500/20 shadow-lg shadow-accent-gold/5'
                     : item.isLecture
                     ? 'bg-cyan-500/5 border border-cyan-500/10'
                     : isPast
@@ -581,7 +581,7 @@ const RoutineTab = () => {
                 {/* Timeline Dot */}
                 <div className={`relative z-10 flex h-[1.1rem] w-[1.1rem] shrink-0 items-center justify-center rounded-full mt-1 ${
                   isActive
-                    ? 'bg-accent-gold shadow-lg shadow-accent-gold/50'
+                    ? 'bg-cyan-500 shadow-lg shadow-accent-gold/50'
                     : isPast
                     ? 'bg-slate-600'
                     : item.isLecture
@@ -589,7 +589,7 @@ const RoutineTab = () => {
                     : 'bg-white/10 border border-white/20'
                 }`}>
                   {isActive && (
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-gold opacity-40"></span>
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-500 opacity-40"></span>
                   )}
                 </div>
 
@@ -601,11 +601,11 @@ const RoutineTab = () => {
                 {/* Content */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-3">
-                    <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-accent-gold' : item.isLecture ? 'text-cyan-400' : 'text-slate-500'}`}>
+                    <span className={`text-[10px] font-black uppercase tracking-widest ${isActive ? 'text-cyan-400' : item.isLecture ? 'text-cyan-400' : 'text-slate-500'}`}>
                       {item.time}
                     </span>
                     {isActive && (
-                      <span className="rounded-lg bg-accent-gold/20 border border-accent-gold/30 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-accent-gold">
+                      <span className="rounded-lg bg-cyan-500/20 border border-cyan-500/30 px-2 py-0.5 text-[8px] font-black uppercase tracking-widest text-cyan-400">
                         Now
                       </span>
                     )}
@@ -638,7 +638,7 @@ export const Lifestyle = () => {
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">LIFESTYLE COMMAND</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">LIFESTYLE COMMAND</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
             Gym • Nutrition • Daily Operations
           </p>
@@ -679,4 +679,5 @@ export const Lifestyle = () => {
 };
 
 export default Lifestyle;
+
 

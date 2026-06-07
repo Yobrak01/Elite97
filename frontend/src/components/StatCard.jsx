@@ -20,8 +20,8 @@ export const StatCard = ({ title, value, subtitle, icon: Icon, color = 'blue', t
         };
       default:
         return {
-          bg: 'bg-accent-gold/10 border-accent-gold/20 text-accent-gold',
-          glow: 'hover:shadow-glow-gold/25 hover:border-accent-gold/40'
+          bg: 'bg-cyan-500/10 border-cyan-500/20 text-cyan-400',
+          glow: 'hover:shadow-glow-cyan/25 hover:border-cyan-500/40'
         };
     }
   };
@@ -50,3 +50,4 @@ export const StatCard = ({ title, value, subtitle, icon: Icon, color = 'blue', t
   );
 };
 export default StatCard;
+

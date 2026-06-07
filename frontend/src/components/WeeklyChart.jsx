@@ -5,10 +5,10 @@ export const WeeklyChart = ({ data = [] }) => {
   const customTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="glass-panel rounded-xl p-3 border border-white/10 text-xs shadow-glow-gold/20">
+        <div className="glass-panel rounded-xl p-3 border border-white/10 text-xs shadow-glow-cyan/20">
           <p className="font-bold text-white mb-1">{payload[0].payload.dayName || 'Date'}</p>
-          <p className="text-accent-gold font-semibold">Hours: {payload[0].value} hrs</p>
-          {payload[1] && <p className="text-amber-400 font-semibold">Focus: {payload[1].value}%</p>}
+          <p className="text-cyan-400 font-semibold">Hours: {payload[0].value} hrs</p>
+          {payload[1] && <p className="text-blue-400 font-semibold">Focus: {payload[1].value}%</p>}
         </div>
       );
     }
@@ -79,3 +79,4 @@ export const WeeklyChart = ({ data = [] }) => {
   );
 };
 export default WeeklyChart;
+

@@ -5,13 +5,13 @@ export const ScheduleBlock = ({ block, onComplete, onStart }) => {
   const getCategoryTheme = (cat) => {
     switch (cat) {
       case 'study':
-        return { icon: BookOpen, css: 'text-accent-gold bg-accent-gold/10 border-accent-gold/20' };
+        return { icon: BookOpen, css: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20' };
       case 'break':
         return { icon: Coffee, css: 'text-green-400 bg-green-500/10 border-green-500/20' };
       case 'exercise':
-        return { icon: Dumbbell, css: 'text-orange-400 bg-orange-500/10 border-orange-500/20' };
+        return { icon: Dumbbell, css: 'text-indigo-400 bg-indigo-600/10 border-indigo-600/20' };
       case 'revision':
-        return { icon: Award, css: 'text-amber-400 bg-amber-500/10 border-amber-500/20' };
+        return { icon: Award, css: 'text-blue-400 bg-blue-600/10 border-blue-600/20' };
       case 'lecture':
         return { icon: Landmark, css: 'text-purple-400 bg-purple-500/10 border-purple-500/20' };
       default:
@@ -72,3 +72,4 @@ export const ScheduleBlock = ({ block, onComplete, onStart }) => {
   );
 };
 export default ScheduleBlock;
+

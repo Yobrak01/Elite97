@@ -5,7 +5,7 @@ import api from '../services/api';
 const ACTIVITIES = [
   { key: 'personal_study', label: 'Study', icon: BookOpen, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30', glow: 'shadow-yellow-500/20' },
   { key: 'group_discussion', label: 'Group', icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/30', glow: 'shadow-blue-500/20' },
-  { key: 'project', label: 'Project', icon: Briefcase, color: 'text-orange-400', bg: 'bg-orange-500/15', border: 'border-orange-500/30', glow: 'shadow-orange-500/20' },
+  { key: 'project', label: 'Project', icon: Briefcase, color: 'text-indigo-400', bg: 'bg-indigo-600/15', border: 'border-indigo-600/30', glow: 'shadow-orange-500/20' },
   { key: 'lecture', label: 'Lecture', icon: GraduationCap, color: 'text-purple-400', bg: 'bg-purple-500/15', border: 'border-purple-500/30', glow: 'shadow-purple-500/20' },
   { key: 'gym', label: 'Gym', icon: Dumbbell, color: 'text-green-400', bg: 'bg-green-500/15', border: 'border-green-500/30', glow: 'shadow-green-500/20' },
   { key: 'chore', label: 'Chore', icon: Brush, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30', glow: 'shadow-yellow-500/20' },
@@ -172,7 +172,7 @@ export const LiveTimer = () => {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Timer className="h-4 w-4 text-accent-gold" />
+              <Timer className="h-4 w-4 text-cyan-400" />
               <span className="text-[10px] font-black uppercase tracking-widest text-white">
                 {manualMode ? 'Manual Log' : 'Live Tracker'}
               </span>
@@ -182,7 +182,7 @@ export const LiveTimer = () => {
                 onClick={() => !isRunning && setManualMode(!manualMode)}
                 disabled={isRunning}
                 className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded transition-colors ${
-                  manualMode ? 'bg-accent-gold/20 text-accent-gold' : 'text-slate-500 hover:text-white'
+                  manualMode ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-500 hover:text-white'
                 } ${isRunning ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 Manual
@@ -206,7 +206,7 @@ export const LiveTimer = () => {
                   placeholder="Minutes"
                   value={manualDuration}
                   onChange={(e) => setManualDuration(e.target.value)}
-                  className="w-32 bg-navy-900 border border-white/10 rounded-xl px-4 py-3 text-2xl font-black text-center text-white focus:outline-none focus:border-accent-gold/50 transition-colors"
+                  className="w-32 bg-navy-900 border border-white/10 rounded-xl px-4 py-3 text-2xl font-black text-center text-white focus:outline-none focus:border-cyan-500/50 transition-colors"
                 />
                 <p className={`text-[10px] font-bold uppercase tracking-widest ${activeActivity.color}`}>
                   {activeActivity.label}
@@ -259,7 +259,7 @@ export const LiveTimer = () => {
               <select
                 value={selectedCourse}
                 onChange={(e) => setSelectedCourse(e.target.value)}
-                className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-accent-gold/30 transition-colors"
+                className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-cyan-500/30 transition-colors"
               >
                 <option value="">-- No specific unit --</option>
                 {courses.map(c => (
@@ -284,7 +284,7 @@ export const LiveTimer = () => {
               <button
                 onClick={handleStart}
                 disabled={loadingAction}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-accent-gold/20 border border-accent-gold/30 text-accent-gold hover:bg-accent-gold hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-accent-gold/10 disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500 hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-accent-gold/10 disabled:opacity-50"
               >
                 <Play className="h-4 w-4" />
                 {loadingAction ? 'Starting...' : 'Start Session'}
@@ -306,7 +306,7 @@ export const LiveTimer = () => {
             <div className="space-y-2 border-t border-white/5 pt-3">
               <div className="flex items-center justify-between">
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Today's Log</p>
-                <span className="text-[10px] font-black text-accent-gold">{formatMinutes(totalTodayMinutes)} total</span>
+                <span className="text-[10px] font-black text-cyan-400">{formatMinutes(totalTodayMinutes)} total</span>
               </div>
               <div className="space-y-1.5">
                 {todaySummary.map((entry) => {
@@ -333,7 +333,7 @@ export const LiveTimer = () => {
         className={`group relative flex h-14 w-14 items-center justify-center rounded-2xl border transition-all duration-300 shadow-2xl ${
           isRunning
             ? `${activeActivity.bg} ${activeActivity.border} ${activeActivity.color} shadow-lg ${activeActivity.glow}`
-            : 'glass-panel border-white/10 text-accent-gold hover:border-accent-gold/30 hover:shadow-lg hover:shadow-accent-gold/20'
+            : 'glass-panel border-white/10 text-cyan-400 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-accent-gold/20'
         }`}
       >
         {isRunning ? (
@@ -355,3 +355,4 @@ export const LiveTimer = () => {
 };
 
 export default LiveTimer;
+

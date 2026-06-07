@@ -76,7 +76,7 @@ export const BurnoutIndicator = ({ risk, level, factors = [], recommendations = 
           <ul className="space-y-1.5 text-xs text-slate-300">
             {recommendations.map((r, idx) => (
               <li key={idx} className="flex items-start gap-2">
-                <CheckCircle2 className="h-4 w-4 text-accent-gold mt-0.5 shrink-0" />
+                <CheckCircle2 className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
                 <span>{r}</span>
               </li>
             ))}
@@ -87,3 +87,4 @@ export const BurnoutIndicator = ({ risk, level, factors = [], recommendations = 
   );
 };
 export default BurnoutIndicator;
+

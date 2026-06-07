@@ -16,7 +16,7 @@ export const Navbar = ({ setSidebarOpen }) => {
       case 'unexpected_event':
         return { label: 'Interruption', css: 'border-purple-500/30 text-purple-400 bg-purple-500/10' };
       default:
-        return { label: 'NORMAL MODE', css: 'border-accent-gold/30 text-accent-gold bg-accent-gold/10 shadow-glow-gold' };
+        return { label: 'NORMAL MODE', css: 'border-cyan-500/30 text-cyan-400 bg-cyan-500/10 shadow-glow-cyan' };
     }
   };
 
@@ -35,9 +35,9 @@ export const Navbar = ({ setSidebarOpen }) => {
 
         {/* Branding title */}
         <div className="hidden items-center gap-2 sm:flex">
-          <Award className="h-6 w-6 text-accent-gold" />
+          <Award className="h-6 w-6 text-cyan-400" />
           <span className="text-lg font-black tracking-wider text-white">
-            ELITE<span className="text-accent-gold">97</span>
+            ELITE<span className="text-cyan-400">97</span>
           </span>
         </div>
       </div>
@@ -56,7 +56,7 @@ export const Navbar = ({ setSidebarOpen }) => {
             <p className="text-sm font-semibold text-white">{user?.name}</p>
             <p className="text-xs text-slate-400">Engineering Student</p>
           </div>
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-gold/20 text-sm font-bold text-accent-gold border border-accent-gold/30">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-cyan-500/20 text-sm font-bold text-cyan-400 border border-cyan-500/30">
             {user?.name ? user.name.slice(0, 2).toUpperCase() : 'ES'}
           </div>
           
@@ -73,3 +73,4 @@ export const Navbar = ({ setSidebarOpen }) => {
   );
 };
 export default Navbar;
+

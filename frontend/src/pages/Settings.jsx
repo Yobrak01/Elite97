@@ -97,7 +97,7 @@ export const Settings = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="border-b border-white/5 pb-4">
-        <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">SYSTEM SETTINGS</h1>
+        <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">SYSTEM SETTINGS</h1>
         <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
           Configure academic performance limits and matrix variables.
         </p>
@@ -114,7 +114,7 @@ export const Settings = () => {
       <div className="grid lg:grid-cols-2 gap-6">
         <form onSubmit={handleSave} className="glass-panel rounded-3xl p-6 border border-white/5 space-y-6">
           <div className="flex items-center gap-2 border-b border-white/5 pb-4">
-            <Sliders className="h-5 w-5 text-accent-gold" />
+            <Sliders className="h-5 w-5 text-cyan-400" />
             <h3 className="text-sm font-black uppercase tracking-wider text-white">Interval Configurations</h3>
           </div>
 
@@ -216,7 +216,7 @@ export const Settings = () => {
               type="button"
               onClick={() => setNotifications(!notifications)}
               className={`relative h-6 w-11 shrink-0 rounded-full transition-all duration-200 border border-white/5 ${
-                notifications ? 'bg-accent-gold' : 'bg-navy-900'
+                notifications ? 'bg-cyan-500' : 'bg-navy-900'
               }`}
             >
               <span className={`absolute left-0.5 top-0.5 h-4.5 w-4.5 rounded-full bg-white transition-all ${
@@ -230,7 +230,7 @@ export const Settings = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="flex items-center gap-1.5 rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer disabled:opacity-50"
+              className="flex items-center gap-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest shadow-glow-cyan transition-all cursor-pointer disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               Compile settings
@@ -242,7 +242,7 @@ export const Settings = () => {
           {/* Academic Profile */}
           <div className="glass-panel rounded-3xl p-6 border border-white/5 space-y-6">
             <div className="flex items-center gap-2 border-b border-white/5 pb-4">
-              <BookOpen className="h-5 w-5 text-amber-400" />
+              <BookOpen className="h-5 w-5 text-blue-400" />
               <h3 className="text-sm font-black uppercase tracking-wider text-white">Academic Profile</h3>
             </div>
             
@@ -254,7 +254,7 @@ export const Settings = () => {
                   value={course}
                   onChange={(e) => setCourse(e.target.value)}
                   placeholder="e.g. BSc Computer Science"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-amber-500/50"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -265,7 +265,7 @@ export const Settings = () => {
                     value={yearOfStudy}
                     onChange={(e) => setYearOfStudy(e.target.value)}
                     placeholder="e.g. Year 2"
-                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-amber-500/50"
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
                   />
                 </div>
                 <div>
@@ -275,7 +275,7 @@ export const Settings = () => {
                     value={semester}
                     onChange={(e) => setSemester(e.target.value)}
                     placeholder="e.g. Semester 1"
-                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-amber-500/50"
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
                   />
                 </div>
               </div>
@@ -283,7 +283,7 @@ export const Settings = () => {
                 type="button"
                 onClick={handleSave}
                 disabled={submitting}
-                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50 mt-2"
+                className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-blue-600/20 hover:bg-blue-600/30 text-blue-400 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50 mt-2"
               >
                 Save Profile
               </button>
@@ -355,7 +355,7 @@ export const Settings = () => {
                         <span className="text-xs font-bold text-white truncate max-w-[100px]">{row.unitName}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <button onClick={() => handleEditTimetableRow(idx)} className="text-amber-400/50 hover:text-amber-400 transition-colors">
+                        <button onClick={() => handleEditTimetableRow(idx)} className="text-blue-400/50 hover:text-blue-400 transition-colors">
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button onClick={() => handleRemoveTimetableRow(idx)} className="text-red-400/50 hover:text-red-400 transition-colors">
@@ -469,4 +469,5 @@ export const Settings = () => {
   );
 };
 export default Settings;
+
 

@@ -160,7 +160,7 @@ export const Analytics = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">DEEP ANALYTICS REPORT</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">DEEP ANALYTICS REPORT</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
             Extended operational analytics and cognitive vectors.
           </p>
@@ -171,7 +171,7 @@ export const Analytics = () => {
         {/* Productivity score trend */}
         <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4 lg:col-span-2">
           <div className="flex items-center gap-2">
-            <Cpu className="h-5 w-5 text-accent-gold" />
+            <Cpu className="h-5 w-5 text-cyan-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Productivity Vector (30 Days)</h3>
           </div>
           <div className="h-64 w-full">
@@ -254,7 +254,7 @@ export const Analytics = () => {
         {/* Study Hours Trend */}
         <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
           <div className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-amber-400" />
+            <TrendingUp className="h-5 w-5 text-blue-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Study Duration</h3>
           </div>
           <div className="h-72 w-full">
@@ -285,7 +285,7 @@ export const Analytics = () => {
             {/* System Profile Radar */}
             <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
               <div className="flex items-center gap-2">
-                <Compass className="h-5 w-5 text-amber-400" />
+                <Compass className="h-5 w-5 text-blue-400" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">System Profile</h3>
               </div>
               <div className="h-48 w-full">
@@ -304,7 +304,7 @@ export const Analytics = () => {
             {/* Performance Tier Speedometer */}
             <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4 flex flex-col items-center justify-center">
               <div className="flex items-center gap-2 w-full justify-start">
-                <Activity className="h-5 w-5 text-amber-400" />
+                <Activity className="h-5 w-5 text-blue-400" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">Performance Tier</h3>
               </div>
               <div className="relative flex flex-col items-center justify-center h-40 w-full">
@@ -365,7 +365,7 @@ export const Analytics = () => {
             <p className="text-sm text-slate-400 max-w-md mx-auto">
               Take the Study Diagnostic to calibrate your learning system and unlock personalized cognitive metrics.
             </p>
-            <button onClick={() => window.location.href = '/diagnostic'} className="mt-4 px-6 py-2 bg-amber-500/20 text-amber-400 rounded-lg text-sm font-bold hover:bg-amber-500/30 transition-colors">
+            <button onClick={() => window.location.href = '/diagnostic'} className="mt-4 px-6 py-2 bg-blue-600/20 text-blue-400 rounded-lg text-sm font-bold hover:bg-blue-600/30 transition-colors">
               Start Diagnostic
             </button>
           </div>
@@ -409,7 +409,7 @@ export const Analytics = () => {
               <div className="flex-1 space-y-4">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Weighted Honours Mark</p>
-                  <p className="text-2xl font-black text-amber-400">{(gpaData.cumulativeMark || 0).toFixed(2)}%</p>
+                  <p className="text-2xl font-black text-blue-400">{(gpaData.cumulativeMark || 0).toFixed(2)}%</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Projected Classification</p>
@@ -433,7 +433,7 @@ export const Analytics = () => {
         {/* Daily Expected Mark Gauge (By Study Hours) */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
           <div className="flex items-center gap-2">
-            <Award className="h-5 w-5 text-accent-gold" />
+            <Award className="h-5 w-5 text-cyan-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Daily Mark Gauge (By Effort)</h3>
           </div>
 
@@ -466,7 +466,7 @@ export const Analytics = () => {
               <div className="flex-1 space-y-4">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Max Potential Mark</p>
-                  <p className="text-2xl font-black text-amber-400">100%</p>
+                  <p className="text-2xl font-black text-blue-400">100%</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Books & Focus Gauge</p>
@@ -489,7 +489,7 @@ export const Analytics = () => {
 
         <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
           <div className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-accent-gold" />
+            <Globe className="h-5 w-5 text-cyan-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">DeKUT Civil Eng. Rank</h3>
           </div>
 
@@ -498,7 +498,7 @@ export const Analytics = () => {
               {/* Rank Display */}
               <div className="text-center py-2">
                 <p className="text-5xl font-black text-white">
-                  <span className="text-2xl text-accent-gold">#</span>{Math.max(1, Math.round(100 - (mitRanking.mitRankPercentile || 0)))}
+                  <span className="text-2xl text-cyan-400">#</span>{Math.max(1, Math.round(100 - (mitRanking.mitRankPercentile || 0)))}
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Out of 100 Students</p>
               </div>
@@ -549,7 +549,7 @@ export const Analytics = () => {
         {/* MIT Global Ranking Card */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
           <div className="flex items-center gap-2">
-            <Globe className="h-5 w-5 text-accent-gold" />
+            <Globe className="h-5 w-5 text-cyan-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">MIT Global Ranking</h3>
           </div>
 
@@ -558,7 +558,7 @@ export const Analytics = () => {
               {/* Percentile Display */}
               <div className="text-center py-2">
                 <p className="text-5xl font-black text-white">
-                  {mitRanking.mitRankPercentile || 0}<span className="text-2xl text-accent-gold">%</span>
+                  {mitRanking.mitRankPercentile || 0}<span className="text-2xl text-cyan-400">%</span>
                 </p>
                 <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Global Percentile</p>
               </div>
@@ -674,13 +674,13 @@ export const Analytics = () => {
                           </div>
                         </div>
                       </td>
-                      <td className="p-4 text-center text-sm font-black text-amber-400">{course.gpa !== undefined ? course.gpa.toFixed(1) : '0.0'}</td>
+                      <td className="p-4 text-center text-sm font-black text-blue-400">{course.gpa !== undefined ? course.gpa.toFixed(1) : '0.0'}</td>
                       <td className="p-4 text-center">
                         <span className={`px-2 py-1 rounded text-xs font-black ${
                           course.grade === 'A' ? 'bg-emerald-500/20 text-emerald-400' :
                           course.grade === 'B' ? 'bg-blue-500/20 text-blue-400' :
                           course.grade === 'C' ? 'bg-yellow-500/20 text-yellow-400' :
-                          course.grade === 'D' ? 'bg-orange-500/20 text-orange-400' :
+                          course.grade === 'D' ? 'bg-indigo-600/20 text-indigo-400' :
                           'bg-red-500/20 text-red-400'
                         }`}>
                           {course.grade || 'E'}
@@ -691,7 +691,7 @@ export const Analytics = () => {
                           (course.projectedMark || 0) >= 70 ? 'text-emerald-400' :
                           (course.projectedMark || 0) >= 60 ? 'text-blue-400' :
                           (course.projectedMark || 0) >= 50 ? 'text-yellow-400' :
-                          (course.projectedMark || 0) >= 40 ? 'text-orange-400' :
+                          (course.projectedMark || 0) >= 40 ? 'text-indigo-400' :
                           'text-red-400'
                         }`}>
                           {course.projectedMark !== undefined ? course.projectedMark.toFixed(1) : '0.0'}%
@@ -710,7 +710,7 @@ export const Analytics = () => {
                           </div>
                           <div className="grid grid-cols-3 sm:grid-cols-3 gap-2">
                             {course.factors && Object.entries(course.factors).map(([key, factor]) => (
-                              <div key={key} className={`flex items-center gap-2 rounded-lg p-2 border ${key === 'hybridStatus' ? 'col-span-3 bg-amber-500/10 border-amber-500/20' : 'bg-white/[0.02] border-white/5'}`}>
+                              <div key={key} className={`flex items-center gap-2 rounded-lg p-2 border ${key === 'hybridStatus' ? 'col-span-3 bg-blue-600/10 border-blue-600/20' : 'bg-white/[0.02] border-white/5'}`}>
                                 {key !== 'hybridStatus' && (
                                   <span className={`text-xs font-black w-10 text-right ${
                                     factor.score > 0 ? 'text-emerald-400' :
@@ -721,7 +721,7 @@ export const Analytics = () => {
                                   </span>
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <div className={`text-[10px] font-black truncate ${key === 'hybridStatus' ? 'text-amber-400' : 'text-slate-300'}`}>{factorLabels[key] || key}</div>
+                                  <div className={`text-[10px] font-black truncate ${key === 'hybridStatus' ? 'text-blue-400' : 'text-slate-300'}`}>{factorLabels[key] || key}</div>
                                   <div className={`text-[9px] font-semibold truncate ${key === 'hybridStatus' ? 'text-amber-200' : 'text-slate-500'}`}>{factor.detail}</div>
                                 </div>
                               </div>
@@ -737,13 +737,13 @@ export const Analytics = () => {
               <tfoot>
                 <tr className="bg-white/[0.02] border-t border-white/10">
                   <td colSpan="3" className="p-4 pl-6 text-right text-xs font-black uppercase tracking-widest text-slate-400">Semester Mean Average:</td>
-                  <td className="p-4 text-center text-sm font-black text-amber-400">{weightedGpa.toFixed(2)}</td>
+                  <td className="p-4 text-center text-sm font-black text-blue-400">{weightedGpa.toFixed(2)}</td>
                   <td className="p-4 text-center">
                     <span className={`px-2 py-1 rounded text-xs font-black ${
                       gpaData.predictedSemesterMark >= 70 ? 'bg-emerald-500/20 text-emerald-400' :
                       gpaData.predictedSemesterMark >= 60 ? 'bg-blue-500/20 text-blue-400' :
                       gpaData.predictedSemesterMark >= 50 ? 'bg-yellow-500/20 text-yellow-400' :
-                      gpaData.predictedSemesterMark >= 40 ? 'bg-orange-500/20 text-orange-400' :
+                      gpaData.predictedSemesterMark >= 40 ? 'bg-indigo-600/20 text-indigo-400' :
                       'bg-red-500/20 text-red-400'
                     }`}>
                       {gpaData.predictedSemesterMark >= 70 ? 'A' : gpaData.predictedSemesterMark >= 60 ? 'B' : gpaData.predictedSemesterMark >= 50 ? 'C' : gpaData.predictedSemesterMark >= 40 ? 'D' : 'E'}
@@ -763,4 +763,5 @@ export const Analytics = () => {
   );
 };
 export default Analytics;
+
 

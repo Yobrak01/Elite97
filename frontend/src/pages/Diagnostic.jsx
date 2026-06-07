@@ -156,7 +156,7 @@ export const Diagnostic = () => {
     <div className="min-h-screen bg-[#030712] text-slate-200 flex flex-col items-center justify-center p-6">
       <div className="max-w-2xl w-full bg-[#0f172a] rounded-2xl p-8 border border-slate-800 shadow-2xl relative overflow-hidden">
         {/* Glow effect */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-amber-500/10 blur-[100px] pointer-events-none"></div>
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-blue-600/10 blur-[100px] pointer-events-none"></div>
 
         <h1 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500 mb-2 text-center">
           Diagnostic Assessment
@@ -168,7 +168,7 @@ export const Diagnostic = () => {
         {/* Progress Bar */}
         <div className="w-full bg-slate-800 rounded-full h-2 mb-8 overflow-hidden">
           <div 
-            className="bg-amber-500 h-2 rounded-full transition-all duration-500" 
+            className="bg-blue-600 h-2 rounded-full transition-all duration-500" 
             style={{ width: `${progress}%` }}
           ></div>
         </div>
@@ -188,7 +188,7 @@ export const Diagnostic = () => {
               onClick={() => handleSelect(opt.value)}
               className={`w-full p-4 rounded-xl border text-left text-lg font-medium transition-all duration-200 ${
                 answers[currentQuestion] === opt.value
-                  ? 'bg-amber-500/20 border-amber-500 text-cyan-300'
+                  ? 'bg-blue-600/20 border-blue-600 text-cyan-300'
                   : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-500'
               }`}
             >
@@ -227,4 +227,5 @@ export const Diagnostic = () => {
 };
 
 export default Diagnostic;
+
 

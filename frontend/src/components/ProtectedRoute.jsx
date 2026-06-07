@@ -19,3 +19,4 @@ export const ProtectedRoute = () => {
   return token ? <Outlet /> : <Navigate to="/login" replace />;
 };
 export default ProtectedRoute;
+

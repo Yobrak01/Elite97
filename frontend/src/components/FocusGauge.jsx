@@ -12,7 +12,7 @@ export const FocusGauge = ({ score }) => {
     if (s < 30) return { stroke: 'stroke-red-500', text: 'text-red-400', glow: 'shadow-glow-red/20' };
     if (s < 60) return { stroke: 'stroke-yellow-500', text: 'text-yellow-400', glow: 'shadow-glow-yellow/20' };
     if (s < 80) return { stroke: 'stroke-green-500', text: 'text-green-400', glow: 'shadow-glow-green/20' };
-    return { stroke: 'stroke-accent-gold', text: 'text-accent-gold', glow: 'shadow-glow-gold/20' };
+    return { stroke: 'stroke-accent-gold', text: 'text-cyan-400', glow: 'shadow-glow-cyan/20' };
   };
 
   const theme = getColor(percentage);
@@ -57,3 +57,4 @@ export const FocusGauge = ({ score }) => {
   );
 };
 export default FocusGauge;
+

@@ -35,8 +35,8 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
       >
         <div className="flex h-16 items-center justify-between px-6 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <span className="text-3xl font-display font-black tracking-widest text-white text-glow-gold">
-              ELITE<span className="text-accent-gold">97</span>
+            <span className="text-2xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">
+              ELITE<span className="text-cyan-400">97</span>
             </span>
           </div>
           <button
@@ -59,7 +59,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold tracking-wide transition-all ${
                     isActive
-                      ? 'bg-accent-gold/15 text-accent-gold border border-accent-gold/20 shadow-glow-gold'
+                      ? 'bg-cyan-500/15 text-cyan-400 border border-cyan-500/20 shadow-glow-cyan'
                       : 'text-slate-400 hover:bg-white/5 hover:text-white'
                   }`
                 }
@@ -73,13 +73,13 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
 
         {/* Streak Counter footer panel */}
         {user?.streak !== undefined && (
-          <div className="mx-4 my-6 rounded-2xl bg-gradient-to-r from-orange-500/10 to-red-500/10 p-4 border border-orange-500/20 shadow-glow-red/10 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/20 text-orange-400">
+          <div className="mx-4 my-6 rounded-2xl bg-gradient-to-r from-orange-500/10 to-red-500/10 p-4 border border-indigo-600/20 shadow-glow-red/10 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-600/20 text-indigo-400">
               <Flame className="h-6 w-6 animate-pulse" />
             </div>
             <div>
               <p className="text-xs text-orange-300 font-bold uppercase tracking-wider">Discipline Streak</p>
-              <p className="text-lg font-black text-orange-400">{user.streak} Days Active</p>
+              <p className="text-lg font-black text-indigo-400">{user.streak} Days Active</p>
             </div>
           </div>
         )}
@@ -88,3 +88,4 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
   );
 };
 export default Sidebar;
+

@@ -23,3 +23,4 @@ export const StreakCounter = ({ streak = 0 }) => {
   );
 };
 export default StreakCounter;
+

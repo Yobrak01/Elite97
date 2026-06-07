@@ -156,7 +156,7 @@ export const Courses = () => {
   const getTierBadgeClasses = (tier) => {
     switch (tier) {
       case 'tier1_critical': return 'bg-red-500/20 text-red-400 border border-red-500/30';
-      case 'tier2_high': return 'bg-orange-500/20 text-orange-400 border border-orange-500/30';
+      case 'tier2_high': return 'bg-indigo-600/20 text-indigo-400 border border-indigo-600/30';
       case 'tier3_standard': return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
       case 'tier4_low': return 'bg-green-500/20 text-green-400 border border-green-500/30';
       default: return 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
@@ -166,7 +166,7 @@ export const Courses = () => {
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-accent-gold" />
+        <Loader2 className="h-10 w-10 animate-spin text-cyan-400" />
       </div>
     );
   }
@@ -175,14 +175,14 @@ export const Courses = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">COURSE UNITS</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">COURSE UNITS</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
             Academic load matrix and priority weighting.
           </p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-1.5 rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all"
+          className="flex items-center gap-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-cyan transition-all"
         >
           <Plus className="h-4 w-4" />
           Add Course Unit
@@ -215,7 +215,7 @@ export const Courses = () => {
                   <div className="bg-navy-900/50 rounded-lg p-2 border border-white/5">
                     <div className="flex items-center justify-between text-[10px] font-bold text-slate-400 mb-1">
                       <span>Assessment Structure</span>
-                      <span className="text-accent-gold">{completedWeight}% Locked In</span>
+                      <span className="text-cyan-400">{completedWeight}% Locked In</span>
                     </div>
                     <div className="flex gap-1 h-1.5 w-full rounded-full overflow-hidden">
                       {course.assessmentStructure.map((item, idx) => (
@@ -304,7 +304,7 @@ export const Courses = () => {
               {/* Assessment Structure Builder */}
               <div className="border-t border-white/5 pt-4 mt-2">
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1">
+                  <label className="text-[10px] font-black uppercase tracking-wider text-blue-400 flex items-center gap-1">
                     <Target className="w-3 h-3" /> Assessment Structure
                   </label>
                   <div className="flex gap-2">
@@ -370,7 +370,7 @@ export const Courses = () => {
 
               <div className="flex justify-end gap-2 pt-4 border-t border-white/5">
                 <button type="button" onClick={() => setModalOpen(false)} className="rounded-xl px-4 py-2 text-xs font-bold text-slate-400 hover:text-white">Cancel</button>
-                <button type="submit" disabled={submitting} className="rounded-xl bg-accent-gold text-white px-4 py-2 text-xs font-black uppercase disabled:opacity-50 tracking-widest">{editingId ? 'Update' : 'Confirm'}</button>
+                <button type="submit" disabled={submitting} className="rounded-xl bg-cyan-500 text-white px-4 py-2 text-xs font-black uppercase disabled:opacity-50 tracking-widest">{editingId ? 'Update' : 'Confirm'}</button>
               </div>
             </form>
           </div>
@@ -380,4 +380,5 @@ export const Courses = () => {
   );
 };
 export default Courses;
+
 

@@ -4,16 +4,16 @@ import { Calendar, CheckSquare, Clock, Trash2, Edit2, PlayCircle, BookOpen } fro
 const getStudyMethod = (type, difficulty = 3) => {
   if (type === 'theory' && difficulty >= 4) return { emoji: '🧠', label: 'Feynman Technique', color: 'text-purple-400 bg-purple-500/10 border-purple-500/20' };
   if (type === 'theory') return { emoji: '📝', label: 'Blurting Method', color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20' };
-  if (type === 'procedural' || type === 'project') return { emoji: '🔧', label: 'Procedural Chunking', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' };
+  if (type === 'procedural' || type === 'project') return { emoji: '🔧', label: 'Procedural Chunking', color: 'text-blue-400 bg-blue-600/10 border-blue-600/20' };
   if (type === 'revision') return { emoji: '🔁', label: 'Active Recall & Spaced Repetition', color: 'text-green-400 bg-green-500/10 border-green-500/20' };
-  if (type === 'assignment' && difficulty >= 4) return { emoji: '🔀', label: 'Interleaved Practice', color: 'text-orange-400 bg-orange-500/10 border-orange-500/20' };
+  if (type === 'assignment' && difficulty >= 4) return { emoji: '🔀', label: 'Interleaved Practice', color: 'text-indigo-400 bg-indigo-600/10 border-indigo-600/20' };
   return { emoji: '⏱️', label: '50/10 Pomodoro', color: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20' };
 };
 
 export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
   const getPriorityClasses = (p) => {
     if (p >= 5) return 'text-red-400 bg-red-500/10 border-red-500/20';
-    if (p >= 4) return 'text-orange-400 bg-orange-500/10 border-orange-500/20';
+    if (p >= 4) return 'text-indigo-400 bg-indigo-600/10 border-indigo-600/20';
     if (p >= 3) return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
     return 'text-green-400 bg-green-500/10 border-green-500/20';
   };
@@ -21,7 +21,7 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
   const getTypeClasses = (t) => {
     switch (t) {
       case 'procedural':
-        return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
+        return 'text-blue-400 bg-blue-600/10 border-blue-600/20';
       case 'theory':
         return 'text-purple-400 bg-purple-500/10 border-purple-500/20';
       case 'assignment':
@@ -71,7 +71,7 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
       <div className="flex items-center justify-between border-t border-white/5 pt-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1">
-            <Clock className="h-3.5 w-3.5 text-accent-gold" />
+            <Clock className="h-3.5 w-3.5 text-cyan-400" />
             {task.estimatedHours} hrs
           </span>
 
@@ -109,7 +109,7 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
           {task.status !== 'completed' && onComplete && (
             <button
               onClick={() => onComplete(task._id)}
-              className="flex items-center gap-1 rounded-lg bg-accent-gold/10 border border-accent-gold/20 text-accent-gold hover:bg-accent-gold hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+              className="flex items-center gap-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
             >
               <CheckSquare className="h-3.5 w-3.5" />
               Complete
@@ -139,3 +139,4 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
   );
 };
 export default TaskCard;
+

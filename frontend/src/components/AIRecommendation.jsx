@@ -14,13 +14,13 @@ export const AIRecommendation = ({ recommendations = [], mode = 'balanced' }) =>
   };
 
   return (
-    <div className="glass-panel rounded-2xl p-5 border border-white/5 bg-gradient-to-r from-amber-500/5 to-accent-gold/5 shadow-glow-gold/5 flex flex-col space-y-4">
+    <div className="glass-panel rounded-2xl p-5 border border-white/5 bg-gradient-to-r from-amber-500/5 to-accent-gold/5 shadow-glow-cyan/5 flex flex-col space-y-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-amber-400 animate-pulse" />
+          <Sparkles className="h-5 w-5 text-blue-400 animate-pulse" />
           <h3 className="text-sm font-black uppercase tracking-wider text-white">AI Productivity Engine</h3>
         </div>
-        <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+        <span className="text-[10px] font-black uppercase tracking-widest text-blue-400 bg-blue-600/10 px-2 py-0.5 rounded border border-blue-600/20">
           {getModeLabel(mode)}
         </span>
       </div>
@@ -31,7 +31,7 @@ export const AIRecommendation = ({ recommendations = [], mode = 'balanced' }) =>
         ) : (
           recommendations.map((rec, index) => (
             <div key={index} className="flex items-start gap-3 text-xs leading-relaxed text-slate-300">
-              <ArrowRight className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />
+              <ArrowRight className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
               <p className="font-medium">{rec}</p>
             </div>
           ))
@@ -41,3 +41,4 @@ export const AIRecommendation = ({ recommendations = [], mode = 'balanced' }) =>
   );
 };
 export default AIRecommendation;
+

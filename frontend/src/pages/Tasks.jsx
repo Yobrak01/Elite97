@@ -124,14 +124,14 @@ export const Tasks = () => {
       {/* Top Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">TASK BACKLOG</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">TASK BACKLOG</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
             Prioritize conceptual derivations and technical challenges.
           </p>
         </div>
         <button
           onClick={openCreateModal}
-          className="flex items-center gap-1.5 rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer self-start sm:self-auto"
+          className="flex items-center gap-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-cyan transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="h-4 w-4" />
           Create Task
@@ -155,7 +155,7 @@ export const Tasks = () => {
           </div>
           <div className="glass-panel rounded-2xl p-4 border border-white/5 text-center">
             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">In Progress</span>
-            <p className="text-2xl font-black text-accent-gold mt-1">{stats.inProgress}</p>
+            <p className="text-2xl font-black text-cyan-400 mt-1">{stats.inProgress}</p>
           </div>
         </div>
       )}
@@ -344,7 +344,7 @@ export const Tasks = () => {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-xl bg-accent-gold hover:bg-accent-gold/90 border border-accent-gold/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
+                  className="rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
                 >
                   {editingId ? 'Update Task' : 'Confirm Task'}
                 </button>
@@ -357,4 +357,5 @@ export const Tasks = () => {
   );
 };
 export default Tasks;
+
 
