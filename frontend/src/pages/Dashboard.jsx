@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Clock, CheckCircle2, RefreshCw, BarChart2, Plus, Sparkles, Award, AlertTriangle } from 'lucide-react';
+import AuthContext from '../context/AuthContext';
 import useAnalytics from '../hooks/useAnalytics';
 import useTasks from '../hooks/useTasks';
 import api from '../services/api';
@@ -16,6 +17,7 @@ import RuthlessOverseer from '../components/RuthlessOverseer';
 export const Dashboard = () => {
   const { dashboardData, weeklyData, burnoutData, loading, error, refresh } = useAnalytics();
   const { tasks, stats: taskStats } = useTasks();
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const todayStart = new Date();
@@ -193,7 +195,7 @@ export const Dashboard = () => {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Double-Width Dashboard Core elements */}
         <div className="lg:col-span-2 space-y-6">
-          <WeeklyChart data={weeklyData} />
+          <WeeklyChart data={weeklyData} targetHours={user?.settings?.dailyGoalHours || 6} />
           
           <div className="grid gap-4 sm:grid-cols-2">
             <StreakCounter streak={dashboardData?.streak || 0} />

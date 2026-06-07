@@ -1,7 +1,7 @@
 import React from 'react';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, ReferenceLine } from 'recharts';
 
-export const WeeklyChart = ({ data = [] }) => {
+export const WeeklyChart = ({ data = [], targetHours = 6 }) => {
   const customTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       return (
@@ -55,6 +55,7 @@ export const WeeklyChart = ({ data = [] }) => {
                 axisLine={false}
               />
               <Tooltip content={customTooltip} />
+              <ReferenceLine y={targetHours} stroke="#fbbf24" strokeDasharray="3 3" strokeOpacity={0.8} />
               <Area
                 type="monotone"
                 dataKey="studyHours"
