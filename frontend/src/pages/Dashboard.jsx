@@ -115,6 +115,13 @@ export const Dashboard = () => {
             Recalculate
           </button>
           <button
+            onClick={() => navigate('/override')}
+            className="hidden sm:flex items-center gap-1.5 rounded-xl bg-black hover:bg-cyan-950 border border-cyan-500/50 text-cyan-400 px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.3)] transition-all cursor-pointer hover:scale-105"
+          >
+            <Sparkles className="h-4 w-4" />
+            Neural Override
+          </button>
+          <button
             onClick={() => setModalOpen(true)}
             className="flex items-center gap-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-cyan transition-all cursor-pointer"
           >

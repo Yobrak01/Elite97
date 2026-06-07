@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import Courses from './pages/Courses';
 import Lifestyle from './pages/Lifestyle';
 import Diagnostic from './pages/Diagnostic';
+import NeuralOverride from './pages/NeuralOverride';
 
 export const App = () => {
   return (
@@ -27,6 +28,7 @@ export const App = () => {
 
         {/* Protected dashboard routes */}
         <Route element={<ProtectedRoute />}>
+          <Route path="/override" element={<NeuralOverride />} />
           <Route element={<DashboardLayout />}>
             <Route path="/" element={<Dashboard />} />
             <Route path="/analytics" element={<Analytics />} />
