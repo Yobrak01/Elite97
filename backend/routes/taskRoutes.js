@@ -5,12 +5,10 @@ const authMiddleware = require('../middleware/auth');
 
 router.use(authMiddleware);
 
-router.route('/')
-  .get(taskController.getTasks)
-  .post(taskController.createTask);
-
-router.route('/stats')
-  .get(taskController.getTaskStats);
+router.get('/', authMiddleware, taskController.getTasks);
+router.post('/', authMiddleware, taskController.createTask);
+router.post('/bulk', authMiddleware, taskController.createBulkTasks);
+router.get('/stats', authMiddleware, taskController.getTaskStats);
 
 router.route('/:id')
   .put(taskController.updateTask)

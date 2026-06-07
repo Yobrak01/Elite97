@@ -47,6 +47,30 @@ exports.createTask = async (req, res, next) => {
   }
 };
 
+exports.createBulkTasks = async (req, res, next) => {
+  try {
+    const { tasks } = req.body;
+    if (!tasks || !Array.isArray(tasks)) {
+      return res.status(400).json({ message: 'Invalid tasks array provided.' });
+    }
+
+    const tasksToInsert = tasks.map(task => {
+      const aiData = computeAiTier(task);
+      return {
+        ...task,
+        user: req.user._id,
+        aiSuggestedTier: aiData.tier,
+        tierScore: aiData.score
+      };
+    });
+
+    const insertedTasks = await Task.insertMany(tasksToInsert);
+    res.status(201).json({ success: true, count: insertedTasks.length, data: insertedTasks });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.updateTask = async (req, res, next) => {
   try {
     let task = await Task.findOne({ _id: req.params.id, user: req.user._id });

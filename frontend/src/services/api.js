@@ -72,6 +72,14 @@ export const api = {
       });
       return handleResponse(res);
     },
+    createBulk: async (tasksArray) => {
+      const res = await fetch(`${API_URL}/tasks/bulk`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ tasks: tasksArray })
+      });
+      return handleResponse(res);
+    },
     update: async (id, taskData) => {
       const res = await fetch(`${API_URL}/tasks/${id}`, {
         method: 'PUT',

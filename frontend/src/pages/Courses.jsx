@@ -207,18 +207,18 @@ export const Courses = () => {
     if (!syllabusTasks) return;
     setSavingSyllabus(true);
     try {
-      for (const task of syllabusTasks) {
-        // Create standard ELITE97 task format
-        await api.tasks.create({
-          title: task.title,
-          description: `Auto-extracted from syllabus.\nOriginal text: "${task.sourceText}"`,
-          type: 'academic',
-          priority: task.priority,
-          deadline: task.deadline,
-          estimatedPomodoros: task.estimatedPomodoros,
-          status: 'pending'
-        });
-      }
+      const formattedTasks = syllabusTasks.map(task => ({
+        title: task.title,
+        description: `Auto-extracted from syllabus.\nOriginal text: "${task.sourceText}"`,
+        type: 'academic',
+        priority: task.priority,
+        deadline: task.deadline,
+        estimatedPomodoros: task.estimatedPomodoros,
+        status: 'pending'
+      }));
+
+      await api.tasks.createBulk(formattedTasks);
+      
       alert(`Successfully integrated ${syllabusTasks.length} tasks into your matrix!`);
       setSyllabusTasks(null);
     } catch (err) {
