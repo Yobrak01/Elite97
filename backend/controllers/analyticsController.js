@@ -11,10 +11,27 @@ const gpaPredictor = require('../services/gpaPredictor');
 const mitBenchmarker = require('../services/mitBenchmarker');
 const hierarchyMatrix = require('../services/hierarchyMatrix');
 
+const User = require('../models/User');
+
 // Helper function to build comprehensive context
 async function buildContext(userId, today, streak) {
   const last7Days = new Date(today);
   last7Days.setDate(last7Days.getDate() - 7);
+  
+  const user = await User.findById(userId);
+  const todayStr = new Date().toISOString().split('T')[0];
+  let circadianStatus = 'pending';
+  if (user && user.circadianLogs) {
+    const log = user.circadianLogs.find(l => l.date === todayStr);
+    if (log) {
+      circadianStatus = log.status;
+    } else {
+      const now = new Date();
+      if (now.getHours() > 5 || (now.getHours() === 5 && now.getMinutes() > 30)) {
+        circadianStatus = 'breached';
+      }
+    }
+  }
 
   const session = await StudySession.findOne({ user: userId, date: today });
   
@@ -88,9 +105,9 @@ async function buildContext(userId, today, streak) {
     restHours: finalRestHours,
     hasGym,
     consecutiveHighDays,
-    tasksCompleted,
     trendWorsening,
-    session
+    session,
+    circadianStatus
   };
 }
 
@@ -109,7 +126,7 @@ exports.getDashboard = async (req, res, next) => {
 
     const burnoutResult = burnoutDetector.detectBurnout(context);
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
-    const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0);
+    const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
     
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
     const recommendations = aiPlanner.generateRecommendations(
@@ -201,7 +218,7 @@ exports.recalculateAnalytics = async (req, res, next) => {
     const focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
     context.focusScore = focusScore;
 
-    const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0);
+    const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
     const burnoutResult = burnoutDetector.detectBurnout(context);
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
     const recommendations = aiPlanner.generateRecommendations(

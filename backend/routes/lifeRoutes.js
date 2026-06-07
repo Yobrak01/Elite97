@@ -18,4 +18,8 @@ router.post('/meal/regenerate', lifeController.regenerateMeal);
 // Routine route
 router.get('/routine/today', lifeController.getTodayRoutine);
 
+// Circadian Protocol
+router.get('/circadian-status', lifeController.getCircadianStatus);
+router.post('/circadian-anchor', lifeController.establishAnchor);
+
 module.exports = router;

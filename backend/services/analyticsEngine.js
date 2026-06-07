@@ -23,7 +23,8 @@ function calculateFocusScore(context) {
     hasLateNight = false,
     subjectsCount = 1,
     streak = 0,
-    restHours = 8
+    restHours = 8,
+    circadianStatus = 'pending'
   } = context || {};
 
   // Component 1: Study Duration Quality - Max 25
@@ -67,6 +68,13 @@ function calculateFocusScore(context) {
   if (restHours >= 7) score += 10;
   else if (restHours >= 5) score += 5;
 
+  // Circadian Protocol Modifier
+  if (circadianStatus === 'success') {
+    score *= 1.15; // +15% Alpha Overdrive Boost
+  } else if (circadianStatus === 'breached') {
+    score *= 0.8; // -20% Sluggish Penalty
+  }
+
   return Math.min(100, Math.max(0, Math.round(score)));
 }
 
@@ -75,9 +83,17 @@ function calculateCompletionPercentage(tasksCompleted, totalTasks) {
   return Math.round((tasksCompleted / totalTasks) * 100);
 }
 
-function calculateProductivityScore(focusScore, completionPercentage, streak) {
+function calculateProductivityScore(focusScore, completionPercentage, streak, circadianStatus = 'pending') {
   const streakBonus = Math.min(20, streak * 2);
-  return Math.min(100, Math.round((focusScore * 0.4) + (completionPercentage * 0.4) + streakBonus));
+  let score = (focusScore * 0.4) + (completionPercentage * 0.4) + streakBonus;
+  
+  if (circadianStatus === 'success') {
+    score *= 1.15;
+  } else if (circadianStatus === 'breached') {
+    score *= 0.8;
+  }
+
+  return Math.min(100, Math.round(score));
 }
 
 function calculateStreak(lastStudyDate, currentStreak) {

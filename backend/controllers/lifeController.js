@@ -1,5 +1,6 @@
 const Workout = require('../models/Workout');
 const MealPlan = require('../models/MealPlan');
+const User = require('../models/User');
 const fitnessEngine = require('../services/fitnessEngine');
 const nutritionEngine = require('../services/nutritionEngine');
 
@@ -360,6 +361,78 @@ exports.getTodayRoutine = async (req, res, next) => {
     });
 
     res.status(200).json({ success: true, data: mergedRoutine });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Establish 5AM Circadian Anchor
+// @route   POST /api/life/circadian-anchor
+// @access  Private
+exports.establishAnchor = async (req, res, next) => {
+  try {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const user = await User.findById(req.user._id);
+    
+    // Check if already logged today
+    const existingLog = user.circadianLogs.find(log => log.date === todayStr);
+    if (existingLog && existingLog.status !== 'pending') {
+      return res.status(400).json({ success: false, message: 'Anchor already evaluated for today.', data: existingLog });
+    }
+
+    // Evaluate time
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    
+    // 4:30 AM to 5:30 AM is success
+    let status = 'breached';
+    if ((hours === 4 && minutes >= 30) || (hours === 5 && minutes <= 30)) {
+      status = 'success';
+    }
+
+    if (existingLog) {
+      existingLog.status = status;
+    } else {
+      user.circadianLogs.push({ date: todayStr, status });
+    }
+
+    await user.save();
+
+    res.status(200).json({ success: true, data: { date: todayStr, status } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Get today's circadian status
+// @route   GET /api/life/circadian-status
+// @access  Private
+exports.getCircadianStatus = async (req, res, next) => {
+  try {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const user = await User.findById(req.user._id);
+    
+    const log = user.circadianLogs.find(log => log.date === todayStr);
+    
+    if (log) {
+      return res.status(200).json({ success: true, data: log });
+    }
+
+    // Evaluate if they have already breached it without logging (past 5:30 AM)
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    
+    if (hours > 5 || (hours === 5 && minutes > 30)) {
+      // Auto-breach
+      user.circadianLogs.push({ date: todayStr, status: 'breached' });
+      await user.save();
+      return res.status(200).json({ success: true, data: { date: todayStr, status: 'breached' } });
+    }
+
+    // Within window or before window
+    return res.status(200).json({ success: true, data: { date: todayStr, status: 'pending' } });
   } catch (error) {
     next(error);
   }

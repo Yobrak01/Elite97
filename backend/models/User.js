@@ -97,6 +97,10 @@ const UserSchema = new mongoose.Schema({
     overlearning: { type: Number, default: 0 },
     tier: { type: String, default: 'Standard' }
   },
+  circadianLogs: [{
+    date: { type: String },
+    status: { type: String, enum: ['success', 'breached', 'pending'] }
+  }],
   createdAt: {
     type: Date,
     default: Date.now

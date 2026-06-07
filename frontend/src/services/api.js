@@ -385,6 +385,19 @@ export const api = {
       });
       return handleResponse(res);
     },
+    getCircadianStatus: async () => {
+      const res = await fetch(`${API_URL}/life/circadian-status`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    establishAnchor: async () => {
+      const res = await fetch(`${API_URL}/life/circadian-anchor`, {
+        method: 'POST',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
     getTodayRoutine: async () => {
       const res = await fetch(`${API_URL}/life/routine/today`, {
         headers: getHeaders()

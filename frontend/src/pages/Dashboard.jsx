@@ -10,6 +10,7 @@ import BurnoutIndicator from '../components/BurnoutIndicator';
 import StreakCounter from '../components/StreakCounter';
 import WeeklyChart from '../components/WeeklyChart';
 import AIRecommendation from '../components/AIRecommendation';
+import CircadianAnchor from '../components/CircadianAnchor';
 
 export const Dashboard = () => {
   const { dashboardData, weeklyData, burnoutData, loading, error, refresh } = useAnalytics();
@@ -130,6 +131,9 @@ export const Dashboard = () => {
           </button>
         </div>
       </div>
+
+      {/* 5AM Circadian Protocol Widget */}
+      <CircadianAnchor onAnchorUpdate={handleSyncAnalytics} />
 
       {/* Critical Overdue Alert */}
       {dueTodayOrOverdue.length > 0 && (
