@@ -67,7 +67,7 @@ export const Register = () => {
       setUniversities([]);
       setUniversity('');
       try {
-        const res = await fetch(`http://universities.hipolabs.com/search?country=${encodeURIComponent(country)}`);
+        const res = await fetch(`https://universities.hipolabs.com/search?country=${encodeURIComponent(country)}`);
         const data = await res.json();
         const sorted = [...new Set(data.map(u => u.name))].sort();
         setUniversities(sorted);

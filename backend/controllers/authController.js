@@ -91,7 +91,7 @@ exports.getMe = async (req, res, next) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode } = req.body;
+    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode, country, university, major } = req.body;
     
     if (settings) req.user.settings = { ...req.user.settings, ...settings };
     if (pantry) req.user.pantry = { ...req.user.pantry, ...pantry };
@@ -105,6 +105,9 @@ exports.updateSettings = async (req, res, next) => {
     }
     if (yearOfStudy !== undefined) req.user.yearOfStudy = yearOfStudy;
     if (course !== undefined) req.user.course = course;
+    if (country !== undefined) req.user.country = country;
+    if (university !== undefined) req.user.university = university;
+    if (major !== undefined) req.user.major = major;
     if (currentSemester !== undefined) req.user.currentSemester = currentSemester;
     if (timetable !== undefined) req.user.timetable = timetable;
     if (pastResults !== undefined) req.user.pastResults = pastResults;

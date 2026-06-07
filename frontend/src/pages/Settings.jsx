@@ -19,6 +19,9 @@ export const Settings = () => {
   const [yearOfStudy, setYearOfStudy] = useState(user?.yearOfStudy || '');
   const [course, setCourse] = useState(user?.course || '');
   const [semester, setSemester] = useState(user?.currentSemester || '');
+  const [country, setCountry] = useState(user?.country || '');
+  const [university, setUniversity] = useState(user?.university || '');
+  const [major, setMajor] = useState(user?.major || '');
 
   const [timetable, setTimetable] = useState(user?.timetable || []);
   const [newTimetableRow, setNewTimetableRow] = useState({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '' });
@@ -74,6 +77,9 @@ export const Settings = () => {
         studyMode,
         yearOfStudy: Number(yearOfStudy) || undefined,
         course,
+        country,
+        university,
+        major,
         currentSemester: Number(semester) || undefined,
         timetable,
         pastResults,
@@ -263,14 +269,46 @@ export const Settings = () => {
             
             <div className="space-y-4">
               <div>
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Course</label>
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Nation of Operation</label>
                 <input
                   type="text"
-                  value={course}
-                  onChange={(e) => setCourse(e.target.value)}
-                  placeholder="e.g. BSc Computer Science"
+                  value={country}
+                  onChange={(e) => setCountry(e.target.value)}
+                  placeholder="e.g. United States"
                   className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
                 />
+              </div>
+              <div>
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Institution / University</label>
+                <input
+                  type="text"
+                  value={university}
+                  onChange={(e) => setUniversity(e.target.value)}
+                  placeholder="e.g. MIT"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Academic Major</label>
+                  <input
+                    type="text"
+                    value={major}
+                    onChange={(e) => setMajor(e.target.value)}
+                    placeholder="e.g. Computer Science"
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Specific Course Name</label>
+                  <input
+                    type="text"
+                    value={course}
+                    onChange={(e) => setCourse(e.target.value)}
+                    placeholder="e.g. BSc Software Eng."
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
