@@ -28,7 +28,7 @@ const formatUserResponse = (user) => ({
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, country, university, major } = req.body;
+    const { name, email, password, country, university, major, course, yearOfStudy, currentSemester } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -41,7 +41,10 @@ exports.register = async (req, res, next) => {
       password,
       country,
       university,
-      major
+      major,
+      course,
+      yearOfStudy,
+      currentSemester
     });
 
     const token = signToken(user._id);

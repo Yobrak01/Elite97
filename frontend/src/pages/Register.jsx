@@ -30,6 +30,9 @@ export const Register = () => {
   const [customUniversity, setCustomUniversity] = useState('');
   const [major, setMajor] = useState('');
   const [customMajor, setCustomMajor] = useState('');
+  const [course, setCourse] = useState('');
+  const [yearOfStudy, setYearOfStudy] = useState('');
+  const [currentSemester, setCurrentSemester] = useState('');
 
   const [countries, setCountries] = useState([]);
   const [universities, setUniversities] = useState([]);
@@ -112,7 +115,7 @@ export const Register = () => {
 
     setSubmitting(true);
     try {
-      await register(name, email, password, country, finalUniversity, finalMajor);
+      await register(name, email, password, country, finalUniversity, finalMajor, course, Number(yearOfStudy) || undefined, Number(currentSemester) || undefined);
       navigate('/', { replace: true });
     } catch (err) {
       console.error(err);
@@ -323,6 +326,44 @@ export const Register = () => {
                 />
               </div>
             )}
+
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Specific Course Name (Optional)</label>
+              <input
+                type="text"
+                value={course}
+                onChange={(e) => setCourse(e.target.value)}
+                placeholder="e.g. BSc Software Engineering"
+                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Year of Study</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={yearOfStudy}
+                  onChange={(e) => setYearOfStudy(e.target.value)}
+                  placeholder="e.g. 2"
+                  className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Current Semester</label>
+                <input
+                  type="number"
+                  min="1"
+                  max="3"
+                  value={currentSemester}
+                  onChange={(e) => setCurrentSemester(e.target.value)}
+                  placeholder="e.g. 1"
+                  className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all"
+                />
+              </div>
+            </div>
 
             <div className="flex gap-3 pt-4">
               <button
