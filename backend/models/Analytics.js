@@ -48,6 +48,15 @@ const AnalyticsSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  ruthlessCritique: {
+    type: String,
+    default: ''
+  },
+  critiqueSeverity: {
+    type: String,
+    enum: ['approval', 'neutral', 'warning', 'punitive'],
+    default: 'neutral'
+  },
   createdAt: {
     type: Date,
     default: Date.now

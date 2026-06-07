@@ -11,6 +11,7 @@ import StreakCounter from '../components/StreakCounter';
 import WeeklyChart from '../components/WeeklyChart';
 import AIRecommendation from '../components/AIRecommendation';
 import CircadianAnchor from '../components/CircadianAnchor';
+import RuthlessOverseer from '../components/RuthlessOverseer';
 
 export const Dashboard = () => {
   const { dashboardData, weeklyData, burnoutData, loading, error, refresh } = useAnalytics();
@@ -134,6 +135,11 @@ export const Dashboard = () => {
 
       {/* 5AM Circadian Protocol Widget */}
       <CircadianAnchor onAnchorUpdate={handleSyncAnalytics} />
+
+      {/* Ruthless AI Overseer */}
+      {dashboardData?.ruthlessCritique && (
+        <RuthlessOverseer critique={dashboardData.ruthlessCritique} severity={dashboardData.critiqueSeverity} />
+      )}
 
       {/* Critical Overdue Alert */}
       {dueTodayOrOverdue.length > 0 && (

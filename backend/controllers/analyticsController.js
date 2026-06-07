@@ -10,6 +10,7 @@ const aiPlanner = require('../services/aiPlanner');
 const gpaPredictor = require('../services/gpaPredictor');
 const mitBenchmarker = require('../services/mitBenchmarker');
 const hierarchyMatrix = require('../services/hierarchyMatrix');
+const ruthlessAI = require('../services/ruthlessAI');
 
 const User = require('../models/User');
 
@@ -129,11 +130,22 @@ exports.getDashboard = async (req, res, next) => {
     const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
     
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
+    const overdueTasksCount = tasks.filter(t => t.deadline && new Date(t.deadline) <= todayEnd).length;
+    
     const recommendations = aiPlanner.generateRecommendations(
       { focusScore, completionPercentage: context.completionPercentage, studyHours: context.studyHours },
       tasks,
       calculatedMode
     );
+
+    const critique = ruthlessAI.generateCritique({
+      circadianStatus: context.circadianStatus,
+      focusScore,
+      streak: req.user.streak || 0,
+      trendWorsening: context.trendWorsening,
+      tasksCompleted: context.tasksCompleted || 0,
+      overdueTasksCount
+    });
 
     const analytics = await Analytics.findOneAndUpdate(
       { user: req.user._id, date: today },
@@ -146,7 +158,9 @@ exports.getDashboard = async (req, res, next) => {
         streak: req.user.streak || 0,
         studyHours: context.studyHours,
         mode: calculatedMode,
-        recommendations
+        recommendations,
+        ruthlessCritique: critique.text,
+        critiqueSeverity: critique.severity
       },
       { upsert: true, new: true }
     );
@@ -221,11 +235,22 @@ exports.recalculateAnalytics = async (req, res, next) => {
     const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
     const burnoutResult = burnoutDetector.detectBurnout(context);
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
+    const overdueTasksCount = tasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) <= todayEnd).length;
+
     const recommendations = aiPlanner.generateRecommendations(
       { focusScore, completionPercentage: context.completionPercentage, studyHours: context.studyHours },
       tasks,
       calculatedMode
     );
+
+    const critique = ruthlessAI.generateCritique({
+      circadianStatus: context.circadianStatus,
+      focusScore,
+      streak: req.user.streak || 0,
+      trendWorsening: context.trendWorsening,
+      tasksCompleted: context.tasksCompleted || 0,
+      overdueTasksCount
+    });
 
     const updated = await Analytics.findOneAndUpdate(
       { user: req.user._id, date: today },
@@ -238,7 +263,9 @@ exports.recalculateAnalytics = async (req, res, next) => {
         streak: req.user.streak || 0,
         studyHours: context.studyHours,
         mode: calculatedMode,
-        recommendations
+        recommendations,
+        ruthlessCritique: critique.text,
+        critiqueSeverity: critique.severity
       },
       { upsert: true, new: true }
     );
