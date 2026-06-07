@@ -192,7 +192,7 @@ exports.getDailyMeal = async (req, res, next) => {
 
     // Generate a new meal plan if none exists for today
     if (!mealPlan) {
-      const generatedMeal = nutritionEngine.generateDailyMealPlan();
+      const generatedMeal = nutritionEngine.generateDailyMealPlan(req.user.pantry);
 
       mealPlan = await MealPlan.findOneAndUpdate(
         { user: req.user._id, date: today },
@@ -227,7 +227,7 @@ exports.regenerateMeal = async (req, res, next) => {
       date: { $gte: today, $lt: tomorrow }
     });
 
-    const mealPlan = nutritionEngine.generateDailyMealPlan();
+    const mealPlan = nutritionEngine.generateDailyMealPlan(req.user.pantry);
     
     const newMeal = await MealPlan.create({
       user: req.user._id,

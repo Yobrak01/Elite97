@@ -19,6 +19,7 @@ const formatUserResponse = (user) => ({
   country: user.country,
   university: user.university,
   major: user.major,
+  pantry: user.pantry,
   currentSemester: user.currentSemester,
   timetable: user.timetable,
   studyGauge: user.studyGauge,
@@ -90,9 +91,10 @@ exports.getMe = async (req, res, next) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults } = req.body;
+    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry } = req.body;
     
     if (settings) req.user.settings = { ...req.user.settings, ...settings };
+    if (pantry) req.user.pantry = { ...req.user.pantry, ...pantry };
     if (studyMode) {
       const allowedModes = ['normal', 'cat_prep', 'exam_prep', 'recovery', 'unexpected_event'];
       if (!allowedModes.includes(studyMode)) {

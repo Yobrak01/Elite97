@@ -99,6 +99,23 @@ exports.manualLog = async (req, res, next) => {
     // Calculate a mock startTime backwards from now
     const startTime = new Date(now.getTime() - (durationMinutes * 60000));
 
+    // Deduplication check: Check if this time overlaps with any existing time log
+    const overlappingLog = await TimeLog.findOne({
+      user: req.user._id,
+      $or: [
+        { startTime: { $lt: now, $gte: startTime } },
+        { endTime: { $gt: startTime, $lte: now } },
+        { startTime: { $lte: startTime }, endTime: { $gte: now } }
+      ]
+    });
+
+    if (overlappingLog) {
+      return res.status(400).json({
+        success: false,
+        message: 'This manual time log overlaps with an existing automatically captured session. Redundant logging rejected.'
+      });
+    }
+
     const timeLog = await TimeLog.create({
       user: req.user._id,
       date: new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()),

@@ -10,6 +10,7 @@ import api from '../services/api';
 const TABS = [
   { key: 'gym', label: 'Gym Schedule', icon: Dumbbell, color: 'text-green-400', bg: 'bg-green-500/15', border: 'border-green-500/30' },
   { key: 'meal', label: 'Meal Plan', icon: UtensilsCrossed, color: 'text-orange-400', bg: 'bg-orange-500/15', border: 'border-orange-500/30' },
+  { key: 'pantry', label: 'My Pantry', icon: Coffee, color: 'text-blue-400', bg: 'bg-blue-500/15', border: 'border-blue-500/30' },
   { key: 'routine', label: 'Daily Routine', icon: Home, color: 'text-yellow-400', bg: 'bg-yellow-500/15', border: 'border-yellow-500/30' }
 ];
 
@@ -348,6 +349,158 @@ const MealTab = () => {
   );
 };
 
+// ===================== PANTRY TAB =====================
+const PantryTab = () => {
+  const [pantry, setPantry] = useState({
+    carbs: [],
+    proteins: [],
+    veg: [],
+    fruits_fats: []
+  });
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  
+  const [newInputs, setNewInputs] = useState({
+    carbs: '', proteins: '', veg: '', fruits_fats: ''
+  });
+
+  const fetchUserPantry = useCallback(async () => {
+    try {
+      const res = await api.auth.getMe();
+      if (res.user && res.user.pantry) {
+        setPantry(res.user.pantry);
+      } else {
+        // Defaults
+        setPantry({
+          carbs: ['rice', 'ugali', 'chapati'],
+          proteins: ['beans', 'eggs', 'meat', 'liver', 'milk'],
+          veg: ['kales'],
+          fruits_fats: ['avocado', 'oranges', 'bananas']
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch pantry:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchUserPantry(); }, [fetchUserPantry]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.auth.updateSettings({ pantry });
+      // Also regenerate the meal plan automatically
+      await api.life.regenerateMeal();
+    } catch (err) {
+      console.error('Failed to save pantry:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleAddItem = (category) => {
+    const item = newInputs[category].trim();
+    if (item && !pantry[category].includes(item)) {
+      setPantry({
+        ...pantry,
+        [category]: [...pantry[category], item]
+      });
+      setNewInputs({ ...newInputs, [category]: '' });
+    }
+  };
+
+  const handleRemoveItem = (category, item) => {
+    setPantry({
+      ...pantry,
+      [category]: pantry[category].filter(i => i !== item)
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <div className="relative h-10 w-10">
+          <div className="absolute h-full w-full rounded-full border-4 border-navy-800"></div>
+          <div className="absolute h-full w-full animate-spin rounded-full border-4 border-t-blue-400 border-r-transparent border-b-transparent border-l-transparent"></div>
+        </div>
+      </div>
+    );
+  }
+
+  const PANTRY_SECTIONS = [
+    { key: 'carbs', label: 'Carbohydrates', color: 'text-amber-400', bg: 'bg-amber-500/15', border: 'border-amber-500/30' },
+    { key: 'proteins', label: 'Proteins', color: 'text-red-400', bg: 'bg-red-500/15', border: 'border-red-500/30' },
+    { key: 'veg', label: 'Vegetables', color: 'text-green-400', bg: 'bg-green-500/15', border: 'border-green-500/30' },
+    { key: 'fruits_fats', label: 'Fruits & Fats', color: 'text-purple-400', bg: 'bg-purple-500/15', border: 'border-purple-500/30' }
+  ];
+
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-500/15 border border-blue-500/20">
+            <Coffee className="h-6 w-6 text-blue-400" />
+          </div>
+          <div>
+            <h3 className="text-lg font-black tracking-wider text-white uppercase">My Pantry</h3>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Configure your available foods</p>
+          </div>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="flex items-center gap-2 rounded-xl bg-blue-500/15 border border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+        >
+          <Check className={`h-3.5 w-3.5 ${saving ? 'animate-pulse' : ''}`} />
+          {saving ? 'Saving...' : 'Save & Update Meals'}
+        </button>
+      </div>
+
+      <div className="grid gap-5 md:grid-cols-2">
+        {PANTRY_SECTIONS.map((section) => (
+          <div key={section.key} className={`glass-panel rounded-2xl border ${section.border} p-5 space-y-4`}>
+            <div className="flex items-center justify-between">
+              <h4 className={`text-sm font-bold uppercase tracking-widest ${section.color}`}>{section.label}</h4>
+              <span className="text-xs font-bold text-white bg-white/10 px-2 py-0.5 rounded-full">{pantry[section.key].length} items</span>
+            </div>
+            
+            <div className="flex flex-wrap gap-2">
+              {pantry[section.key].map(item => (
+                <div key={item} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl ${section.bg} border ${section.border}`}>
+                  <span className={`text-xs font-bold text-white`}>{item}</span>
+                  <button onClick={() => handleRemoveItem(section.key, item)} className="text-white/50 hover:text-white">
+                    &times;
+                  </button>
+                </div>
+              ))}
+              {pantry[section.key].length === 0 && <span className="text-xs text-slate-500 italic">No items</span>}
+            </div>
+
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newInputs[section.key]}
+                onChange={(e) => setNewInputs({...newInputs, [section.key]: e.target.value})}
+                onKeyDown={(e) => e.key === 'Enter' && handleAddItem(section.key)}
+                placeholder="Add food item..."
+                className="flex-1 bg-navy-900/50 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white/30"
+              />
+              <button
+                onClick={() => handleAddItem(section.key)}
+                className={`px-3 py-2 rounded-xl text-xs font-bold uppercase tracking-wider text-white ${section.bg} hover:brightness-125 transition-all`}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ===================== ROUTINE TAB =====================
 
 const RoutineTab = () => {
@@ -518,6 +671,7 @@ export const Lifestyle = () => {
       <div>
         {activeTab === 'gym' && <GymTab />}
         {activeTab === 'meal' && <MealTab />}
+        {activeTab === 'pantry' && <PantryTab />}
         {activeTab === 'routine' && <RoutineTab />}
       </div>
     </div>

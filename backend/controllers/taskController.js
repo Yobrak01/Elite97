@@ -88,19 +88,16 @@ exports.deleteTask = async (req, res, next) => {
 
 exports.completeTask = async (req, res, next) => {
   try {
-    const task = await Task.findOne({ _id: req.params.id, user: req.user._id });
+    const task = await Task.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id, status: { $ne: 'completed' } },
+      { $set: { status: 'completed', completedAt: new Date() } },
+      { new: true }
+    );
 
     if (!task) {
-      return res.status(404).json({ message: 'Task not found or access denied.' });
+      // It might not exist, or it might already be completed.
+      return res.status(400).json({ message: 'Task not found or already completed.' });
     }
-
-    if (task.status === 'completed') {
-      return res.status(400).json({ message: 'Task is already completed.' });
-    }
-
-    task.status = 'completed';
-    task.completedAt = new Date();
-    await task.save();
 
     res.status(200).json({ success: true, data: task });
   } catch (error) {

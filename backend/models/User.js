@@ -69,6 +69,12 @@ const UserSchema = new mongoose.Schema({
   course: {
     type: String
   },
+  pantry: {
+    carbs: { type: [String], default: ['rice', 'ugali', 'chapati'] },
+    proteins: { type: [String], default: ['beans', 'eggs', 'meat', 'liver', 'milk'] },
+    veg: { type: [String], default: ['kales'] },
+    fruits_fats: { type: [String], default: ['avocado', 'oranges', 'bananas'] }
+  },
   currentSemester: {
     type: Number
   },
