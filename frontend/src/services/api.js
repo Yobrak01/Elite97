@@ -237,6 +237,12 @@ export const api = {
         headers: getHeaders()
       });
       return handleResponse(res);
+    },
+    getOracleData: async () => {
+      const res = await fetch(`${API_URL}/analytics/oracle`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
     }
   },
   planner: {

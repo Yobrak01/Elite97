@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, BarChart3, CheckSquare, Calendar, Sliders, X, Flame, BookOpen, Dumbbell, Globe } from 'lucide-react';
+import { LayoutDashboard, BarChart3, CheckSquare, Calendar, Sliders, X, Flame, BookOpen, Dumbbell, Globe, Eye } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 
 export const Sidebar = ({ isOpen, setIsOpen }) => {
@@ -14,6 +14,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
     { name: 'AI Planner', path: '/planner', icon: Calendar },
     { name: 'Schedule Presets', path: '/schedule', icon: Calendar },
     { name: 'Global Hierarchy', path: '/hierarchy', icon: Globe },
+    { name: 'The Oracle', path: '/oracle', icon: Eye },
     { name: 'Lifestyle', path: '/lifestyle', icon: Dumbbell },
     { name: 'Settings', path: '/settings', icon: Sliders },
   ];

@@ -79,6 +79,9 @@ const UserSchema = new mongoose.Schema({
   currentSemester: {
     type: Number
   },
+  semesterEndDate: {
+    type: Date
+  },
   timetable: {
     type: [{
       dayOfWeek: String,

@@ -12,6 +12,7 @@ const mitBenchmarker = require('../services/mitBenchmarker');
 const hierarchyMatrix = require('../services/hierarchyMatrix');
 const ruthlessAI = require('../services/ruthlessAI');
 const cohortFeed = require('../services/cohortFeed');
+const oracleEngine = require('../services/oracleEngine');
 
 const User = require('../models/User');
 
@@ -743,6 +744,37 @@ exports.getGlobalFeed = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: events
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getOracleProjections = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const fourteenDaysAgo = new Date();
+    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
+    fourteenDaysAgo.setHours(0, 0, 0, 0);
+
+    const recentAnalytics = await Analytics.find({
+      user: req.user._id,
+      date: { $gte: fourteenDaysAgo }
+    }).sort({ date: 1 });
+
+    // Ensure we have some base GPA to pass to the engine
+    let predictedSemesterMark = 0;
+    if (req.user.cumulativeMark) {
+      predictedSemesterMark = req.user.cumulativeMark;
+    }
+
+    const currentRank = req.user.mitRankPercentile || 50;
+
+    const oracleData = oracleEngine.runOracle(req.user, recentAnalytics, currentRank, predictedSemesterMark);
+
+    res.status(200).json({
+      success: true,
+      data: oracleData
     });
   } catch (error) {
     next(error);

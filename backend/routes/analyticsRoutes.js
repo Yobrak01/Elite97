@@ -14,5 +14,6 @@ router.get('/gpa', authMiddleware, analyticsController.getGpaPrediction);
 router.get('/mit-ranking', authMiddleware, analyticsController.getMitRanking);
 router.get('/hierarchy', authMiddleware, analyticsController.getHierarchyMatrix);
 router.get('/feed', authMiddleware, analyticsController.getGlobalFeed);
+router.get('/oracle', authMiddleware, analyticsController.getOracleProjections);
 
 module.exports = router;
