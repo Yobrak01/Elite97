@@ -22,6 +22,7 @@ const formatUserResponse = (user) => ({
   currentSemester: user.currentSemester,
   timetable: user.timetable,
   studyGauge: user.studyGauge,
+  semesterSchedule: user.semesterSchedule,
   pastResults: user.pastResults
 });
 
@@ -92,7 +93,7 @@ exports.getMe = async (req, res, next) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode, country, university, major } = req.body;
+    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode, country, university, major, semesterSchedule } = req.body;
     
     if (settings) req.user.settings = { ...req.user.settings, ...settings };
     if (pantry) req.user.pantry = { ...req.user.pantry, ...pantry };
@@ -111,6 +112,17 @@ exports.updateSettings = async (req, res, next) => {
     if (currentSemester !== undefined) req.user.currentSemester = currentSemester;
     if (timetable !== undefined) req.user.timetable = timetable;
     if (pastResults !== undefined) req.user.pastResults = pastResults;
+    if (semesterSchedule !== undefined) {
+      req.user.semesterSchedule = {
+        ...req.user.semesterSchedule,
+        ...semesterSchedule
+      };
+      
+      // Keep legacy semesterEndDate in sync just in case
+      if (semesterSchedule.endDate) {
+        req.user.semesterEndDate = semesterSchedule.endDate;
+      }
+    }
     if (studyGauge !== undefined) {
       req.user.studyGauge = {
         priming: studyGauge.priming !== undefined ? studyGauge.priming : (req.user.studyGauge?.priming || 0),

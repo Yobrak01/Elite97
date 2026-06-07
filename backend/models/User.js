@@ -82,6 +82,16 @@ const UserSchema = new mongoose.Schema({
   semesterEndDate: {
     type: Date
   },
+  semesterSchedule: {
+    startDate: { type: Date },
+    endDate: { type: Date },
+    cat1Date: { type: Date },
+    cat2Date: { type: Date },
+    cat3Date: { type: Date },
+    assignment1Date: { type: Date },
+    assignment2Date: { type: Date },
+    assignment3Date: { type: Date }
+  },
   timetable: {
     type: [{
       dayOfWeek: String,

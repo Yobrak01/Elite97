@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect } from 'react';
-import { Sliders, Save, Award, Key, User, Bell, BookOpen, Calendar, Plus, Trash2, Edit2, FileText } from 'lucide-react';
+import { Sliders, Save, Award, Key, User, Bell, BookOpen, Calendar, Plus, Trash2, Edit2, FileText, Clock } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import api from '../services/api';
 
@@ -27,6 +27,10 @@ export const Settings = () => {
 
   const [pastResults, setPastResults] = useState(user?.pastResults || []);
   const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', type: 'semester', mark: '' });
+
+  const [semesterSchedule, setSemesterSchedule] = useState(user?.semesterSchedule || {
+    startDate: '', endDate: '', cat1Date: '', cat2Date: '', cat3Date: '', assignment1Date: '', assignment2Date: '', assignment3Date: ''
+  });
 
   const [courses, setCourses] = useState([]);
   
@@ -81,6 +85,7 @@ export const Settings = () => {
         currentSemester: Number(semester) || undefined,
         timetable,
         pastResults,
+        semesterSchedule,
         settings: {
           dailyGoalHours: Number(dailyGoalHours),
           breakInterval: Number(breakInterval),
@@ -418,6 +423,74 @@ export const Settings = () => {
                   Save Timetable
                 </button>
               )}
+            </div>
+          </div>
+
+          {/* Semester Timelines & Milestones Manager */}
+          <div className="glass-panel rounded-3xl p-6 border border-white/5 space-y-6">
+            <div className="flex items-center gap-2 border-b border-white/5 pb-4">
+              <Clock className="h-5 w-5 text-cyan-400" />
+              <h3 className="text-sm font-black uppercase tracking-wider text-white">Semester Timelines</h3>
+            </div>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Semester Start</label>
+                  <input
+                    type="date"
+                    value={semesterSchedule.startDate ? semesterSchedule.startDate.split('T')[0] : ''}
+                    onChange={(e) => setSemesterSchedule({...semesterSchedule, startDate: e.target.value})}
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Semester End</label>
+                  <input
+                    type="date"
+                    value={semesterSchedule.endDate ? semesterSchedule.endDate.split('T')[0] : ''}
+                    onChange={(e) => setSemesterSchedule({...semesterSchedule, endDate: e.target.value})}
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-cyan-500/50"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                {[1, 2, 3].map(num => (
+                  <div key={`cat${num}`}>
+                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">CAT {num}</label>
+                    <input
+                      type="date"
+                      value={semesterSchedule[`cat${num}Date`] ? semesterSchedule[`cat${num}Date`].split('T')[0] : ''}
+                      onChange={(e) => setSemesterSchedule({...semesterSchedule, [`cat${num}Date`]: e.target.value})}
+                      className="w-full rounded-xl bg-navy-900 border border-white/5 py-2 px-2 text-[10px] text-white focus:outline-none focus:border-cyan-500/50"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                {[1, 2, 3].map(num => (
+                  <div key={`assgn${num}`}>
+                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Assignment {num}</label>
+                    <input
+                      type="date"
+                      value={semesterSchedule[`assignment${num}Date`] ? semesterSchedule[`assignment${num}Date`].split('T')[0] : ''}
+                      onChange={(e) => setSemesterSchedule({...semesterSchedule, [`assignment${num}Date`]: e.target.value})}
+                      className="w-full rounded-xl bg-navy-900 border border-white/5 py-2 px-2 text-[10px] text-white focus:outline-none focus:border-cyan-500/50"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={submitting}
+                className="w-full mt-2 flex items-center justify-center gap-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-all cursor-pointer disabled:opacity-50"
+              >
+                Save Timelines
+              </button>
             </div>
           </div>
 

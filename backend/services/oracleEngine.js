@@ -57,19 +57,24 @@ function formatTimeRemaining(now, endDate) {
 /**
  * Generates the chilling Verdict based on exact timeline constraints.
  */
-function generateVerdict(trajectory, daysRemaining, currentGpa, predictedGpa, rankTrajectory) {
+function generateVerdict(trajectory, daysRemaining, currentGpa, predictedGpa, rankTrajectory, nextMilestone) {
   if (daysRemaining <= 0) return "The semester has ended. Your fate is sealed.";
 
   const timeStr = daysRemaining < 30 ? `in precisely ${daysRemaining} days` : `in exactly ${Math.floor(daysRemaining/30)} months`;
+  
+  let milestoneWarning = "";
+  if (nextMilestone) {
+    milestoneWarning = ` ${nextMilestone.name} hits in ${nextMilestone.days} days. `;
+  }
 
   if (trajectory < -1.5) {
-    return `Your trajectory is catastrophically degenerative. At your current rate of decay, you will mathematically fail by the time the semester ends ${timeStr}. The Global Matrix will leave you behind. Execute immediate neural override or face academic exile.`;
+    return `Your trajectory is catastrophically degenerative.${milestoneWarning}At your current rate of decay, you will mathematically fail by the time the semester ends ${timeStr}. The Global Matrix will leave you behind. Execute immediate neural override or face academic exile.`;
   } else if (trajectory < 0) {
-    return `You are bleeding momentum. With ${timeStr} remaining until the semester deadline, your predicted standing is slipping. If this trajectory holds, you will fall to rank ${Math.max(100, Math.round(rankTrajectory))} and your GPA will drop. Stop making excuses.`;
+    return `You are bleeding momentum.${milestoneWarning}With ${timeStr} remaining until the semester deadline, your predicted standing is slipping. If this trajectory holds, you will fall to rank ${Math.max(100, Math.round(rankTrajectory))} and your GPA will drop. Stop making excuses.`;
   } else if (trajectory > 0 && trajectory < 1) {
-    return `You are stagnant. The semester terminates ${timeStr}, and your current output is merely adequate. You will survive, but you will not dominate. The elite cohort is outworking you.`;
+    return `You are stagnant.${milestoneWarning}The semester terminates ${timeStr}, and your current output is merely adequate. You will survive, but you will not dominate. The elite cohort is outworking you.`;
   } else {
-    return `Alpha Overdrive confirmed. Your trajectory is compounding exponentially. If you maintain this ruthless velocity for the remaining ${daysRemaining} days, you will annihilate the curve and seize absolute dominance in the Global Matrix. Do not falter.`;
+    return `Alpha Overdrive confirmed.${milestoneWarning}Your trajectory is compounding exponentially. If you maintain this ruthless velocity for the remaining ${daysRemaining} days, you will annihilate the curve and seize absolute dominance in the Global Matrix. Do not falter.`;
   }
 }
 
@@ -80,14 +85,44 @@ function runOracle(user, recentAnalytics, currentRank, predictedSemesterMark) {
   const now = new Date();
   
   // Timeline Precision
-  // If user doesn't have semesterEndDate, default to Nov 15th of the current year for testing.
-  let endDate = user.semesterEndDate ? new Date(user.semesterEndDate) : new Date(now.getFullYear(), 10, 15);
-  if (endDate < now) {
-    // If we've passed it, assume next semester (e.g. May 15th next year)
+  let endDate = new Date(now.getFullYear(), 10, 15);
+  let nextMilestone = null;
+
+  if (user.semesterSchedule && user.semesterSchedule.endDate) {
+    endDate = new Date(user.semesterSchedule.endDate);
+    
+    // Find the closest upcoming milestone
+    const milestones = [
+      { name: 'CAT 1', date: user.semesterSchedule.cat1Date },
+      { name: 'CAT 2', date: user.semesterSchedule.cat2Date },
+      { name: 'CAT 3', date: user.semesterSchedule.cat3Date },
+      { name: 'Assignment 1', date: user.semesterSchedule.assignment1Date },
+      { name: 'Assignment 2', date: user.semesterSchedule.assignment2Date },
+      { name: 'Assignment 3', date: user.semesterSchedule.assignment3Date }
+    ];
+
+    let closestDays = Infinity;
+    milestones.forEach(m => {
+      if (m.date) {
+        const mDate = new Date(m.date);
+        const mDays = Math.ceil((mDate - now) / (1000 * 60 * 60 * 24));
+        if (mDays > 0 && mDays < closestDays) {
+          closestDays = mDays;
+          nextMilestone = { name: m.name, days: mDays };
+        }
+      }
+    });
+
+  } else if (user.semesterEndDate) {
+    endDate = new Date(user.semesterEndDate);
+  }
+
+  if (endDate < now && !user.semesterSchedule?.endDate) {
+    // If we've passed it and they haven't explicitly set a schedule, assume next semester
     endDate = new Date(now.getFullYear() + 1, 4, 15);
   }
 
-  const daysRemaining = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+  const daysRemaining = Math.max(0, Math.ceil((endDate - now) / (1000 * 60 * 60 * 24)));
   const timeRemainingStr = formatTimeRemaining(now, endDate);
 
   // 1. Calculate Trajectory Vector
@@ -115,7 +150,7 @@ function runOracle(user, recentAnalytics, currentRank, predictedSemesterMark) {
   const burnoutHorizon = predictBurnoutHorizon(trajectoryVector, currentAnalytics.burnoutRisk || 20);
 
   // 4. Generate Verdict
-  const verdict = generateVerdict(trajectoryVector, daysRemaining, user.cumulativeMark || 0, projectedGpa, projectedRank);
+  const verdict = generateVerdict(trajectoryVector, daysRemaining, user.cumulativeMark || 0, projectedGpa, projectedRank, nextMilestone);
 
   // 5. Generate Graph Data (Past 14 days + Future 14 days projection)
   const graphData = [];
