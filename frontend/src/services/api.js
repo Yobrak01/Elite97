@@ -343,6 +343,20 @@ export const api = {
       });
       return handleResponse(res);
     },
+    breachOverride: async (id) => {
+      const res = await fetch(`${API_URL}/tracker/${id}/breach`, {
+        method: 'PATCH',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    completeOverride: async (id) => {
+      const res = await fetch(`${API_URL}/tracker/${id}/complete`, {
+        method: 'PATCH',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
     manualLog: async (data) => {
       const res = await fetch(`${API_URL}/tracker/manual`, {
         method: 'POST',

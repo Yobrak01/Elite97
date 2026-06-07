@@ -660,6 +660,14 @@ exports.getGlobalFeed = async (req, res, next) => {
       } else if (log.activityType === 'gym') {
         text = `YOU completed a physical training protocol.`;
         type = 'gym';
+      } else if (log.activityType === 'override_success') {
+        text = `YOU successfully executed a Deep Work Lockdown. Alpha state achieved.`;
+        type = 'achievement';
+        severity = 'elite';
+      } else if (log.activityType === 'override_breach') {
+        text = `YOU aborted a Neural Override protocol. Focus broken. Weakness penalized.`;
+        type = 'penalty';
+        severity = 'punitive';
       } else {
         text = `YOU logged ${log.durationMinutes} mins of ${log.activityType.replace('_', ' ')}.`;
       }

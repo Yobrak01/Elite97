@@ -1,4 +1,5 @@
 const TimeLog = require('../models/TimeLog');
+const Analytics = require('../models/Analytics');
 const mongoose = require('mongoose');
 
 // @desc    Start a new timer (creates a TimeLog entry with startTime = now)
@@ -235,6 +236,82 @@ exports.getWeeklySummary = async (req, res, next) => {
         grandTotalHours: Number((grandTotalMinutes / 60).toFixed(1))
       }
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.breachOverride = async (req, res, next) => {
+  try {
+    const timeLog = await TimeLog.findOne({
+      _id: req.params.id,
+      user: req.user._id
+    });
+
+    if (!timeLog) {
+      return res.status(404).json({ success: false, message: 'TimeLog not found.' });
+    }
+
+    const now = new Date();
+    timeLog.endTime = now;
+    const diffMs = now.getTime() - new Date(timeLog.startTime).getTime();
+    timeLog.durationMinutes = Math.round(diffMs / 60000);
+    timeLog.activityType = 'override_breach';
+    timeLog.description = `[PROTOCOL BREACH] Neural Override aborted after ${timeLog.durationMinutes} minutes.`;
+    await timeLog.save();
+
+    // Punish Analytics
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    await Analytics.findOneAndUpdate(
+      { user: req.user._id, date: today },
+      { 
+        $inc: { focusScore: -15, productivityScore: -20 },
+        $set: { ruthlessCritique: "Neural Override aborted. Focus broken. Weakness detected and penalized.", critiqueSeverity: "punitive" }
+      },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({ success: true, message: 'Override breached. Penalty applied.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.completeOverride = async (req, res, next) => {
+  try {
+    const timeLog = await TimeLog.findOne({
+      _id: req.params.id,
+      user: req.user._id
+    });
+
+    if (!timeLog) {
+      return res.status(404).json({ success: false, message: 'TimeLog not found.' });
+    }
+
+    const now = new Date();
+    timeLog.endTime = now;
+    const diffMs = now.getTime() - new Date(timeLog.startTime).getTime();
+    timeLog.durationMinutes = Math.round(diffMs / 60000);
+    timeLog.activityType = 'override_success';
+    timeLog.description = `[ALPHA PROTOCOL COMPLETE] Neural Override sustained for ${timeLog.durationMinutes} minutes.`;
+    await timeLog.save();
+
+    // Reward Analytics
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    await Analytics.findOneAndUpdate(
+      { user: req.user._id, date: today },
+      { 
+        $inc: { focusScore: 25, productivityScore: 25 },
+        $set: { ruthlessCritique: "Neural Override completed. Elite discipline recognized.", critiqueSeverity: "elite" }
+      },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({ success: true, message: 'Override completed. Boost applied.' });
   } catch (error) {
     next(error);
   }

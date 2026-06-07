@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Power, Activity, ShieldAlert, Volume2, VolumeX, CheckCircle } from 'lucide-react';
+import { Power, Activity, ShieldAlert, Volume2, VolumeX, CheckCircle, Clock } from 'lucide-react';
 import api from '../services/api';
 
 const NeuralOverride = () => {
   const navigate = useNavigate();
   
   const [isActive, setIsActive] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [targetDurationSeconds, setTargetDurationSeconds] = useState(60 * 60); // Default 60 mins
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [audioEnabled, setAudioEnabled] = useState(false);
   const [activeLogId, setActiveLogId] = useState(null);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [abortConfirm, setAbortConfirm] = useState(false);
   
   const audioCtxRef = useRef(null);
   const leftOscRef = useRef(null);
@@ -31,7 +34,11 @@ const NeuralOverride = () => {
     const hrs = Math.floor(totalSeconds / 3600);
     const mins = Math.floor((totalSeconds % 3600) / 60);
     const secs = totalSeconds % 60;
-    return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    
+    if (hrs > 0) {
+      return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
   const createBrownNoise = (audioCtx) => {
@@ -136,19 +143,28 @@ const NeuralOverride = () => {
       // Start backend timer
       const res = await api.tracker.startTimer({ 
         activityType: 'personal_study', 
-        description: '[NEURAL OVERRIDE PROTOCOL]' 
+        description: `[NEURAL OVERRIDE PROTOCOL] ${targetDurationSeconds/60}m Lockdown` 
       });
       setActiveLogId(res.data?._id || res.data?.id);
       
       setIsActive(true);
-      setElapsedSeconds(0);
+      setTimeRemaining(targetDurationSeconds);
+      setIsCompleted(false);
+      setAbortConfirm(false);
       
       // Auto-start audio
       initAudio();
       setAudioEnabled(true);
 
       timerIntervalRef.current = setInterval(() => {
-        setElapsedSeconds(prev => prev + 1);
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            clearInterval(timerIntervalRef.current);
+            handleSuccess();
+            return 0;
+          }
+          return prev - 1;
+        });
       }, 1000);
     } catch (err) {
       console.error("Failed to initiate neural override", err);
@@ -156,25 +172,43 @@ const NeuralOverride = () => {
     }
   };
 
-  const abortOverride = async () => {
+  const handleSuccess = async () => {
+    setIsCompleted(true);
+    stopAudio();
     try {
       if (activeLogId) {
-        await api.tracker.stopTimer(activeLogId);
+        await api.tracker.completeOverride(activeLogId);
       }
     } catch (err) {
-      console.error("Failed to stop backend timer", err);
+      console.error("Failed to complete backend override", err);
+    }
+  };
+
+  const abortOverride = async () => {
+    if (!abortConfirm) {
+      setAbortConfirm(true);
+      return;
+    }
+
+    // Punitive Abort
+    try {
+      if (activeLogId) {
+        await api.tracker.breachOverride(activeLogId);
+      }
+    } catch (err) {
+      console.error("Failed to breach backend override", err);
     }
     
     setIsActive(false);
     stopAudio();
     if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    navigate('/'); // Return to dashboard
+    navigate('/'); 
   };
 
   return (
     <div className="fixed inset-0 bg-black z-[9999] flex flex-col items-center justify-center overflow-hidden font-display">
-      {/* Absolute Black Background + Subtle Cyan Radar Pulse if Active */}
-      {isActive && (
+      {/* Absolute Black Background + Subtle Pulse */}
+      {isActive && !isCompleted && (
         <>
           <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
             <div className="w-[800px] h-[800px] rounded-full border border-cyan-500/20 animate-[ping_4s_cubic-bezier(0,0,0.2,1)_infinite]" />
@@ -185,16 +219,27 @@ const NeuralOverride = () => {
         </>
       )}
 
+      {/* Success State Background */}
+      {isCompleted && (
+         <div className="absolute inset-0 bg-green-500/10 pointer-events-none animate-pulse" />
+      )}
+
       {/* Top Status Bar */}
       <div className="absolute top-8 left-8 flex items-center gap-3">
-        <Activity className={`h-6 w-6 ${isActive ? 'text-cyan-400 animate-pulse' : 'text-slate-600'}`} />
-        <span className={`text-sm font-black tracking-widest uppercase ${isActive ? 'text-cyan-400' : 'text-slate-600'}`}>
-          DEEP FLOW : {isActive ? 'ENGAGED' : 'STANDBY'}
+        {isCompleted ? (
+           <CheckCircle className="h-6 w-6 text-green-400" />
+        ) : (
+           <Activity className={`h-6 w-6 ${isActive ? 'text-cyan-400 animate-pulse' : 'text-slate-600'}`} />
+        )}
+        <span className={`text-sm font-black tracking-widest uppercase ${
+          isCompleted ? 'text-green-400' : isActive ? 'text-cyan-400' : 'text-slate-600'
+        }`}>
+          {isCompleted ? 'ALPHA STATE: SECURED' : isActive ? 'DEEP FLOW : ENGAGED' : 'DEEP FLOW : STANDBY'}
         </span>
       </div>
 
       <div className="absolute top-8 right-8">
-        {isActive && (
+        {isActive && !isCompleted && (
           <button 
             onClick={toggleAudio}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
@@ -220,11 +265,26 @@ const NeuralOverride = () => {
               Neural Override Protocol
             </h1>
             <p className="text-sm text-slate-400 font-semibold mb-8 leading-relaxed max-w-md mx-auto">
-              Initiating this sequence will isolate you from the standard matrix. 
-              All distractions will be purged. An 8Hz Alpha/Theta binaural frequency 
-              will be synthesized to forcibly induce a deep cognitive flow state.
+              Initiating this sequence isolates you from the standard matrix. 
+              All distractions are purged. You cannot leave without severe punitive consequences.
             </p>
             
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+              {[30, 60, 90, 120, 180].map(mins => (
+                <button
+                  key={mins}
+                  onClick={() => setTargetDurationSeconds(mins * 60)}
+                  className={`px-4 py-2 rounded-xl border text-sm font-black transition-all ${
+                    targetDurationSeconds === mins * 60
+                    ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400 shadow-glow-cyan'
+                    : 'bg-transparent border-white/10 text-slate-400 hover:border-white/30'
+                  }`}
+                >
+                  {mins} MIN
+                </button>
+              ))}
+            </div>
+
             <div className="flex gap-4 justify-center">
               <button 
                 onClick={() => navigate('/')}
@@ -236,14 +296,32 @@ const NeuralOverride = () => {
                 onClick={startOverride}
                 className="px-8 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black border border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.6)] text-xs font-black tracking-widest uppercase transition-all hover:scale-105"
               >
-                ENGAGE OVERRIDE
+                ENGAGE LOCKDOWN
               </button>
             </div>
           </div>
+        ) : isCompleted ? (
+          <div className="animate-fade-in flex flex-col items-center">
+             <div className="w-32 h-32 rounded-full border-4 border-green-500 flex items-center justify-center mb-8 shadow-[0_0_50px_rgba(34,197,94,0.4)]">
+               <CheckCircle className="h-16 w-16 text-green-400" />
+             </div>
+             <h2 className="text-4xl font-black text-white tracking-widest uppercase mb-4">
+               OVERRIDE COMPLETE
+             </h2>
+             <p className="text-green-400 font-bold tracking-widest uppercase mb-12">
+               +25 Focus Score | Global Feed Updated
+             </p>
+             <button 
+                onClick={() => navigate('/')}
+                className="px-8 py-4 rounded-xl bg-green-500 hover:bg-green-400 text-black font-black tracking-widest uppercase transition-all shadow-glow-green"
+              >
+                RETURN TO MATRIX
+              </button>
+          </div>
         ) : (
           <div className="animate-fade-in flex flex-col items-center">
-            <h2 className="text-[200px] leading-none font-black text-white tracking-wider tabular-nums drop-shadow-[0_0_40px_rgba(6,182,212,0.4)]">
-              {formatTime(elapsedSeconds)}
+            <h2 className="text-[150px] md:text-[200px] leading-none font-black text-white tracking-wider tabular-nums drop-shadow-[0_0_40px_rgba(6,182,212,0.4)]">
+              {formatTime(timeRemaining)}
             </h2>
             
             <div className="mt-8 flex items-center gap-3 px-6 py-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/30">
@@ -253,12 +331,22 @@ const NeuralOverride = () => {
               </span>
             </div>
 
+            {abortConfirm && (
+              <div className="mt-16 text-red-500 text-sm font-black uppercase tracking-widest animate-pulse max-w-md bg-red-500/10 border border-red-500/30 p-4 rounded-xl">
+                WARNING: ABORTING NOW WILL TRIGGER A PROTOCOL BREACH. YOUR RANKING WILL BE PENALIZED AND BROADCASTED.
+              </div>
+            )}
+
             <button 
               onClick={abortOverride}
-              className="mt-24 flex items-center gap-2 px-8 py-4 rounded-xl border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white text-xs font-black tracking-widest uppercase transition-all hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+              className={`mt-8 flex items-center gap-2 px-8 py-4 rounded-xl border transition-all text-xs font-black tracking-widest uppercase ${
+                abortConfirm 
+                  ? 'bg-red-500 border-red-500 text-white shadow-[0_0_30px_rgba(239,68,68,0.6)] animate-bounce'
+                  : 'bg-transparent border-red-500/30 text-red-500 hover:bg-red-500/10 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)]'
+              }`}
             >
               <ShieldAlert className="h-4 w-4" />
-              DISENGAGE & SAVE
+              {abortConfirm ? 'CONFIRM PROTOCOL BREACH' : 'ABORT PROTOCOL'}
             </button>
           </div>
         )}
