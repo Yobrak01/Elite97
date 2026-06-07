@@ -68,17 +68,13 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
   let interval = settings.breakInterval || 25;
   let breakDuration = settings.breakDuration || 5;
 
-  if (mode === 'peak_performance') {
-    availableHours = Math.max(availableHours, 8);
-    // Respect user's interval settings instead of overriding to 50/10
-  }
-
-  if (studyMode === 'cat_prep') {
-    availableHours = Math.max(availableHours, 8);
-  } else if (studyMode === 'exam_prep') {
-    availableHours = Math.max(availableHours, 10);
-  } else if (studyMode === 'recovery' || studyMode === 'unexpected_event') {
-    availableHours = Math.min(availableHours, 3);
+  // Strictly respect the user's maximum hours to prevent burnout penalties.
+  // We scale down for recovery, but we do NOT force them beyond their set limits.
+  if (mode === 'recovery' || studyMode === 'recovery' || studyMode === 'unexpected_event') {
+    availableHours = Math.min(availableHours, 2); // Force rest
+  } else if (mode === 'peak_performance') {
+    // Slight boost only if in peak performance
+    availableHours = Math.min(availableHours + 1, 12);
   }
 
   const blocks = [];
