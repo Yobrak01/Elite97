@@ -33,11 +33,11 @@ export const api = {
       });
       return handleResponse(res);
     },
-    register: async (name, email, password) => {
+    register: async (name, email, password, country, university, major) => {
       const res = await fetch(`${API_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
+        body: JSON.stringify({ name, email, password, country, university, major })
       });
       return handleResponse(res);
     },

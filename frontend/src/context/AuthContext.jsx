@@ -40,10 +40,10 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password) => {
+  const register = async (name, email, password, country, university, major) => {
     setLoading(true);
     try {
-      const res = await api.auth.register(name, email, password);
+      const res = await api.auth.register(name, email, password, country, university, major);
       localStorage.setItem('elite97_token', res.token);
       setToken(res.token);
       setUser(res.user);

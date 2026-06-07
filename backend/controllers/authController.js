@@ -16,6 +16,9 @@ const formatUserResponse = (user) => ({
   settings: user.settings,
   yearOfStudy: user.yearOfStudy,
   course: user.course,
+  country: user.country,
+  university: user.university,
+  major: user.major,
   currentSemester: user.currentSemester,
   timetable: user.timetable,
   studyGauge: user.studyGauge,
@@ -24,7 +27,7 @@ const formatUserResponse = (user) => ({
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, country, university, major } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -34,7 +37,10 @@ exports.register = async (req, res, next) => {
     const user = await User.create({
       name,
       email,
-      password
+      password,
+      country,
+      university,
+      major
     });
 
     const token = signToken(user._id);

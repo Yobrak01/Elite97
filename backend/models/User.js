@@ -57,6 +57,15 @@ const UserSchema = new mongoose.Schema({
   yearOfStudy: {
     type: Number
   },
+  country: {
+    type: String
+  },
+  university: {
+    type: String
+  },
+  major: {
+    type: String
+  },
   course: {
     type: String
   },
