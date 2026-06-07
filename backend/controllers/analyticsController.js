@@ -9,6 +9,7 @@ const burnoutDetector = require('../services/burnoutDetector');
 const aiPlanner = require('../services/aiPlanner');
 const gpaPredictor = require('../services/gpaPredictor');
 const mitBenchmarker = require('../services/mitBenchmarker');
+const hierarchyMatrix = require('../services/hierarchyMatrix');
 
 // Helper function to build comprehensive context
 async function buildContext(userId, today, streak) {
@@ -468,6 +469,70 @@ exports.getMitRanking = async (req, res, next) => {
           baseline: mitBenchmarker.MIT_BASELINE
         }
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getHierarchyMatrix = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const studyAggregation = await TimeLog.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(req.user._id),
+          date: { $gte: sevenDaysAgo, $lte: now },
+          activityType: { $in: ['personal_study', 'lecture'] }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalStudyMinutes: { $sum: '$durationMinutes' }
+        }
+      }
+    ]);
+
+    const weeklyStudyHours = studyAggregation.length > 0 ? studyAggregation[0].totalStudyMinutes / 60 : 0;
+
+    const recentAnalytics = await Analytics.find({
+      user: req.user._id,
+      date: { $gte: sevenDaysAgo }
+    }).sort({ date: -1 });
+
+    let avgFocusScore = 0;
+    let avgCompletion = 0;
+    let avgProductivity = 0;
+
+    if (recentAnalytics.length > 0) {
+      const sumFocus = recentAnalytics.reduce((sum, a) => sum + (a.focusScore || 0), 0);
+      const sumCompletion = recentAnalytics.reduce((sum, a) => sum + (a.completionPercentage || 0), 0);
+      const sumProductivity = recentAnalytics.reduce((sum, a) => sum + (a.productivityScore || 0), 0);
+
+      avgFocusScore = sumFocus / recentAnalytics.length;
+      avgCompletion = sumCompletion / recentAnalytics.length;
+      avgProductivity = sumProductivity / recentAnalytics.length;
+    }
+
+    const currentUserStats = {
+      id: req.user._id.toString(),
+      alias: req.user.name || 'YOU',
+      weeklyStudyHours,
+      avgFocusScore,
+      avgCompletion,
+      avgProductivity
+    };
+
+    const matrix = hierarchyMatrix.generateMatrix(currentUserStats);
+
+    res.status(200).json({
+      success: true,
+      data: matrix
     });
   } catch (error) {
     next(error);

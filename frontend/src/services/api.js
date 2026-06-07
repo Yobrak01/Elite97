@@ -225,6 +225,12 @@ export const api = {
         headers: getHeaders()
       });
       return handleResponse(res);
+    },
+    getHierarchy: async () => {
+      const res = await fetch(`${API_URL}/analytics/hierarchy`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
     }
   },
   planner: {

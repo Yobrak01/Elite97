@@ -12,6 +12,7 @@ router.get('/trends', analyticsController.getTrends);
 router.post('/calculate', analyticsController.recalculateAnalytics);
 router.get('/gpa', analyticsController.getGpaPrediction);
 router.get('/mit-ranking', analyticsController.getMitRanking);
+router.get('/hierarchy', analyticsController.getHierarchyMatrix);
 
 module.exports = router;
 

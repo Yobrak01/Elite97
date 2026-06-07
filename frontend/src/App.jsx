@@ -14,6 +14,7 @@ import Courses from './pages/Courses';
 import Lifestyle from './pages/Lifestyle';
 import Diagnostic from './pages/Diagnostic';
 import NeuralOverride from './pages/NeuralOverride';
+import HierarchyMatrix from './pages/HierarchyMatrix';
 
 export const App = () => {
   return (
@@ -39,6 +40,7 @@ export const App = () => {
             <Route path="/lifestyle" element={<Lifestyle />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/diagnostic" element={<Diagnostic />} />
+            <Route path="/hierarchy" element={<HierarchyMatrix />} />
           </Route>
         </Route>
         
