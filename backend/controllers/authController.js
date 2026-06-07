@@ -91,10 +91,11 @@ exports.getMe = async (req, res, next) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry } = req.body;
+    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode } = req.body;
     
     if (settings) req.user.settings = { ...req.user.settings, ...settings };
     if (pantry) req.user.pantry = { ...req.user.pantry, ...pantry };
+    if (taskGenerationMode) req.user.settings.taskGenerationMode = taskGenerationMode;
     if (studyMode) {
       const allowedModes = ['normal', 'cat_prep', 'exam_prep', 'recovery', 'unexpected_event'];
       if (!allowedModes.includes(studyMode)) {

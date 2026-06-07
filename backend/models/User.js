@@ -38,7 +38,8 @@ const UserSchema = new mongoose.Schema({
     breakInterval: { type: Number, default: 25 },
     breakDuration: { type: Number, default: 5 },
     regenAfterSessions: { type: Number, default: 4 },
-    notifications: { type: Boolean, default: true }
+    notifications: { type: Boolean, default: true },
+    taskGenerationMode: { type: String, enum: ['infinite', 'daily'], default: 'daily' }
   },
   pastResults: [{
     year: Number,

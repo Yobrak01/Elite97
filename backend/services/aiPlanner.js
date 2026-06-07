@@ -66,12 +66,11 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
 
   let availableHours = settings.dailyGoalHours || 6;
   let interval = settings.breakInterval || 25;
-  let breakDuration = 5;
+  let breakDuration = settings.breakDuration || 5;
 
   if (mode === 'peak_performance') {
     availableHours = Math.max(availableHours, 8);
-    interval = 50;
-    breakDuration = 10;
+    // Respect user's interval settings instead of overriding to 50/10
   }
 
   if (studyMode === 'cat_prep') {

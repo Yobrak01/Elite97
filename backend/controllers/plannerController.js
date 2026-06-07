@@ -6,7 +6,8 @@ const modeManager = require('../services/modeManager');
 
 const CourseUnit = require('../models/CourseUnit');
 
-const autoGenerateWeaknessTasks = async (userId) => {
+const autoGenerateWeaknessTasks = async (user) => {
+  const userId = user._id;
   const courseUnits = await CourseUnit.find({ user: userId });
   const tierWeights = { 'tier1_critical': 4, 'tier2_high': 3, 'tier3_standard': 2, 'tier4_low': 1, 'tier5_minimal': 0 };
   
@@ -14,10 +15,25 @@ const autoGenerateWeaknessTasks = async (userId) => {
   const existingTasks = await Task.find({ user: userId, status: { $ne: 'completed' }, title: { $in: titles } });
   const existingTitles = new Set(existingTasks.map(t => t.title));
   
+  const taskGenerationMode = user.settings && user.settings.taskGenerationMode ? user.settings.taskGenerationMode : 'daily';
+  let recentlyCompletedTitles = new Set();
+  
+  if (taskGenerationMode === 'daily') {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const completedToday = await Task.find({ 
+      user: userId, 
+      status: 'completed', 
+      completedAt: { $gte: today },
+      title: { $in: titles }
+    });
+    completedToday.forEach(t => recentlyCompletedTitles.add(t.title));
+  }
+
   const tasksToCreate = [];
   for (const cu of courseUnits) {
     const title = `Focus Area: ${cu.unitName} (${cu.unitCode})`;
-    if (!existingTitles.has(title)) {
+    if (!existingTitles.has(title) && !recentlyCompletedTitles.has(title)) {
       tasksToCreate.push({
         user: userId,
         title,
@@ -43,7 +59,7 @@ exports.getDailyPlan = async (req, res, next) => {
     const currentMode = analytics ? analytics.mode : 'balanced';
 
     // Auto-generate missing tasks into the DB
-    await autoGenerateWeaknessTasks(req.user._id);
+    await autoGenerateWeaknessTasks(req.user);
 
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
     
@@ -71,7 +87,7 @@ exports.generatePlan = async (req, res, next) => {
     const analytics = await Analytics.findOne({ user: req.user._id, date: today });
     const currentMode = analytics ? analytics.mode : 'balanced';
 
-    await autoGenerateWeaknessTasks(req.user._id);
+    await autoGenerateWeaknessTasks(req.user);
 
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
     

@@ -33,7 +33,7 @@ export const StatCard = ({ title, value, subtitle, icon: Icon, color = 'blue', t
       <div className="space-y-2">
         <span className="text-xs font-black uppercase tracking-widest text-slate-400">{title}</span>
         <div className="flex items-baseline gap-2">
-          <span className="text-4xl lg:text-5xl font-display font-black tracking-widest text-white text-glow-gold">{value}</span>
+          <span className="text-3xl font-sans font-bold tracking-widest text-white text-glow-cyan drop-shadow-md">{value}</span>
           {trend && (
             <span className={`text-xs font-bold ${trend.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
               {trend}

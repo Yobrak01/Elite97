@@ -10,6 +10,7 @@ export const Settings = () => {
   const [breakInterval, setBreakInterval] = useState(user?.settings?.breakInterval || 25);
   const [breakDuration, setBreakDuration] = useState(user?.settings?.breakDuration || 5);
   const [regenAfterSessions, setRegenAfterSessions] = useState(user?.settings?.regenAfterSessions || 4);
+  const [taskGenerationMode, setTaskGenerationMode] = useState(user?.settings?.taskGenerationMode || 'daily');
   const [notifications, setNotifications] = useState(user?.settings?.notifications ?? true);
   const [studyMode, setStudyMode] = useState(user?.studyMode || 'normal');
   const [submitting, setSubmitting] = useState(false);
@@ -81,6 +82,7 @@ export const Settings = () => {
           breakInterval: Number(breakInterval),
           breakDuration: Number(breakDuration),
           regenAfterSessions: Number(regenAfterSessions),
+          taskGenerationMode,
           notifications
         }
       });
@@ -197,6 +199,19 @@ export const Settings = () => {
               <option value="exam_prep">Exam Prep Mode - maximal focus intervals</option>
               <option value="recovery">Recovery Mode - deep decompression rest</option>
               <option value="unexpected_event">Unexpected interruption adaptation</option>
+            </select>
+          </div>
+
+          {/* Task Generation Engine */}
+          <div className="space-y-2">
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Task Generation Engine</label>
+            <select
+              value={taskGenerationMode}
+              onChange={(e) => setTaskGenerationMode(e.target.value)}
+              className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none"
+            >
+              <option value="daily">Daily Mode - Generate once per day based on timetable</option>
+              <option value="infinite">Infinite Mode - Constantly auto-generate new tasks</option>
             </select>
           </div>
 
