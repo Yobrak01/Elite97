@@ -90,7 +90,9 @@ const UserSchema = new mongoose.Schema({
     cat3Date: { type: Date },
     assignment1Date: { type: Date },
     assignment2Date: { type: Date },
-    assignment3Date: { type: Date }
+    assignment3Date: { type: Date },
+    examsStartDate: { type: Date },
+    examsEndDate: { type: Date }
   },
   timetable: {
     type: [{

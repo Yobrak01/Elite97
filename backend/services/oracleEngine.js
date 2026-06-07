@@ -98,7 +98,9 @@ function runOracle(user, recentAnalytics, currentRank, predictedSemesterMark) {
       { name: 'CAT 3', date: user.semesterSchedule.cat3Date },
       { name: 'Assignment 1', date: user.semesterSchedule.assignment1Date },
       { name: 'Assignment 2', date: user.semesterSchedule.assignment2Date },
-      { name: 'Assignment 3', date: user.semesterSchedule.assignment3Date }
+      { name: 'Assignment 3', date: user.semesterSchedule.assignment3Date },
+      { name: 'Exams Period Start', date: user.semesterSchedule.examsStartDate },
+      { name: 'Exams Period End', date: user.semesterSchedule.examsEndDate }
     ];
 
     let closestDays = Infinity;

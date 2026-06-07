@@ -29,7 +29,7 @@ export const Settings = () => {
   const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', type: 'semester', mark: '' });
 
   const [semesterSchedule, setSemesterSchedule] = useState(user?.semesterSchedule || {
-    startDate: '', endDate: '', cat1Date: '', cat2Date: '', cat3Date: '', assignment1Date: '', assignment2Date: '', assignment3Date: ''
+    startDate: '', endDate: '', cat1Date: '', cat2Date: '', cat3Date: '', assignment1Date: '', assignment2Date: '', assignment3Date: '', examsStartDate: '', examsEndDate: ''
   });
 
   const [courses, setCourses] = useState([]);
@@ -481,6 +481,27 @@ export const Settings = () => {
                     />
                   </div>
                 ))}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Exams Start</label>
+                  <input
+                    type="date"
+                    value={semesterSchedule.examsStartDate ? semesterSchedule.examsStartDate.split('T')[0] : ''}
+                    onChange={(e) => setSemesterSchedule({...semesterSchedule, examsStartDate: e.target.value})}
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-red-500/50"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Exams End</label>
+                  <input
+                    type="date"
+                    value={semesterSchedule.examsEndDate ? semesterSchedule.examsEndDate.split('T')[0] : ''}
+                    onChange={(e) => setSemesterSchedule({...semesterSchedule, examsEndDate: e.target.value})}
+                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-red-500/50"
+                  />
+                </div>
               </div>
 
               <button

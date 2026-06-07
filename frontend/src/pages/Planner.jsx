@@ -65,6 +65,24 @@ export const Planner = () => {
     }
   };
 
+  const handleAttendLecture = async (block) => {
+    setActionLoading(true);
+    try {
+      await api.tracker.manualLog({
+        activityType: 'lecture',
+        durationMinutes: block.duration,
+        description: block.activity
+      });
+      window.dispatchEvent(new CustomEvent('time-logged'));
+      alert(`Lecture attendance for ${block.duration} mins logged successfully.`);
+    } catch (err) {
+      console.error(err);
+      alert(err.message || 'Error logging lecture attendance.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleModeChange = async (mode) => {
     setLoading(true);
     try {
@@ -128,7 +146,7 @@ export const Planner = () => {
             <div className="space-y-4 pt-2">
               {plan?.blocks && plan.blocks.length > 0 ? (
                 plan.blocks.map((block, idx) => (
-                  <ScheduleBlock key={idx} block={block} onComplete={handleCompleteTask} onStart={handleStartTask} />
+                  <ScheduleBlock key={idx} block={block} onComplete={handleCompleteTask} onStart={handleStartTask} onAttend={handleAttendLecture} />
                 ))
               ) : (
                 <div className="text-center py-12 text-xs text-slate-500 font-semibold">
