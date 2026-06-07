@@ -32,10 +32,11 @@ function getGpaPoint(mark) {
 
 /**
  * Factor 1: Difficulty Baseline (sets the starting mark)
- * D1 (easiest) → 85, D3 → 75, D5 (hardest) → 65
+ * Brutal Realism: D1 (easiest) → 76, D3 → 60, D5 (hardest) → 44
+ * You do not start with a First Class. You must earn it.
  */
 function calcDifficultyBaseline(difficulty) {
-  return 75 - ((difficulty - 3) * 5);
+  return 60 - ((difficulty - 3) * 8);
 }
 
 /**
@@ -48,7 +49,8 @@ function calcTaskCompletionFactor(courseTasks) {
   }
   const completed = courseTasks.filter(t => t.status === 'completed').length;
   const rate = completed / courseTasks.length;
-  const score = (rate * 20) - 10; // maps 0→-10, 0.5→0, 1.0→+10
+  // 0% -> -15, 50% -> -2.5, 100% -> +10
+  const score = (rate * 25) - 15;
   return { 
     score: Number(score.toFixed(1)), 
     detail: `${completed}/${courseTasks.length} tasks (${(rate * 100).toFixed(0)}%)` 
@@ -67,7 +69,8 @@ function calcStudyHoursFactor(unitStudyMinutes, credits, daysInWindow) {
   
   // ratio: 0 = no study, 1 = meeting benchmark, 2+ = exceeding
   const ratio = Math.min(actualWeeklyHours / Math.max(weeklyBenchmarkHours, 1), 2);
-  const score = (ratio - 1) * 10; // maps 0→-10, 1→0, 2→+10
+  // No study at all is severely punished (-15)
+  const score = ratio === 0 ? -15 : (ratio - 1) * 10;
   
   return { 
     score: Number(score.toFixed(1)), 
@@ -132,13 +135,13 @@ function calcConsistencyFactor(streak, daysSinceLastStudy) {
   } else {
     // No streak — check recency
     if (daysSinceLastStudy > 7) {
-      score = -5;
+      score = -10;
       detail = `No study for ${daysSinceLastStudy}+ days`;
     } else if (daysSinceLastStudy > 3) {
-      score = -3;
+      score = -6;
       detail = `Last studied ${daysSinceLastStudy} days ago`;
     } else {
-      score = -1;
+      score = -3;
       detail = 'Streak broken recently';
     }
   }
