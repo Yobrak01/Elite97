@@ -160,7 +160,7 @@ export const Analytics = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-2xl font-black tracking-wider text-white">DEEP ANALYTICS REPORT</h1>
+          <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">DEEP ANALYTICS REPORT</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
             Extended operational analytics and cognitive vectors.
           </p>
@@ -763,3 +763,4 @@ export const Analytics = () => {
   );
 };
 export default Analytics;
+

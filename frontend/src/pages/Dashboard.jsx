@@ -101,7 +101,7 @@ export const Dashboard = () => {
       {/* Top Header Row */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-2xl font-black tracking-wider text-white">SYSTEM DASHBOARD</h1>
+          <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">SYSTEM DASHBOARD</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
             Student node: <span className="text-accent-gold font-black">ACTIVE</span> • Operations: <span className="text-amber-400 font-black">NOMINAL</span>
           </p>
@@ -201,7 +201,7 @@ export const Dashboard = () => {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="glass-panel w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl relative">
-            <h3 className="text-lg font-black tracking-wide text-white mb-4 uppercase">Log Study Session</h3>
+            <h3 className="text-2xl font-display font-black tracking-widest text-accent-gold mb-4 uppercase text-glow-gold">Log Study Session</h3>
             
             <form onSubmit={handleLogSession} className="space-y-4">
               <div className="space-y-1">
@@ -287,3 +287,4 @@ export const Dashboard = () => {
   );
 };
 export default Dashboard;
+

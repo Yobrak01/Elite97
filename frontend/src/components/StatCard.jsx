@@ -31,9 +31,9 @@ export const StatCard = ({ title, value, subtitle, icon: Icon, color = 'blue', t
   return (
     <div className={`glass-panel rounded-2xl p-5 border border-white/5 transition-all duration-300 ${theme.glow} flex justify-between items-center`}>
       <div className="space-y-2">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-400">{title}</span>
+        <span className="text-xs font-black uppercase tracking-widest text-slate-400">{title}</span>
         <div className="flex items-baseline gap-2">
-          <span className="text-3xl font-extrabold tracking-tight text-white">{value}</span>
+          <span className="text-4xl lg:text-5xl font-display font-black tracking-widest text-white text-glow-gold">{value}</span>
           {trend && (
             <span className={`text-xs font-bold ${trend.startsWith('+') ? 'text-green-400' : 'text-red-400'}`}>
               {trend}

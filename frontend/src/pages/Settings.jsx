@@ -97,7 +97,7 @@ export const Settings = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="border-b border-white/5 pb-4">
-        <h1 className="text-2xl font-black tracking-wider text-white">SYSTEM SETTINGS</h1>
+        <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">SYSTEM SETTINGS</h1>
         <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
           Configure academic performance limits and matrix variables.
         </p>
@@ -469,3 +469,4 @@ export const Settings = () => {
   );
 };
 export default Settings;
+

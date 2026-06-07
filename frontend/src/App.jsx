@@ -16,29 +16,34 @@ import Diagnostic from './pages/Diagnostic';
 
 export const App = () => {
   return (
-    <Routes>
-      {/* Public matrix paths */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-
-      {/* Protected dashboard routes */}
-      <Route element={<ProtectedRoute />}>
-        <Route element={<DashboardLayout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/tasks" element={<Tasks />} />
-          <Route path="/planner" element={<Planner />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/courses" element={<Courses />} />
-          <Route path="/lifestyle" element={<Lifestyle />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/diagnostic" element={<Diagnostic />} />
-        </Route>
-      </Route>
+    <>
+      {/* The Global Elite97 Watermark */}
+      <div className="elite-watermark-container"></div>
       
-      {/* Fallback route */}
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      <Routes>
+        {/* Public matrix paths */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected dashboard routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/planner" element={<Planner />} />
+            <Route path="/schedule" element={<Schedule />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/lifestyle" element={<Lifestyle />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/diagnostic" element={<Diagnostic />} />
+          </Route>
+        </Route>
+        
+        {/* Fallback route */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </>
   );
 };
 export default App;

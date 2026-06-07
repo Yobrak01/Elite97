@@ -87,7 +87,7 @@ export const Schedule = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="border-b border-white/5 pb-4">
-        <h1 className="text-2xl font-black tracking-wider text-white">SCHEDULE PRESETS</h1>
+        <h1 className="text-4xl md:text-5xl font-display font-black tracking-widest text-white text-glow-gold">SCHEDULE PRESETS</h1>
         <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
           Preset blueprints for specific structural days.
         </p>
@@ -216,3 +216,4 @@ export const Schedule = () => {
   );
 };
 export default Schedule;
+

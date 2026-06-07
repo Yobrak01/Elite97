@@ -35,7 +35,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
       >
         <div className="flex h-16 items-center justify-between px-6 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <span className="text-xl font-black tracking-widest text-white">
+            <span className="text-3xl font-display font-black tracking-widest text-white text-glow-gold">
               ELITE<span className="text-accent-gold">97</span>
             </span>
           </div>
