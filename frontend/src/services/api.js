@@ -285,6 +285,20 @@ export const api = {
         headers: getHeaders()
       });
       return handleResponse(res);
+    },
+    uploadSyllabus: async (id, file) => {
+      const formData = new FormData();
+      formData.append('syllabus', file);
+      
+      const token = localStorage.getItem('elite97_token');
+      const res = await fetch(`${API_URL}/courses/${id}/syllabus`, {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: formData
+      });
+      return handleResponse(res);
     }
   },
   tracker: {

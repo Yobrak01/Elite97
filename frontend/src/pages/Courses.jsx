@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, Plus, Edit2, Trash2, Loader2, Target } from 'lucide-react';
+import { BookOpen, Plus, Edit2, Trash2, Loader2, Target, UploadCloud, FileText, CheckCircle2 } from 'lucide-react';
 import api from '../services/api';
 
 export const Courses = () => {
@@ -19,6 +19,13 @@ export const Courses = () => {
   const [assessmentStructure, setAssessmentStructure] = useState([]);
   
   const [submitting, setSubmitting] = useState(false);
+
+  // Syllabus Parsing State
+  const [parsingId, setParsingId] = useState(null);
+  const [syllabusTasks, setSyllabusTasks] = useState(null);
+  const [savingSyllabus, setSavingSyllabus] = useState(false);
+  const fileInputRef = React.useRef(null);
+  const [targetCourseId, setTargetCourseId] = useState(null);
 
   useEffect(() => {
     fetchCourses();
@@ -163,6 +170,65 @@ export const Courses = () => {
     }
   };
 
+  const handleSyllabusUploadClick = (courseId) => {
+    setTargetCourseId(courseId);
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !targetCourseId) return;
+
+    if (file.type !== 'application/pdf') {
+      alert('Please upload a valid PDF file.');
+      return;
+    }
+
+    setParsingId(targetCourseId);
+    try {
+      const res = await api.courses.uploadSyllabus(targetCourseId, file);
+      if (res.data && res.data.length > 0) {
+        setSyllabusTasks(res.data);
+      } else {
+        alert('No tasks or deadlines could be detected in this syllabus.');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error parsing syllabus. Ensure it is a text-based PDF, not scanned images.');
+    } finally {
+      setParsingId(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const saveSyllabusTasks = async () => {
+    if (!syllabusTasks) return;
+    setSavingSyllabus(true);
+    try {
+      for (const task of syllabusTasks) {
+        // Create standard ELITE97 task format
+        await api.tasks.create({
+          title: task.title,
+          description: `Auto-extracted from syllabus.\nOriginal text: "${task.sourceText}"`,
+          type: 'academic',
+          priority: task.priority,
+          deadline: task.deadline,
+          estimatedPomodoros: task.estimatedPomodoros,
+          status: 'pending'
+        });
+      }
+      alert(`Successfully integrated ${syllabusTasks.length} tasks into your matrix!`);
+      setSyllabusTasks(null);
+    } catch (err) {
+      console.error('Failed to save some syllabus tasks:', err);
+      alert('Failed to save some tasks.');
+    } finally {
+      setSavingSyllabus(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -188,6 +254,14 @@ export const Courses = () => {
           Add Course Unit
         </button>
       </div>
+
+      <input 
+        type="file" 
+        accept="application/pdf" 
+        ref={fileInputRef} 
+        onChange={handleFileChange} 
+        className="hidden" 
+      />
 
       {courses.length === 0 ? (
         <div className="glass-panel rounded-2xl border border-white/5 p-12 text-center text-xs font-semibold text-slate-500">
@@ -236,10 +310,18 @@ export const Courses = () => {
                     <span>{course.credits} Credits • Diff: {course.difficulty}/5</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <button onClick={() => openEditModal(course)} className="p-1.5 hover:text-white transition-colors">
+                    <button onClick={() => openEditModal(course)} className="p-1.5 hover:text-white transition-colors" title="Edit Course">
                       <Edit2 className="h-4 w-4" />
                     </button>
-                    <button onClick={() => handleDelete(course._id)} className="p-1.5 hover:text-red-400 transition-colors">
+                    <button 
+                      onClick={() => handleSyllabusUploadClick(course._id)} 
+                      disabled={parsingId === course._id}
+                      className="p-1.5 text-blue-400 hover:text-blue-300 transition-colors disabled:opacity-50" 
+                      title="Parse Syllabus PDF"
+                    >
+                      {parsingId === course._id ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+                    </button>
+                    <button onClick={() => handleDelete(course._id)} className="p-1.5 hover:text-red-400 transition-colors" title="Delete Course">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -373,6 +455,65 @@ export const Courses = () => {
                 <button type="submit" disabled={submitting} className="rounded-xl bg-cyan-500 text-white px-4 py-2 text-xs font-black uppercase disabled:opacity-50 tracking-widest">{editingId ? 'Update' : 'Confirm'}</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Syllabus Tasks Confirmation Modal */}
+      {syllabusTasks && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md overflow-y-auto">
+          <div className="glass-panel w-full max-w-2xl rounded-3xl p-6 border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.15)] my-auto">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-3 bg-cyan-500/20 rounded-xl">
+                <FileText className="h-6 w-6 text-cyan-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-black tracking-widest text-white uppercase text-glow-cyan">Syllabus Extracted</h3>
+                <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest mt-1">
+                  {syllabusTasks.length} Potential Tasks Identified
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-3 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2 mb-6">
+              {syllabusTasks.map((task, idx) => (
+                <div key={idx} className="bg-navy-900/60 border border-white/10 rounded-xl p-4 hover:border-cyan-500/30 transition-all">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="text-sm font-bold text-white">{task.title}</h4>
+                    <span className="text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded bg-white/5 text-slate-300">
+                      {task.type}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-4 text-xs font-semibold text-slate-400 mb-2">
+                    <span className="text-cyan-400">Due: {new Date(task.deadline).toLocaleDateString()}</span>
+                    <span className={task.priority === 'high' ? 'text-red-400' : 'text-yellow-400'}>
+                      Priority: {task.priority.toUpperCase()}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-500 italic bg-black/30 p-2 rounded line-clamp-2">
+                    "...{task.sourceText}..."
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
+              <button 
+                onClick={() => setSyllabusTasks(null)} 
+                className="rounded-xl px-6 py-3 text-xs font-black tracking-widest text-slate-400 hover:text-white uppercase transition-colors"
+                disabled={savingSyllabus}
+              >
+                Discard
+              </button>
+              <button 
+                onClick={saveSyllabusTasks} 
+                disabled={savingSyllabus} 
+                className="flex items-center gap-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black px-6 py-3 text-xs font-black uppercase disabled:opacity-50 tracking-widest shadow-glow-cyan transition-all"
+              >
+                {savingSyllabus ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                {savingSyllabus ? 'Integrating...' : 'Integrate Tasks'}
+              </button>
+            </div>
           </div>
         </div>
       )}

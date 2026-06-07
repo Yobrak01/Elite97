@@ -1,5 +1,6 @@
 const CourseUnit = require('../models/CourseUnit');
 const { predictCourseDifficulty, predictCourseCredits } = require('../services/studyMethodology');
+const { parseSyllabus } = require('../services/syllabusParser');
 
 // Suggest AI Tier based on difficulty and credits
 const suggestCourseTier = (difficulty, credits) => {
@@ -85,6 +86,25 @@ exports.deleteCourse = async (req, res, next) => {
     }
 
     res.status(200).json({ success: true, message: 'Course removed.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.uploadSyllabus = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No syllabus file uploaded.' });
+    }
+
+    const course = await CourseUnit.findOne({ _id: req.params.id, user: req.user._id });
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found.' });
+    }
+
+    const extractedTasks = await parseSyllabus(req.file.buffer, course.unitName);
+
+    res.status(200).json({ success: true, count: extractedTasks.length, data: extractedTasks });
   } catch (error) {
     next(error);
   }
