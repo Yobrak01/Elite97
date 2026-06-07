@@ -106,9 +106,9 @@ function runOracle(user, recentAnalytics, currentRank, predictedSemesterMark) {
   // GPA Projection
   let projectedGpa = predictedSemesterMark;
   if (trajectoryVector < 0) {
-    projectedGpa = Math.max(0, projectedSemesterMark + (trajectoryVector * 2)); // Penalty
+    projectedGpa = Math.max(0, predictedSemesterMark + (trajectoryVector * 2)); // Penalty
   } else if (trajectoryVector > 0) {
-    projectedGpa = Math.min(100, projectedSemesterMark + (trajectoryVector * 1.5)); // Boost
+    projectedGpa = Math.min(100, predictedSemesterMark + (trajectoryVector * 1.5)); // Boost
   }
   
   const classification = getClassification(projectedGpa);
