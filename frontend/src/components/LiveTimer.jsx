@@ -154,11 +154,10 @@ export const LiveTimer = () => {
   const activeActivity = ACTIVITIES.find(a => a.key === activityType) || ACTIVITIES[0];
   const ActiveIcon = activeActivity.icon;
 
-  // Aggregate today's logs by type
   const todaySummary = ACTIVITIES.map(act => {
     const totalMinutes = todayLogs
-      .filter(log => log.activityType === act.key && log.duration)
-      .reduce((sum, log) => sum + (log.duration || 0), 0);
+      .filter(log => log.activityType === act.key && log.durationMinutes)
+      .reduce((sum, log) => sum + (log.durationMinutes || 0), 0);
     return { ...act, totalMinutes };
   }).filter(a => a.totalMinutes > 0);
 
