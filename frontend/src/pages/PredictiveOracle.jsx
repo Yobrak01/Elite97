@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, TrendingUp, TrendingDown, Target, Brain, AlertTriangle, Cpu, Globe } from 'lucide-react';
+import { Eye, TrendingUp, TrendingDown, Target, Brain, AlertTriangle, Cpu, Globe, Clock } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, ReferenceLine, CartesianGrid } from 'recharts';
 import api from '../services/api';
 
