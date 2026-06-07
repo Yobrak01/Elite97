@@ -143,7 +143,7 @@ export const PredictiveOracle = () => {
             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">System Failure Horizon</h3>
             <AlertTriangle className="w-4 h-4 text-amber-500" />
           </div>
-          <p className={`text-4xl font-black ${projections.burnoutHorizon.includes('Critical') ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+          <p className={`text-4xl font-black ${projections.burnoutHorizon && projections.burnoutHorizon.includes('Critical') ? 'text-red-500 animate-pulse' : 'text-white'}`}>
             {projections.burnoutHorizon}
           </p>
           <p className="text-xs text-slate-400 mt-2 font-semibold">Estimated time until complete burnout.</p>
@@ -176,7 +176,7 @@ export const PredictiveOracle = () => {
               dataKey="day" 
               stroke="#ffffff30" 
               fontSize={10}
-              tickFormatter={(val) => val.substring(5)} // MM-DD
+              tickFormatter={(val) => val && typeof val === 'string' ? val.substring(5) : val} // MM-DD
               tick={{fill: '#94a3b8'}}
               tickLine={false}
               axisLine={false}
