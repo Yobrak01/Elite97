@@ -15,7 +15,6 @@ const formatUserResponse = (user) => ({
   streak: user.streak,
   settings: user.settings,
   yearOfStudy: user.yearOfStudy,
-  course: user.course,
   country: user.country,
   university: user.university,
   major: user.major,
@@ -28,7 +27,7 @@ const formatUserResponse = (user) => ({
 
 exports.register = async (req, res, next) => {
   try {
-    const { name, email, password, country, university, major, course, yearOfStudy, currentSemester } = req.body;
+    const { name, email, password, country, university, major, yearOfStudy, currentSemester } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
@@ -42,7 +41,6 @@ exports.register = async (req, res, next) => {
       country,
       university,
       major,
-      course,
       yearOfStudy,
       currentSemester
     });
@@ -107,7 +105,6 @@ exports.updateSettings = async (req, res, next) => {
       req.user.studyMode = studyMode;
     }
     if (yearOfStudy !== undefined) req.user.yearOfStudy = yearOfStudy;
-    if (course !== undefined) req.user.course = course;
     if (country !== undefined) req.user.country = country;
     if (university !== undefined) req.user.university = university;
     if (major !== undefined) req.user.major = major;

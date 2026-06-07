@@ -27,10 +27,8 @@ export const Register = () => {
   
   const [country, setCountry] = useState('');
   const [university, setUniversity] = useState('');
-  const [customUniversity, setCustomUniversity] = useState('');
   const [major, setMajor] = useState('');
   const [customMajor, setCustomMajor] = useState('');
-  const [course, setCourse] = useState('');
   const [yearOfStudy, setYearOfStudy] = useState('');
   const [currentSemester, setCurrentSemester] = useState('');
 
@@ -115,7 +113,7 @@ export const Register = () => {
 
     setSubmitting(true);
     try {
-      await register(name, email, password, country, finalUniversity, finalMajor, course, Number(yearOfStudy) || undefined, Number(currentSemester) || undefined);
+      await register(name, email, password, country, finalUniversity, finalMajor, Number(yearOfStudy) || undefined, Number(currentSemester) || undefined);
       navigate('/', { replace: true });
     } catch (err) {
       console.error(err);
@@ -297,7 +295,7 @@ export const Register = () => {
             )}
 
             <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Academic Major</label>
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Academic Program / Course</label>
               <div className="relative">
                 <BookOpen className="absolute left-4 top-3.5 h-5 w-5 text-slate-500" />
                 <select
@@ -321,22 +319,11 @@ export const Register = () => {
                   required
                   value={customMajor}
                   onChange={(e) => setCustomMajor(e.target.value)}
-                  placeholder="Specify your major"
+                  placeholder="Specify your program / course"
                   className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all"
                 />
               </div>
             )}
-
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Specific Course Name (Optional)</label>
-              <input
-                type="text"
-                value={course}
-                onChange={(e) => setCourse(e.target.value)}
-                placeholder="e.g. BSc Software Engineering"
-                className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all"
-              />
-            </div>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">

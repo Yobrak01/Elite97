@@ -17,7 +17,6 @@ export const Settings = () => {
   const [message, setMessage] = useState('');
 
   const [yearOfStudy, setYearOfStudy] = useState(user?.yearOfStudy || '');
-  const [course, setCourse] = useState(user?.course || '');
   const [semester, setSemester] = useState(user?.currentSemester || '');
   const [country, setCountry] = useState(user?.country || '');
   const [university, setUniversity] = useState(user?.university || '');
@@ -76,7 +75,6 @@ export const Settings = () => {
       const res = await api.auth.updateSettings({
         studyMode,
         yearOfStudy: Number(yearOfStudy) || undefined,
-        course,
         country,
         university,
         major,
@@ -288,24 +286,14 @@ export const Settings = () => {
                   className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Academic Major</label>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Academic Program / Course</label>
                   <input
                     type="text"
                     value={major}
                     onChange={(e) => setMajor(e.target.value)}
-                    placeholder="e.g. Computer Science"
-                    className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
-                  />
-                </div>
-                <div>
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Specific Course Name</label>
-                  <input
-                    type="text"
-                    value={course}
-                    onChange={(e) => setCourse(e.target.value)}
-                    placeholder="e.g. BSc Software Eng."
+                    placeholder="e.g. BSc Computer Science"
                     className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white focus:outline-none focus:border-blue-600/50"
                   />
                 </div>
