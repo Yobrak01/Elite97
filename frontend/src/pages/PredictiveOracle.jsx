@@ -7,21 +7,36 @@ export const PredictiveOracle = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const fetchOracle = async () => {
       try {
         const res = await api.analytics.getOracleData();
         if (res.success) {
           setData(res.data);
+        } else {
+          setError(res.message || 'Failed to generate simulation.');
         }
       } catch (err) {
         console.error("Failed to fetch Oracle predictions", err);
+        setError(err.message || 'Connection to Oracle failed.');
       } finally {
         setLoading(false);
       }
     };
     fetchOracle();
   }, []);
+
+  if (error) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <div className="text-red-500 font-bold bg-red-500/10 p-6 rounded-xl border border-red-500/30">
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
 
   if (loading || !data) {
     return (

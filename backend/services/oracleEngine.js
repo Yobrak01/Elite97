@@ -31,7 +31,7 @@ function calculateTrajectory(analytics) {
 /**
  * Predicts burnout horizon (days until failure)
  */
-function predictBurnoutHorizon(trajectory, currentBurnoutRisk) {
+function predictBurnoutHorizon(trajectory, currentBurnoutRisk = 20) {
   if (trajectory >= 0 && currentBurnoutRisk < 50) return 'Safe (> 60 days)';
   if (currentBurnoutRisk >= 80) return 'Critical (0-3 days)';
   
@@ -112,7 +112,7 @@ function runOracle(user, recentAnalytics, currentRank, predictedSemesterMark) {
   }
   
   const classification = getClassification(projectedGpa);
-  const burnoutHorizon = predictBurnoutHorizon(trajectoryVector, currentAnalytics.burnoutRisk);
+  const burnoutHorizon = predictBurnoutHorizon(trajectoryVector, currentAnalytics.burnoutRisk || 20);
 
   // 4. Generate Verdict
   const verdict = generateVerdict(trajectoryVector, daysRemaining, user.cumulativeMark || 0, projectedGpa, projectedRank);
