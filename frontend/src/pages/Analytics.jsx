@@ -158,18 +158,22 @@ export const Analytics = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">DEEP ANALYTICS REPORT</h1>
-          <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
-            Extended operational analytics and cognitive vectors.
-          </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-8">
+        <div className="relative">
+          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg blur opacity-20 animate-pulse"></div>
+          <div className="relative">
+            <h1 className="text-3xl md:text-5xl font-display font-black tracking-[0.3em] text-white uppercase drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]">DEEP ANALYTICS</h1>
+            <p className="text-xs text-cyan-400 font-bold uppercase tracking-[0.4em] mt-2">
+              Cognitive Vectors & Trajectory
+            </p>
+          </div>
         </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Productivity score trend */}
-        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4 lg:col-span-2">
+        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-cyan-500/30 hover:shadow-[0_0_40px_rgba(6,182,212,0.15)] transition-all duration-500 space-y-4 lg:col-span-2 relative overflow-hidden group">
+          <div className="absolute -right-10 -top-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition-all duration-700"></div>
           <div className="flex items-center gap-2">
             <Cpu className="h-5 w-5 text-cyan-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Productivity Vector (30 Days)</h3>
@@ -200,7 +204,8 @@ export const Analytics = () => {
         </div>
 
         {/* Radar Performance Chart */}
-        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-purple-500/30 hover:shadow-[0_0_40px_rgba(168,85,247,0.15)] transition-all duration-500 space-y-4 relative overflow-hidden group">
+          <div className="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all duration-700"></div>
           <div className="flex items-center gap-2">
             <Target className="h-5 w-5 text-purple-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Cognitive Profiling</h3>
@@ -225,7 +230,8 @@ export const Analytics = () => {
         </div>
 
         {/* Burnout Risk Trend */}
-        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4 lg:col-span-2">
+        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-red-500/30 hover:shadow-[0_0_40px_rgba(239,68,68,0.15)] transition-all duration-500 space-y-4 lg:col-span-2 relative overflow-hidden group">
+          <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/20 transition-all duration-700"></div>
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-red-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Burnout Index vs Focus Score Analysis</h3>
@@ -252,7 +258,8 @@ export const Analytics = () => {
         </div>
 
         {/* Study Hours Trend */}
-        <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-blue-500/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] transition-all duration-500 space-y-4 relative overflow-hidden group">
+          <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
           <div className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-blue-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Study Duration</h3>
@@ -283,7 +290,7 @@ export const Analytics = () => {
         {studyGauge ? (
           <div className="grid gap-6 md:grid-cols-3">
             {/* System Profile Radar */}
-            <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+            <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-cyan-500/30 transition-all duration-500 space-y-4 relative overflow-hidden">
               <div className="flex items-center gap-2">
                 <Compass className="h-5 w-5 text-blue-400" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">System Profile</h3>
@@ -302,7 +309,7 @@ export const Analytics = () => {
             </div>
 
             {/* Performance Tier Speedometer */}
-            <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4 flex flex-col items-center justify-center">
+            <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-cyan-500/30 transition-all duration-500 space-y-4 flex flex-col items-center justify-center relative overflow-hidden">
               <div className="flex items-center gap-2 w-full justify-start">
                 <Activity className="h-5 w-5 text-blue-400" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">Performance Tier</h3>
@@ -335,7 +342,8 @@ export const Analytics = () => {
             </div>
 
             {/* Improvement Plan */}
-            <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
+            <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-emerald-500/30 hover:shadow-[0_0_40px_rgba(16,185,129,0.1)] transition-all duration-500 space-y-4 relative overflow-hidden group">
+              <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-emerald-400" />
                 <h3 className="text-xs font-black uppercase tracking-wider text-white">Improvement Plan</h3>
@@ -374,7 +382,10 @@ export const Analytics = () => {
       <div className="grid gap-6 md:grid-cols-2 mt-6">
         
         {/* Honours Trajectory Card */}
-        <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
+        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-emerald-500/30 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)] transition-all duration-500 space-y-5 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
+             <GraduationCap className="w-40 h-40" />
+          </div>
           <div className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-emerald-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Honours Trajectory</h3>
@@ -431,7 +442,10 @@ export const Analytics = () => {
         </div>
 
         {/* Daily Expected Mark Gauge (By Study Hours) */}
-        <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
+        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-cyan-500/30 hover:shadow-[0_0_40px_rgba(6,182,212,0.15)] transition-all duration-500 space-y-5 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
+             <Award className="w-40 h-40" />
+          </div>
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-cyan-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">Daily Mark Gauge (By Effort)</h3>
@@ -487,7 +501,10 @@ export const Analytics = () => {
           )}
         </div>
 
-        <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
+        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-amber-500/30 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500 space-y-5 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
+             <Globe className="w-40 h-40" />
+          </div>
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-cyan-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">DeKUT Civil Eng. Rank</h3>
@@ -547,7 +564,10 @@ export const Analytics = () => {
         </div>
 
         {/* MIT Global Ranking Card */}
-        <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-5">
+        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-blue-500/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] transition-all duration-500 space-y-5 relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
+             <Globe className="w-40 h-40 text-white" />
+          </div>
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-cyan-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">MIT Global Ranking</h3>
@@ -616,7 +636,7 @@ export const Analytics = () => {
           : 0;
         
         return (
-        <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden mt-6">
+        <div className="bg-navy-900/80 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_10px_50px_rgba(0,0,0,0.6)] overflow-hidden mt-10 hover:border-cyan-500/30 transition-all duration-700">
           <div className="p-6 border-b border-white/5">
             <h3 className="text-lg font-black uppercase tracking-wider text-white">Detailed Unit Projections</h3>
             <p className="text-xs text-slate-400 font-semibold mt-1">10-factor AI engine analyzing study hours, focus, attendance, consistency, topics, deadlines, and more.</p>
