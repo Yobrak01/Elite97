@@ -5,14 +5,14 @@ const authMiddleware = require('../middleware/auth');
 
 router.use(authMiddleware);
 
-router.get('/dashboard', analyticsController.getDashboard);
-router.get('/weekly', analyticsController.getWeekly);
-router.get('/burnout', analyticsController.getBurnoutAssessment);
-router.get('/trends', analyticsController.getTrends);
-router.post('/calculate', analyticsController.recalculateAnalytics);
-router.get('/gpa', analyticsController.getGpaPrediction);
-router.get('/mit-ranking', analyticsController.getMitRanking);
-router.get('/hierarchy', analyticsController.getHierarchyMatrix);
+router.get('/dashboard', authMiddleware, analyticsController.getDashboard);
+router.get('/weekly', authMiddleware, analyticsController.getWeekly);
+router.get('/burnout', authMiddleware, analyticsController.getBurnoutAssessment);
+router.get('/trends', authMiddleware, analyticsController.getTrends);
+router.post('/recalculate', authMiddleware, analyticsController.recalculateAnalytics);
+router.get('/gpa', authMiddleware, analyticsController.getGpaPrediction);
+router.get('/mit-ranking', authMiddleware, analyticsController.getMitRanking);
+router.get('/hierarchy', authMiddleware, analyticsController.getHierarchyMatrix);
+router.get('/feed', authMiddleware, analyticsController.getGlobalFeed);
 
 module.exports = router;
-

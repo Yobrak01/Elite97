@@ -11,6 +11,7 @@ const gpaPredictor = require('../services/gpaPredictor');
 const mitBenchmarker = require('../services/mitBenchmarker');
 const hierarchyMatrix = require('../services/hierarchyMatrix');
 const ruthlessAI = require('../services/ruthlessAI');
+const cohortFeed = require('../services/cohortFeed');
 
 const User = require('../models/User');
 
@@ -577,6 +578,171 @@ exports.getHierarchyMatrix = async (req, res, next) => {
     res.status(200).json({
       success: true,
       data: matrix
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getGlobalFeed = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const studyAggregation = await TimeLog.aggregate([
+      {
+        $match: {
+          user: new mongoose.Types.ObjectId(req.user._id),
+          date: { $gte: sevenDaysAgo, $lte: now },
+          activityType: { $in: ['personal_study', 'lecture'] }
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          totalStudyMinutes: { $sum: '$durationMinutes' }
+        }
+      }
+    ]);
+
+    const weeklyStudyHours = studyAggregation.length > 0 ? studyAggregation[0].totalStudyMinutes / 60 : 0;
+
+    const recentAnalytics = await Analytics.find({
+      user: req.user._id,
+      date: { $gte: sevenDaysAgo }
+    }).sort({ date: -1 });
+
+    let avgFocusScore = 0;
+    let avgCompletion = 0;
+    let avgProductivity = 0;
+
+    if (recentAnalytics.length > 0) {
+      const sumFocus = recentAnalytics.reduce((sum, a) => sum + (a.focusScore || 0), 0);
+      const sumCompletion = recentAnalytics.reduce((sum, a) => sum + (a.completionPercentage || 0), 0);
+      const sumProductivity = recentAnalytics.reduce((sum, a) => sum + (a.productivityScore || 0), 0);
+
+      avgFocusScore = sumFocus / recentAnalytics.length;
+      avgCompletion = sumCompletion / recentAnalytics.length;
+      avgProductivity = sumProductivity / recentAnalytics.length;
+    }
+
+    const currentUserStats = {
+      id: req.user._id.toString(),
+      alias: req.user.name || 'YOU',
+      weeklyStudyHours,
+      avgFocusScore,
+      avgCompletion,
+      avgProductivity
+    };
+
+    // Generate the synthetic rival feed
+    let events = cohortFeed.generateSyntheticFeed(currentUserStats);
+
+    // Merge in real user events (Last 24h)
+    const oneDayAgo = new Date(now.getTime() - 86400000);
+    const recentLogs = await TimeLog.find({
+      user: req.user._id,
+      createdAt: { $gte: oneDayAgo }
+    });
+
+    recentLogs.forEach(log => {
+      let text = '';
+      let type = 'study';
+      let severity = 'medium';
+
+      if (log.activityType === 'personal_study' || log.activityType === 'lecture') {
+        text = `YOU logged ${(log.durationMinutes / 60).toFixed(1)} hours of focus (${log.description || 'General Study'}).`;
+        type = 'study';
+        severity = log.durationMinutes >= 180 ? 'high' : 'medium';
+      } else if (log.activityType === 'gym') {
+        text = `YOU completed a physical training protocol.`;
+        type = 'gym';
+      } else {
+        text = `YOU logged ${log.durationMinutes} mins of ${log.activityType.replace('_', ' ')}.`;
+      }
+
+      events.push({
+        id: `user_log_${log._id}`,
+        alias: 'YOU',
+        isUser: true,
+        text,
+        type,
+        severity,
+        timestamp: log.createdAt || log.date,
+        minutesAgo: Math.floor((now - (log.createdAt || log.date)) / 60000)
+      });
+    });
+
+    const recentTasks = await Task.find({
+      user: req.user._id,
+      status: 'completed',
+      completedAt: { $gte: oneDayAgo }
+    });
+
+    recentTasks.forEach(task => {
+      events.push({
+        id: `user_task_${task._id}`,
+        alias: 'YOU',
+        isUser: true,
+        text: `YOU executed task: ${task.title}.`,
+        type: 'task',
+        severity: task.priority === 'high' ? 'high' : 'medium',
+        timestamp: task.completedAt,
+        minutesAgo: Math.floor((now - task.completedAt) / 60000)
+      });
+    });
+
+    // Check circadian breach today
+    const todayStr = now.toISOString().split('T')[0];
+    const circadianLog = req.user.circadianLogs ? req.user.circadianLogs.find(l => l.date === todayStr) : null;
+    
+    if (circadianLog) {
+      if (circadianLog.status === 'success') {
+        events.push({
+          id: `user_circadian_${todayStr}`,
+          alias: 'YOU',
+          isUser: true,
+          text: `YOU established the Circadian Anchor. +15% Multiplier active.`,
+          type: 'achievement',
+          severity: 'elite',
+          timestamp: new Date(`${todayStr}T05:00:00`),
+          minutesAgo: Math.floor((now - new Date(`${todayStr}T05:00:00`)) / 60000)
+        });
+      } else if (circadianLog.status === 'breached') {
+        events.push({
+          id: `user_circadian_${todayStr}`,
+          alias: 'YOU',
+          isUser: true,
+          text: `YOU breached the Circadian Anchor. Penalty applied.`,
+          type: 'penalty',
+          severity: 'punitive',
+          timestamp: new Date(`${todayStr}T05:30:00`),
+          minutesAgo: Math.floor((now - new Date(`${todayStr}T05:30:00`)) / 60000)
+        });
+      }
+    } else {
+       if (now.getHours() > 5 || (now.getHours() === 5 && now.getMinutes() > 30)) {
+         events.push({
+            id: `user_circadian_miss_${todayStr}`,
+            alias: 'YOU',
+            isUser: true,
+            text: `YOU breached the Circadian Anchor. Penalty applied.`,
+            type: 'penalty',
+            severity: 'punitive',
+            timestamp: new Date(`${todayStr}T05:31:00`),
+            minutesAgo: Math.floor((now - new Date(`${todayStr}T05:31:00`)) / 60000)
+          });
+       }
+    }
+
+    // Sort all events by timestamp descending
+    events.sort((a, b) => b.timestamp - a.timestamp);
+
+    res.status(200).json({
+      success: true,
+      data: events
     });
   } catch (error) {
     next(error);

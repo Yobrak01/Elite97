@@ -208,7 +208,7 @@ export const api = {
       return handleResponse(res);
     },
     calculate: async () => {
-      const res = await fetch(`${API_URL}/analytics/calculate`, {
+      const res = await fetch(`${API_URL}/analytics/recalculate`, {
         method: 'POST',
         headers: getHeaders()
       });
@@ -228,6 +228,12 @@ export const api = {
     },
     getHierarchy: async () => {
       const res = await fetch(`${API_URL}/analytics/hierarchy`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    getGlobalFeed: async () => {
+      const res = await fetch(`${API_URL}/analytics/feed`, {
         headers: getHeaders()
       });
       return handleResponse(res);

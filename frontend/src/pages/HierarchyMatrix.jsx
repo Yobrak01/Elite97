@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Globe, Trophy, TrendingUp, TrendingDown, Minus, Target, Flame, Cpu, Eye, Activity } from 'lucide-react';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
+import GlobalFeed from '../components/GlobalFeed';
 
 export const HierarchyMatrix = () => {
   const [hierarchy, setHierarchy] = useState([]);
@@ -118,9 +119,17 @@ export const HierarchyMatrix = () => {
         })}
       </div>
 
-      {/* The Matrix Leaderboard */}
-      <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden">
-        <div className="overflow-x-auto">
+      {/* Main Container: Feed + Leaderboard */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* The Live Feed */}
+        <div className="lg:col-span-1 glass-panel rounded-2xl border border-white/5 bg-black/40 p-4">
+          <GlobalFeed />
+        </div>
+
+        {/* The Matrix Leaderboard */}
+        <div className="lg:col-span-2 glass-panel rounded-2xl border border-white/5 overflow-hidden h-[600px] flex flex-col">
+          <div className="overflow-x-auto flex-1 scrollbar-hide">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-black/40 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 border-b border-white/5">
@@ -196,6 +205,7 @@ export const HierarchyMatrix = () => {
               ))}
             </tbody>
           </table>
+        </div>
         </div>
       </div>
     </div>
