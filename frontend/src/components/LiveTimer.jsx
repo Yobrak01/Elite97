@@ -64,6 +64,18 @@ export const LiveTimer = () => {
     fetchCourses();
   }, [fetchTodayLogs, fetchCourses]);
 
+  // Restore running timer if one exists in today's logs
+  useEffect(() => {
+    const activeLog = todayLogs.find(log => !log.endTime && log.startTime);
+    if (activeLog && !isRunning) {
+      setActiveLogId(activeLog._id || activeLog.id);
+      setActivityType(activeLog.activityType);
+      const elapsed = Math.floor((Date.now() - new Date(activeLog.startTime).getTime()) / 1000);
+      setElapsedSeconds(elapsed > 0 ? elapsed : 0);
+      setIsRunning(true);
+    }
+  }, [todayLogs, isRunning]);
+
   // Timer tick
   useEffect(() => {
     if (isRunning) {
