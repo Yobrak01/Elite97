@@ -23,11 +23,56 @@ const NeuralOverride = () => {
 
   // Stop everything on unmount
   useEffect(() => {
+    fetchActiveOverride();
     return () => {
       stopAudio();
       if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
     };
   }, []);
+
+  const fetchActiveOverride = async () => {
+    try {
+      const res = await api.tracker.getTodayLogs();
+      const logs = res.data || [];
+      const activeOverrideLog = logs.find(log => !log.endTime && log.description && log.description.includes('[NEURAL OVERRIDE PROTOCOL]'));
+      
+      if (activeOverrideLog) {
+        const match = activeOverrideLog.description.match(/\[NEURAL OVERRIDE PROTOCOL\] (\d+)m Lockdown/);
+        const targetMins = match ? parseInt(match[1], 10) : 60;
+        const targetSecs = targetMins * 60;
+        const logId = activeOverrideLog._id || activeOverrideLog.id;
+        
+        const elapsed = Math.floor((Date.now() - new Date(activeOverrideLog.startTime).getTime()) / 1000);
+        const remaining = targetSecs - elapsed;
+        
+        setActiveLogId(logId);
+        setTargetDurationSeconds(targetSecs);
+        
+        if (remaining <= 0) {
+           setTimeRemaining(0);
+           setIsActive(true);
+           handleSuccess(logId);
+        } else {
+           setTimeRemaining(remaining);
+           setIsActive(true);
+           setIsCompleted(false);
+           
+           timerIntervalRef.current = setInterval(() => {
+             setTimeRemaining(prev => {
+               if (prev <= 1) {
+                 clearInterval(timerIntervalRef.current);
+                 handleSuccess(logId);
+                 return 0;
+               }
+               return prev - 1;
+             });
+           }, 1000);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to check active override", err);
+    }
+  };
 
   // Format time (HH:MM:SS)
   const formatTime = (totalSeconds) => {
@@ -172,12 +217,13 @@ const NeuralOverride = () => {
     }
   };
 
-  const handleSuccess = async () => {
+  const handleSuccess = async (idToUse) => {
     setIsCompleted(true);
     stopAudio();
     try {
-      if (activeLogId) {
-        await api.tracker.completeOverride(activeLogId);
+      const targetId = typeof idToUse === 'string' ? idToUse : activeLogId;
+      if (targetId) {
+        await api.tracker.completeOverride(targetId);
       }
     } catch (err) {
       console.error("Failed to complete backend override", err);
