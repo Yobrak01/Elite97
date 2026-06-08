@@ -420,15 +420,20 @@ export const api = {
       return handleResponse(res);
     },
     getCircadianStatus: async () => {
-      const res = await fetch(`${API_URL}/life/circadian-status`, {
+      const h = new Date().getHours();
+      const m = new Date().getMinutes();
+      const res = await fetch(`${API_URL}/life/circadian-status?h=${h}&m=${m}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
     },
     establishAnchor: async () => {
+      const h = new Date().getHours();
+      const m = new Date().getMinutes();
       const res = await fetch(`${API_URL}/life/circadian-anchor`, {
         method: 'POST',
-        headers: getHeaders()
+        headers: getHeaders(),
+        body: JSON.stringify({ h, m })
       });
       return handleResponse(res);
     },

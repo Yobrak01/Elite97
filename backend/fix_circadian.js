@@ -1,9 +1,10 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const Analytics = require('./models/Analytics');
 
 async function fixCircadian() {
-  await mongoose.connect('mongodb://127.0.0.1:27017/elite97');
+  await mongoose.connect(process.env.MONGO_URI);
   
   const todayStr = new Date().toISOString().split('T')[0];
   const user = await User.findOne();

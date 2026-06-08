@@ -381,9 +381,10 @@ exports.establishAnchor = async (req, res, next) => {
     }
 
     // Evaluate time
+    const { h, m } = req.body;
     const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
+    const hours = h !== undefined ? parseInt(h, 10) : now.getHours();
+    const minutes = m !== undefined ? parseInt(m, 10) : now.getMinutes();
     
     // 4:30 AM to 5:30 AM is success
     let status = 'breached';
@@ -420,9 +421,10 @@ exports.getCircadianStatus = async (req, res, next) => {
     }
 
     // Evaluate if they have already breached it without logging (past 5:30 AM)
+    const { h, m } = req.query;
     const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
+    const hours = h !== undefined ? parseInt(h, 10) : now.getHours();
+    const minutes = m !== undefined ? parseInt(m, 10) : now.getMinutes();
     
     if (hours > 5 || (hours === 5 && minutes > 30)) {
       // Auto-breach
