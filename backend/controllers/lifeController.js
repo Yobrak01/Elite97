@@ -431,6 +431,13 @@ exports.getCircadianStatus = async (req, res, next) => {
       return res.status(200).json({ success: true, data: { date: todayStr, status: 'breached' } });
     }
 
+    if ((hours === 4 && minutes >= 30) || (hours === 5 && minutes <= 30)) {
+      // Auto-success (They logged in during the window)
+      user.circadianLogs.push({ date: todayStr, status: 'success' });
+      await user.save();
+      return res.status(200).json({ success: true, data: { date: todayStr, status: 'success' } });
+    }
+
     // Within window or before window
     return res.status(200).json({ success: true, data: { date: todayStr, status: 'pending' } });
   } catch (error) {
