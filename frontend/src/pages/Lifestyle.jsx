@@ -506,6 +506,24 @@ const PantryTab = () => {
 const RoutineTab = () => {
   const [routine, setRoutine] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loggedLectures, setLoggedLectures] = useState(new Set());
+  const [loggingLecture, setLoggingLecture] = useState(null);
+
+  const fetchTodayLogs = async () => {
+    try {
+      const res = await api.tracker.getTodayLogs();
+      const logs = res.data || [];
+      const loggedNames = new Set();
+      logs.forEach(log => {
+        if (log.activityType === 'lecture' && log.description) {
+          loggedNames.add(log.description);
+        }
+      });
+      setLoggedLectures(loggedNames);
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const fetchRoutine = useCallback(async () => {
     try {
@@ -518,7 +536,27 @@ const RoutineTab = () => {
     }
   }, []);
 
-  useEffect(() => { fetchRoutine(); }, [fetchRoutine]);
+  useEffect(() => { 
+    fetchRoutine(); 
+    fetchTodayLogs(); 
+  }, [fetchRoutine]);
+
+  const handleLogLecture = async (item) => {
+    setLoggingLecture(item.label);
+    try {
+      const duration = (item.endMinutes && item.minutes) ? (item.endMinutes - item.minutes) : 60;
+      await api.tracker.manualLog({
+        activityType: 'lecture',
+        durationMinutes: duration,
+        description: item.label
+      });
+      setLoggedLectures(prev => new Set([...prev, item.label]));
+    } catch (err) {
+      console.error('Failed to log lecture:', err);
+    } finally {
+      setLoggingLecture(null);
+    }
+  };
 
   const now = new Date();
   const currentHour = now.getHours();
@@ -619,6 +657,27 @@ const RoutineTab = () => {
                     {item.label}
                   </h4>
                   <p className="mt-1 text-xs font-semibold text-slate-400">{item.description}</p>
+                  
+                  {/* Lecture Attendance Action */}
+                  {item.isLecture && (
+                    <div className="mt-3">
+                      {loggedLectures.has(item.label) ? (
+                        <div className="flex w-fit items-center gap-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-400">
+                          <Check className="h-3.5 w-3.5" />
+                          Attended & Logged
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleLogLecture(item)}
+                          disabled={loggingLecture === item.label}
+                          className="flex items-center gap-1.5 rounded-lg bg-cyan-500/20 border border-cyan-500/30 hover:bg-cyan-500 hover:text-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest text-cyan-400 transition-all disabled:opacity-50"
+                        >
+                          <Check className={`h-3.5 w-3.5 ${loggingLecture === item.label ? 'animate-pulse' : ''}`} />
+                          {loggingLecture === item.label ? 'Logging...' : 'Mark Attended'}
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             );
