@@ -38,7 +38,7 @@ exports.generateFromMaterial = async (fileBuffer, mimetype) => {
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
     });
 
@@ -63,7 +63,7 @@ exports.generateFromMaterial = async (fileBuffer, mimetype) => {
     return parsedData;
   } catch (error) {
     console.error('Error in vaultGenerator:', error);
-    throw new Error('Failed to generate vault materials from document.');
+    throw new Error('Failed to generate vault materials: ' + error.message);
   }
 };
 
