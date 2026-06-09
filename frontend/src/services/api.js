@@ -461,6 +461,68 @@ export const api = {
       });
       return handleResponse(res);
     }
+  },
+  vault: {
+    // Notes
+    getNotes: async () => {
+      const res = await fetch(`${API_URL}/vault/notes`, { headers: getHeaders() });
+      return handleResponse(res);
+    },
+    createNote: async (data) => {
+      const res = await fetch(`${API_URL}/vault/notes`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    },
+    updateNote: async (id, data) => {
+      const res = await fetch(`${API_URL}/vault/notes/${id}`, {
+        method: 'PATCH',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    },
+    deleteNote: async (id) => {
+      const res = await fetch(`${API_URL}/vault/notes/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    // Flashcards
+    getFlashcards: async () => {
+      const res = await fetch(`${API_URL}/vault/flashcards`, { headers: getHeaders() });
+      return handleResponse(res);
+    },
+    getDueFlashcards: async () => {
+      const res = await fetch(`${API_URL}/vault/flashcards/due`, { headers: getHeaders() });
+      return handleResponse(res);
+    },
+    createFlashcard: async (data) => {
+      const res = await fetch(`${API_URL}/vault/flashcards`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    },
+    deleteFlashcard: async (id) => {
+      const res = await fetch(`${API_URL}/vault/flashcards/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    reviewFlashcard: async (id, quality) => {
+      const res = await fetch(`${API_URL}/vault/flashcards/${id}/review`, {
+        method: 'PATCH',
+        headers: getHeaders(),
+        body: JSON.stringify({ quality })
+      });
+      return handleResponse(res);
+    }
   }
 };
 export default api;

@@ -5,17 +5,18 @@ import DashboardLayout from './layouts/DashboardLayout';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Analytics from './pages/Analytics';
+import { Analytics } from './pages/Analytics';
 import Tasks from './pages/Tasks';
 import Planner from './pages/Planner';
-import Schedule from './pages/Schedule';
+import { Schedule } from './pages/Schedule';
 import Settings from './pages/Settings';
 import Courses from './pages/Courses';
-import Lifestyle from './pages/Lifestyle';
+import { Lifestyle } from './pages/Lifestyle';
 import Diagnostic from './pages/Diagnostic';
 import NeuralOverride from './pages/NeuralOverride';
 import HierarchyMatrix from './pages/HierarchyMatrix';
 import PredictiveOracle from './pages/PredictiveOracle';
+import { NeuralVault } from './pages/NeuralVault';
 
 export const App = () => {
   return (
@@ -43,9 +44,10 @@ export const App = () => {
             <Route path="/diagnostic" element={<Diagnostic />} />
             <Route path="/hierarchy" element={<HierarchyMatrix />} />
             <Route path="/oracle" element={<PredictiveOracle />} />
+            <Route path="/vault" element={<NeuralVault />} />
           </Route>
         </Route>
-        
+
         {/* Fallback route */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -53,4 +55,3 @@ export const App = () => {
   );
 };
 export default App;
-
