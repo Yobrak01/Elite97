@@ -522,6 +522,22 @@ export const api = {
         body: JSON.stringify({ quality })
       });
       return handleResponse(res);
+    },
+    generateFromMaterial: async (file, courseUnitId) => {
+      const formData = new FormData();
+      formData.append('material', file);
+      if (courseUnitId) {
+        formData.append('courseUnit', courseUnitId);
+      }
+      const token = localStorage.getItem('elite97_token');
+      const res = await fetch(`${API_URL}/vault/generate`, {
+        method: 'POST',
+        headers: {
+          'Authorization': token ? `Bearer ${token}` : ''
+        },
+        body: formData
+      });
+      return handleResponse(res);
     }
   }
 };

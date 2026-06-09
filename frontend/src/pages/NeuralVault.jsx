@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Book, Brain, Plus, Trash2, X, Check, Save, Layers, Clock, Zap } from 'lucide-react';
+import { Book, Brain, Plus, Trash2, X, Check, Save, Layers, Clock, Zap, UploadCloud, FileText } from 'lucide-react';
 import api from '../services/api';
 
 export const NeuralVault = () => {
@@ -23,6 +23,13 @@ export const NeuralVault = () => {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
+  // AI Generator State
+  const [showGenerateModal, setShowGenerateModal] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [courses, setCourses] = useState([]);
+  const [selectedCourseUnit, setSelectedCourseUnit] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -30,14 +37,16 @@ export const NeuralVault = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [notesRes, cardsRes, dueRes] = await Promise.all([
+      const [notesRes, cardsRes, dueRes, coursesRes] = await Promise.all([
         api.vault.getNotes(),
         api.vault.getFlashcards(),
-        api.vault.getDueFlashcards()
+        api.vault.getDueFlashcards(),
+        api.courses.getAll()
       ]);
       setNotes(notesRes.data || []);
       setFlashcards(cardsRes.data || []);
       setDueCards(dueRes.data || []);
+      setCourses(coursesRes.data || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -133,6 +142,24 @@ export const NeuralVault = () => {
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleGenerate = async (e) => {
+    e.preventDefault();
+    if (!selectedFile) return;
+    setGenerating(true);
+    try {
+      await api.vault.generateFromMaterial(selectedFile, selectedCourseUnit);
+      setShowGenerateModal(false);
+      setSelectedFile(null);
+      setSelectedCourseUnit('');
+      await fetchData(); // Refresh all data to show new generated items
+    } catch (err) {
+      console.error("Failed to generate:", err);
+      alert("AI Generation Failed: " + err.message);
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -408,6 +435,13 @@ export const NeuralVault = () => {
             </button>
           </div>
         )}
+        
+        <button 
+          onClick={() => setShowGenerateModal(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 text-purple-300 hover:text-white hover:border-purple-400 hover:shadow-glow-purple rounded-lg font-black text-xs uppercase tracking-widest transition-all"
+        >
+          <Zap className="h-4 w-4 text-purple-400" /> Neural Extraction
+        </button>
       </div>
 
       {loading ? (
@@ -420,6 +454,84 @@ export const NeuralVault = () => {
           {activeTab === 'flashcards' && renderFlashcardsTab()}
           {activeTab === 'study' && renderStudyMode()}
         </>
+      )}
+
+      {showGenerateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+          <div className="glass-panel max-w-md w-full rounded-3xl border border-purple-500/30 p-8 shadow-[0_0_50px_rgba(168,85,247,0.15)] relative overflow-hidden">
+            {generating && (
+               <div className="absolute inset-0 bg-navy-950/90 z-20 flex flex-col items-center justify-center backdrop-blur-md animate-fade-in">
+                 <div className="relative">
+                   <div className="absolute inset-0 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                   <Brain className="h-12 w-12 text-purple-400 m-4 animate-pulse" />
+                 </div>
+                 <p className="mt-6 text-sm font-black uppercase tracking-widest text-purple-300 animate-pulse">Running Neural Extraction...</p>
+                 <p className="mt-2 text-xs text-slate-400 font-semibold max-w-[250px] text-center">Gemini is analyzing your document, formulating concepts, and creating spaced-repetition flashcards.</p>
+               </div>
+            )}
+            
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <h2 className="text-xl font-black uppercase tracking-widest text-white flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-purple-400" /> Neural Extraction
+                </h2>
+                <p className="text-xs text-slate-400 font-medium mt-2">Upload a syllabus or lecture PDF to automatically generate study notes and SM-2 flashcards.</p>
+              </div>
+              <button onClick={() => setShowGenerateModal(false)} className="text-slate-500 hover:text-white transition-colors p-1">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleGenerate} className="space-y-6">
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 block">Select Course Unit (Optional)</label>
+                <select 
+                  value={selectedCourseUnit}
+                  onChange={(e) => setSelectedCourseUnit(e.target.value)}
+                  className="w-full bg-navy-900 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-purple-500/50 appearance-none"
+                >
+                  <option value="">-- General Knowledge --</option>
+                  {courses.map(c => (
+                    <option key={c._id} value={c._id}>{c.unitCode} - {c.unitName}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2 block">Upload Material (PDF/TXT)</label>
+                <div className="border-2 border-dashed border-white/10 hover:border-purple-500/50 rounded-xl p-8 text-center transition-colors bg-navy-900/50 relative">
+                   <input 
+                     type="file" 
+                     accept=".pdf,.txt"
+                     onChange={(e) => setSelectedFile(e.target.files[0])}
+                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                   />
+                   {selectedFile ? (
+                     <div className="flex flex-col items-center gap-2">
+                       <FileText className="h-8 w-8 text-purple-400" />
+                       <span className="text-sm font-bold text-white">{selectedFile.name}</span>
+                       <span className="text-xs text-slate-400">Ready to extract</span>
+                     </div>
+                   ) : (
+                     <div className="flex flex-col items-center gap-2 text-slate-500">
+                       <UploadCloud className="h-8 w-8" />
+                       <span className="text-sm font-bold">Click or drag file here</span>
+                       <span className="text-[10px] uppercase tracking-widest">PDF & TXT Supported</span>
+                     </div>
+                   )}
+                </div>
+              </div>
+
+              <button 
+                type="submit" 
+                disabled={!selectedFile || generating}
+                className="w-full py-4 bg-purple-500 text-white rounded-xl font-black text-xs uppercase tracking-widest hover:bg-purple-400 transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+              >
+                <Brain className="h-4 w-4" /> Start Extraction
+              </button>
+            </form>
+          </div>
+        </div>
       )}
       
       <style dangerouslySetInnerHTML={{__html: `

@@ -1,6 +1,7 @@
 const Note = require('../models/Note');
 const Flashcard = require('../models/Flashcard');
 const CourseUnit = require('../models/CourseUnit');
+const vaultGenerator = require('../services/vaultGenerator');
 
 // --- NOTES ---
 
@@ -155,6 +156,56 @@ exports.reviewFlashcard = async (req, res, next) => {
     await card.save();
 
     res.status(200).json({ success: true, data: card });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// --- AI GENERATION ---
+
+exports.generateVaultContent = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No material file uploaded.' });
+    }
+    
+    const courseUnitId = req.body.courseUnit;
+    let courseName = "General Material";
+    if (courseUnitId) {
+      const course = await CourseUnit.findById(courseUnitId);
+      if (course) courseName = course.unitName;
+    }
+
+    // Call the AI generator service
+    const generatedData = await vaultGenerator.generateFromMaterial(req.file.buffer);
+    
+    // Save generated Note
+    const note = await Note.create({
+      user: req.user._id,
+      courseUnit: courseUnitId || undefined,
+      title: `[AI Extracted] ${courseName} Summary`,
+      content: generatedData.note,
+      tags: ['AI-Generated']
+    });
+
+    // Save generated Flashcards
+    const flashcardPromises = generatedData.flashcards.map(fc => {
+      return Flashcard.create({
+        user: req.user._id,
+        courseUnit: courseUnitId || undefined,
+        deckName: courseName,
+        front: fc.front,
+        back: fc.back
+      });
+    });
+    
+    const cards = await Promise.all(flashcardPromises);
+
+    res.status(201).json({ 
+      success: true, 
+      message: 'Neural Extraction Complete',
+      data: { note, cardsCount: cards.length }
+    });
   } catch (error) {
     next(error);
   }
