@@ -196,6 +196,36 @@ exports.getWeekly = async (req, res, next) => {
   }
 };
 
+exports.getWeeklyReview = async (req, res, next) => {
+  try {
+    const lastWeek = new Date();
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    lastWeek.setHours(0, 0, 0, 0);
+
+    const logs = await TimeLog.find({
+      user: req.user._id,
+      date: { $gte: lastWeek }
+    });
+
+    const analytics = await Analytics.find({
+      user: req.user._id,
+      date: { $gte: lastWeek }
+    });
+
+    const tasks = await Task.find({
+      user: req.user._id,
+      updatedAt: { $gte: lastWeek }
+    });
+
+    // Call the AI Planner to generate a harsh weekly intelligence briefing
+    const review = await aiPlanner.generateWeeklyIntelligenceBriefing({ logs, analytics, tasks }, req.user);
+
+    res.status(200).json({ success: true, data: review });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getBurnoutAssessment = async (req, res, next) => {
   try {
     const today = new Date();

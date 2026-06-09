@@ -3,6 +3,8 @@ import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, Tool
 import { Calendar, BarChart3, TrendingUp, Cpu, Target, Award, GraduationCap, Globe, Compass, Zap, Activity } from 'lucide-react';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
+import WeeklyBriefing from '../components/WeeklyBriefing';
+import WeeklyHistoryTable from '../components/WeeklyHistoryTable';
 
 export const Analytics = () => {
   const [trends, setTrends] = useState([]);
@@ -779,6 +781,12 @@ export const Analytics = () => {
         </div>
         );
       })()}
+
+      <div className="mt-10 space-y-6">
+        <WeeklyBriefing />
+        <WeeklyHistoryTable />
+      </div>
+
     </div>
   );
 };

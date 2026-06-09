@@ -222,6 +222,12 @@ export const api = {
       });
       return handleResponse(res);
     },
+    getWeeklyReview: async () => {
+      const res = await fetch(`${API_URL}/analytics/weekly-review`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
     getGpa: async () => {
       const res = await fetch(`${API_URL}/analytics/gpa`, {
         headers: getHeaders()
@@ -373,6 +379,12 @@ export const api = {
     },
     getWeeklySummary: async () => {
       const res = await fetch(`${API_URL}/tracker/weekly`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    getWeeklyLogs: async () => {
+      const res = await fetch(`${API_URL}/tracker/weekly-logs`, {
         headers: getHeaders()
       });
       return handleResponse(res);

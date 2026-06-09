@@ -194,8 +194,71 @@ function generateRecommendations(analytics, tasks, mode) {
   return list.filter(Boolean);
 }
 
+async function generateWeeklyIntelligenceBriefing(data, user) {
+  const { logs, analytics, tasks } = data;
+  
+  // Calculate aggregate metrics
+  let totalMinutes = 0;
+  let focusSum = 0;
+  let analyticsCount = analytics.length;
+  let completedTasks = tasks.filter(t => t.status === 'completed').length;
+  
+  logs.forEach(l => {
+    totalMinutes += (l.durationMinutes || 0);
+  });
+  
+  analytics.forEach(a => {
+    focusSum += (a.focusScore || 0);
+  });
+  
+  const totalHours = (totalMinutes / 60).toFixed(1);
+  const avgFocus = analyticsCount > 0 ? Math.round(focusSum / analyticsCount) : 0;
+  
+  let paragraph = '';
+  
+  // Opening analysis
+  if (totalHours < 10) {
+    paragraph += `[CRITICAL FAILURE] You only logged ${totalHours} hours this week. This is utterly insufficient for an elite engineering trajectory. Your discipline is slipping. `;
+  } else if (totalHours > 35) {
+    paragraph += `[SYSTEM STRAIN DETECTED] You logged ${totalHours} hours. This is elite workload capacity, but monitor your burnout index closely. Do not shatter your own foundation. `;
+  } else {
+    paragraph += `[STEADY STATE] You logged ${totalHours} hours this week. Consistent, but consistency alone doesn't secure top percentiles. `;
+  }
+  
+  // Focus critique
+  if (avgFocus < 50) {
+    paragraph += `Your cognitive focus averaged an abysmal ${avgFocus}%. You are physically present but mentally absent. Eliminate distractions. Cut out cheap dopamine immediately. `;
+  } else if (avgFocus >= 80) {
+    paragraph += `Your neural focus remained razor sharp at ${avgFocus}%. You are operating in flow state. Protect this mental clarity at all costs. `;
+  } else {
+    paragraph += `Focus averaged ${avgFocus}%. Acceptable, but far from the alpha brainwave state required for deep engineering proofs. Push harder. `;
+  }
+  
+  // Task completion
+  paragraph += `You cleared ${completedTasks} tasks over the last 7 days. `;
+  
+  // Strategic Directive
+  if (totalHours < 15) {
+    paragraph += `DIRECTIVE: This upcoming week, you must double your study volume. Treat your schedule like a military operation. No excuses.`;
+  } else if (avgFocus < 60) {
+    paragraph += `DIRECTIVE: Volume is fine, but efficiency is poor. For the next 7 days, enforce strict deep work blocks. Put your phone in another room.`;
+  } else {
+    paragraph += `DIRECTIVE: Maintain this high-velocity momentum. Start tackling your hardest, most feared modules first thing in the morning.`;
+  }
+  
+  return {
+    report: paragraph,
+    metrics: {
+      totalHours,
+      avgFocus,
+      completedTasks
+    }
+  };
+}
+
 module.exports = {
   determineMode,
   generateDailyPlan,
-  generateRecommendations
+  generateRecommendations,
+  generateWeeklyIntelligenceBriefing
 };

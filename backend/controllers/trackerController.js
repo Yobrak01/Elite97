@@ -160,6 +160,27 @@ exports.getTodayLogs = async (req, res, next) => {
   }
 };
 
+// @desc    Get raw weekly time logs (last 7 days)
+// @route   GET /api/tracker/weekly-logs
+// @access  Private
+exports.getWeeklyLogs = async (req, res, next) => {
+  try {
+    const now = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    sevenDaysAgo.setHours(0, 0, 0, 0);
+
+    const logs = await TimeLog.find({
+      user: req.user._id,
+      date: { $gte: sevenDaysAgo, $lte: now }
+    }).sort({ startTime: -1 });
+
+    res.status(200).json({ success: true, data: logs });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get aggregated weekly time summary (last 7 days)
 // @route   GET /api/tracker/weekly
 // @access  Private
