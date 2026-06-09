@@ -5,6 +5,7 @@ import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import WeeklyBriefing from '../components/WeeklyBriefing';
 import WeeklyHistoryTable from '../components/WeeklyHistoryTable';
+import TimeAverages from '../components/TimeAverages';
 
 export const Analytics = () => {
   const [trends, setTrends] = useState([]);
@@ -784,6 +785,7 @@ export const Analytics = () => {
 
       <div className="mt-10 space-y-6">
         <WeeklyBriefing />
+        <TimeAverages />
         <WeeklyHistoryTable />
       </div>
 

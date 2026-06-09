@@ -71,7 +71,7 @@ export const WeeklyHistoryTable = () => {
       {Object.keys(groupedLogs).length === 0 ? (
         <div className="p-8 text-center text-slate-500 text-sm font-bold">No operations logged in the last 7 days.</div>
       ) : (
-        <div className="p-0">
+        <div className="p-0 max-h-[600px] overflow-y-auto overflow-x-hidden custom-scrollbar">
           {Object.entries(groupedLogs).map(([dateStr, dayLogs]) => (
             <div key={dateStr} className="border-b border-white/5 last:border-0">
               <div className="bg-white/[0.02] px-6 py-3 border-y border-white/5 flex items-center gap-2">

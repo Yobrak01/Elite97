@@ -226,6 +226,46 @@ exports.getWeeklyReview = async (req, res, next) => {
   }
 };
 
+exports.getTimeAverages = async (req, res, next) => {
+  try {
+    const now = new Date();
+    
+    const getStats = async (days) => {
+      const dateLimit = new Date();
+      dateLimit.setDate(dateLimit.getDate() - days);
+      dateLimit.setHours(0, 0, 0, 0);
+
+      const logs = await TimeLog.aggregate([
+        { $match: { user: req.user._id, date: { $gte: dateLimit, $lte: now } } },
+        { $group: { _id: '$activityType', totalMinutes: { $sum: '$durationMinutes' } } }
+      ]);
+
+      const result = {
+        personal_study: 0,
+        lecture: 0,
+        group_discussion: 0,
+        gym: 0,
+        chore: 0,
+        rest: 0
+      };
+
+      logs.forEach(l => {
+        result[l._id] = l.totalMinutes;
+      });
+
+      return result;
+    };
+
+    const weekly = await getStats(7);
+    const monthly = await getStats(30);
+    const yearly = await getStats(365);
+
+    res.status(200).json({ success: true, data: { weekly, monthly, yearly } });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getBurnoutAssessment = async (req, res, next) => {
   try {
     const today = new Date();

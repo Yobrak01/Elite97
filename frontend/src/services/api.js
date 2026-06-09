@@ -228,6 +228,12 @@ export const api = {
       });
       return handleResponse(res);
     },
+    getTimeAverages: async () => {
+      const res = await fetch(`${API_URL}/analytics/time-averages`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
     getGpa: async () => {
       const res = await fetch(`${API_URL}/analytics/gpa`, {
         headers: getHeaders()

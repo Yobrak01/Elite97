@@ -10,6 +10,7 @@ router.get('/weekly', authMiddleware, analyticsController.getWeekly);
 router.get('/burnout', authMiddleware, analyticsController.getBurnoutAssessment);
 router.get('/trends', authMiddleware, analyticsController.getTrends);
 router.get('/weekly-review', authMiddleware, analyticsController.getWeeklyReview);
+router.get('/time-averages', authMiddleware, analyticsController.getTimeAverages);
 router.post('/recalculate', authMiddleware, analyticsController.recalculateAnalytics);
 router.get('/gpa', authMiddleware, analyticsController.getGpaPrediction);
 router.get('/mit-ranking', authMiddleware, analyticsController.getMitRanking);
