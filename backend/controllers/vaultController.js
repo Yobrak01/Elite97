@@ -177,7 +177,7 @@ exports.generateVaultContent = async (req, res, next) => {
     }
 
     // Call the AI generator service
-    const generatedData = await vaultGenerator.generateFromMaterial(req.file.buffer);
+    const generatedData = await vaultGenerator.generateFromMaterial(req.file.buffer, req.file.mimetype);
     
     // Save generated Note
     const note = await Note.create({

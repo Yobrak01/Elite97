@@ -1,11 +1,16 @@
 const pdf = require('pdf-parse');
 const { GoogleGenAI } = require('@google/genai');
 
-exports.generateFromMaterial = async (fileBuffer) => {
+exports.generateFromMaterial = async (fileBuffer, mimetype) => {
   try {
-    // 1. Extract text from PDF
-    const data = await pdf(fileBuffer);
-    const text = data.text;
+    let text = '';
+    
+    if (mimetype === 'application/pdf') {
+      const data = await pdf(fileBuffer);
+      text = data.text;
+    } else {
+      text = fileBuffer.toString('utf8');
+    }
     
     if (!text || text.trim().length === 0) {
       throw new Error('Could not extract text from the provided file.');
@@ -42,7 +47,14 @@ exports.generateFromMaterial = async (fileBuffer) => {
     // Clean up potential markdown formatting from Gemini's response
     resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
     
-    const parsedData = JSON.parse(resultText);
+    // Handle potential trailing commas or formatting errors
+    let parsedData;
+    try {
+      parsedData = JSON.parse(resultText);
+    } catch (parseError) {
+      console.error("Failed to parse Gemini output as JSON:", resultText);
+      throw new Error("AI returned malformed JSON.");
+    }
     
     if (!parsedData.note || !parsedData.flashcards) {
       throw new Error("Invalid format returned by AI.");
