@@ -13,7 +13,7 @@ const TimeLogSchema = new mongoose.Schema({
   },
   activityType: {
     type: String,
-    enum: ['personal_study', 'lecture', 'chore', 'gym', 'rest'],
+    enum: ['personal_study', 'lecture', 'group_discussion', 'project', 'chore', 'gym', 'rest'],
     required: true
   },
   description: {

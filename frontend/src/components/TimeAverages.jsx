@@ -44,6 +44,11 @@ export const TimeAverages = () => {
     return (minutes / 60).toFixed(1);
   };
 
+  const getStudyTotal = (periodData) => {
+    if (!periodData) return 0;
+    return (periodData.personal_study || 0) + (periodData.group_discussion || 0) + (periodData.lecture || 0);
+  };
+
   return (
     <div className="bg-navy-900/60 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_10px_50px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-700 mt-6">
       <div className="p-6 border-b border-white/5 flex items-center justify-between">
@@ -68,6 +73,10 @@ export const TimeAverages = () => {
               <span className="text-lg font-black text-white">{formatHours(data.weekly[cat.key])}<span className="text-xs text-slate-500 ml-1">h</span></span>
             </div>
           ))}
+          <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-widest text-cyan-400">Total Study Time</span>
+            <span className="text-xl font-black text-cyan-400">{formatHours(getStudyTotal(data.weekly))}<span className="text-xs text-cyan-500/50 ml-1">h</span></span>
+          </div>
         </div>
 
         {/* Monthly */}
@@ -81,6 +90,10 @@ export const TimeAverages = () => {
               <span className="text-lg font-black text-white">{formatHours(data.monthly[cat.key])}<span className="text-xs text-slate-500 ml-1">h</span></span>
             </div>
           ))}
+          <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-widest text-cyan-400">Total Study Time</span>
+            <span className="text-xl font-black text-cyan-400">{formatHours(getStudyTotal(data.monthly))}<span className="text-xs text-cyan-500/50 ml-1">h</span></span>
+          </div>
         </div>
 
         {/* Yearly */}
@@ -94,6 +107,10 @@ export const TimeAverages = () => {
               <span className="text-lg font-black text-white">{formatHours(data.yearly[cat.key])}<span className="text-xs text-slate-500 ml-1">h</span></span>
             </div>
           ))}
+          <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-widest text-cyan-400">Total Study Time</span>
+            <span className="text-xl font-black text-cyan-400">{formatHours(getStudyTotal(data.yearly))}<span className="text-xs text-cyan-500/50 ml-1">h</span></span>
+          </div>
         </div>
       </div>
     </div>

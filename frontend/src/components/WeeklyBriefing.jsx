@@ -50,7 +50,7 @@ export const WeeklyBriefing = () => {
 
       <div className="relative z-10 grid md:grid-cols-3 gap-8">
         <div className="md:col-span-2 space-y-4">
-          <div className="bg-black/40 rounded-2xl p-6 border border-white/5 shadow-inner">
+          <div className="bg-black/40 rounded-2xl p-6 border border-white/5 shadow-inner max-h-[300px] overflow-y-auto custom-scrollbar">
             <p className="text-sm font-semibold leading-relaxed text-slate-300">
               {briefing.report.split('[CRITICAL FAILURE]').join('').split('[SYSTEM STRAIN DETECTED]').join('').split('[STEADY STATE]').join('').split('DIRECTIVE:')[0]}
             </p>
