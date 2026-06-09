@@ -80,7 +80,7 @@ exports.stopTimer = async (req, res, next) => {
 // @access  Private
 exports.manualLog = async (req, res, next) => {
   try {
-    const { activityType, durationMinutes, description, date } = req.body;
+    const { activityType, durationMinutes, description, date, exactStartTime, exactEndTime, allowOverlap } = req.body;
 
     if (!activityType || !durationMinutes) {
       return res.status(400).json({ success: false, message: 'activityType and durationMinutes are required.' });
@@ -97,24 +97,27 @@ exports.manualLog = async (req, res, next) => {
     const targetDate = date ? new Date(date) : new Date();
     const now = new Date();
     
-    // Calculate a mock startTime backwards from now
-    const startTime = new Date(now.getTime() - (durationMinutes * 60000));
+    // Use exact times if provided, otherwise calculate mock times from now
+    const endTime = exactEndTime ? new Date(exactEndTime) : now;
+    const startTime = exactStartTime ? new Date(exactStartTime) : new Date(endTime.getTime() - (durationMinutes * 60000));
 
     // Deduplication check: Check if this time overlaps with any existing time log
-    const overlappingLog = await TimeLog.findOne({
-      user: req.user._id,
-      $or: [
-        { startTime: { $lt: now, $gte: startTime } },
-        { endTime: { $gt: startTime, $lte: now } },
-        { startTime: { $lte: startTime }, endTime: { $gte: now } }
-      ]
-    });
-
-    if (overlappingLog) {
-      return res.status(400).json({
-        success: false,
-        message: 'This manual time log overlaps with an existing automatically captured session. Redundant logging rejected.'
+    if (!allowOverlap) {
+      const overlappingLog = await TimeLog.findOne({
+        user: req.user._id,
+        $or: [
+          { startTime: { $lt: endTime, $gte: startTime } },
+          { endTime: { $gt: startTime, $lte: endTime } },
+          { startTime: { $lte: startTime }, endTime: { $gte: endTime } }
+        ]
       });
+
+      if (overlappingLog) {
+        return res.status(400).json({
+          success: false,
+          message: 'This manual time log overlaps with an existing automatically captured session. Redundant logging rejected.'
+        });
+      }
     }
 
     const timeLog = await TimeLog.create({
@@ -123,7 +126,9 @@ exports.manualLog = async (req, res, next) => {
       activityType,
       description: description || 'Manual entry',
       startTime: startTime,
-      endTime: now,
+      endTime: endTime,
+      // If allowing overlap, we still record the log for attendance, but we might want to log 0 duration if we don't want to double count.
+      // But for simplicity, we just save the duration. The user can manage their logs if they double counted.
       durationMinutes: Number(durationMinutes)
     });
 

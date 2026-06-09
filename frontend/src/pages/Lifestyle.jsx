@@ -545,14 +545,26 @@ const RoutineTab = () => {
     setLoggingLecture(item.label);
     try {
       const duration = (item.endMinutes && item.minutes) ? (item.endMinutes - item.minutes) : 60;
+      
+      const now = new Date();
+      // Calculate start time based on the routine item's expected minutes from midnight today
+      const exactStartTime = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      exactStartTime.setMinutes(item.minutes);
+      
+      const exactEndTime = new Date(exactStartTime.getTime() + (duration * 60000));
+
       await api.tracker.manualLog({
         activityType: 'lecture',
         durationMinutes: duration,
-        description: item.label
+        description: item.label,
+        exactStartTime: exactStartTime.toISOString(),
+        exactEndTime: exactEndTime.toISOString(),
+        allowOverlap: true
       });
       setLoggedLectures(prev => new Set([...prev, item.label]));
     } catch (err) {
       console.error('Failed to log lecture:', err);
+      alert(err.message || 'Failed to mark lecture as attended.');
     } finally {
       setLoggingLecture(null);
     }
