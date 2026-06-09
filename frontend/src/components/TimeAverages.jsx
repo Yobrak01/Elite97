@@ -34,6 +34,7 @@ export const TimeAverages = () => {
     { key: 'personal_study', label: 'Personal Study', color: 'bg-blue-500', text: 'text-blue-400' },
     { key: 'group_discussion', label: 'Discussions', color: 'bg-orange-500', text: 'text-orange-400' },
     { key: 'lecture', label: 'Lectures', color: 'bg-purple-500', text: 'text-purple-400' },
+    { key: 'project', label: 'Projects', color: 'bg-indigo-500', text: 'text-indigo-400' },
     { key: 'gym', label: 'Physical Training', color: 'bg-green-500', text: 'text-green-400' },
     { key: 'rest', label: 'Rest / Sleep', color: 'bg-slate-500', text: 'text-slate-400' },
     { key: 'chore', label: 'Maintenance', color: 'bg-yellow-500', text: 'text-yellow-400' },
@@ -44,9 +45,14 @@ export const TimeAverages = () => {
     return (minutes / 60).toFixed(1);
   };
 
+  const getDailyAverage = (minutes, days) => {
+    if (!minutes) return '0.0';
+    return ((minutes / 60) / days).toFixed(1);
+  };
+
   const getStudyTotal = (periodData) => {
     if (!periodData) return 0;
-    return (periodData.personal_study || 0) + (periodData.group_discussion || 0) + (periodData.lecture || 0);
+    return (periodData.personal_study || 0) + (periodData.group_discussion || 0) + (periodData.lecture || 0) + (periodData.project || 0);
   };
 
   return (
@@ -70,12 +76,18 @@ export const TimeAverages = () => {
           {categories.map(cat => (
             <div key={cat.key} className="flex items-center justify-between">
               <span className={`text-xs font-bold uppercase tracking-wider ${cat.text}`}>{cat.label}</span>
-              <span className="text-lg font-black text-white">{formatHours(data.weekly[cat.key])}<span className="text-xs text-slate-500 ml-1">h</span></span>
+              <div className="text-right">
+                <span className="text-lg font-black text-white">{formatHours(data.weekly[cat.key])}<span className="text-xs text-slate-500 ml-1">h</span></span>
+                <span className={`text-[10px] font-bold ml-2 opacity-80 ${cat.text}`}>({getDailyAverage(data.weekly[cat.key], 7)}h/d)</span>
+              </div>
             </div>
           ))}
           <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
             <span className="text-xs font-black uppercase tracking-widest text-cyan-400">Total Study Time</span>
-            <span className="text-xl font-black text-cyan-400">{formatHours(getStudyTotal(data.weekly))}<span className="text-xs text-cyan-500/50 ml-1">h</span></span>
+            <div className="text-right">
+              <span className="text-xl font-black text-cyan-400">{formatHours(getStudyTotal(data.weekly))}<span className="text-xs text-cyan-500/50 ml-1">h</span></span>
+              <span className="text-xs font-bold text-cyan-400/80 ml-2">({getDailyAverage(getStudyTotal(data.weekly), 7)}h/d)</span>
+            </div>
           </div>
         </div>
 
@@ -87,12 +99,18 @@ export const TimeAverages = () => {
           {categories.map(cat => (
             <div key={cat.key} className="flex items-center justify-between">
               <span className={`text-xs font-bold uppercase tracking-wider ${cat.text}`}>{cat.label}</span>
-              <span className="text-lg font-black text-white">{formatHours(data.monthly[cat.key])}<span className="text-xs text-slate-500 ml-1">h</span></span>
+              <div className="text-right">
+                <span className="text-lg font-black text-white">{formatHours(data.monthly[cat.key])}<span className="text-xs text-slate-500 ml-1">h</span></span>
+                <span className={`text-[10px] font-bold ml-2 opacity-80 ${cat.text}`}>({getDailyAverage(data.monthly[cat.key], 30)}h/d)</span>
+              </div>
             </div>
           ))}
           <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
             <span className="text-xs font-black uppercase tracking-widest text-cyan-400">Total Study Time</span>
-            <span className="text-xl font-black text-cyan-400">{formatHours(getStudyTotal(data.monthly))}<span className="text-xs text-cyan-500/50 ml-1">h</span></span>
+            <div className="text-right">
+              <span className="text-xl font-black text-cyan-400">{formatHours(getStudyTotal(data.monthly))}<span className="text-xs text-cyan-500/50 ml-1">h</span></span>
+              <span className="text-xs font-bold text-cyan-400/80 ml-2">({getDailyAverage(getStudyTotal(data.monthly), 30)}h/d)</span>
+            </div>
           </div>
         </div>
 
@@ -104,12 +122,18 @@ export const TimeAverages = () => {
           {categories.map(cat => (
             <div key={cat.key} className="flex items-center justify-between">
               <span className={`text-xs font-bold uppercase tracking-wider ${cat.text}`}>{cat.label}</span>
-              <span className="text-lg font-black text-white">{formatHours(data.yearly[cat.key])}<span className="text-xs text-slate-500 ml-1">h</span></span>
+              <div className="text-right">
+                <span className="text-lg font-black text-white">{formatHours(data.yearly[cat.key])}<span className="text-xs text-slate-500 ml-1">h</span></span>
+                <span className={`text-[10px] font-bold ml-2 opacity-80 ${cat.text}`}>({getDailyAverage(data.yearly[cat.key], 365)}h/d)</span>
+              </div>
             </div>
           ))}
           <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between">
             <span className="text-xs font-black uppercase tracking-widest text-cyan-400">Total Study Time</span>
-            <span className="text-xl font-black text-cyan-400">{formatHours(getStudyTotal(data.yearly))}<span className="text-xs text-cyan-500/50 ml-1">h</span></span>
+            <div className="text-right">
+              <span className="text-xl font-black text-cyan-400">{formatHours(getStudyTotal(data.yearly))}<span className="text-xs text-cyan-500/50 ml-1">h</span></span>
+              <span className="text-xs font-bold text-cyan-400/80 ml-2">({getDailyAverage(getStudyTotal(data.yearly), 365)}h/d)</span>
+            </div>
           </div>
         </div>
       </div>
