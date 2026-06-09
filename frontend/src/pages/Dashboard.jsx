@@ -10,12 +10,13 @@ import FocusGauge from '../components/FocusGauge';
 import BurnoutIndicator from '../components/BurnoutIndicator';
 import StreakCounter from '../components/StreakCounter';
 import WeeklyChart from '../components/WeeklyChart';
+import StudyBreakdownChart from '../components/StudyBreakdownChart';
 import AIRecommendation from '../components/AIRecommendation';
 import CircadianAnchor from '../components/CircadianAnchor';
 import RuthlessOverseer from '../components/RuthlessOverseer';
 
 export const Dashboard = () => {
-  const { dashboardData, weeklyData, burnoutData, loading, error, refresh } = useAnalytics();
+  const { dashboardData, weeklyData, trackerWeekly, burnoutData, loading, error, refresh } = useAnalytics();
   const { tasks, stats: taskStats } = useTasks();
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -162,9 +163,9 @@ export const Dashboard = () => {
       {/* Grid of Stat Cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
-          title="Daily Study Logs"
+          title="Daily Total Logs"
           value={`${Number(dashboardData?.studyHours || 0).toFixed(1)} hrs`}
-          subtitle="Direct conceptual workload logged."
+          subtitle="Combined workload logged."
           icon={Clock}
           color="blue"
         />
@@ -195,7 +196,7 @@ export const Dashboard = () => {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Left Double-Width Dashboard Core elements */}
         <div className="lg:col-span-2 space-y-6">
-          <WeeklyChart data={weeklyData} targetHours={user?.settings?.dailyGoalHours || 6} />
+          <StudyBreakdownChart trackerWeekly={trackerWeekly} />
           
           <div className="grid gap-4 sm:grid-cols-2">
             <StreakCounter streak={dashboardData?.streak || 0} />

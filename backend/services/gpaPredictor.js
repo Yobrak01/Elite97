@@ -61,11 +61,15 @@ function calcTaskCompletionFactor(courseTasks) {
  * Factor 3: Study Hours Invested (±10 marks)
  * Compares actual study hours for this unit against a benchmark based on credits.
  * Benchmark: credits × 2 hours per week (e.g. 3-credit unit → 6 hrs/week expected)
+ * Weights: Personal Study (1.0x), Discussion (0.7x), Lecture (0.3x)
  */
-function calcStudyHoursFactor(unitStudyMinutes, credits, daysInWindow) {
+function calcStudyHoursFactor(personalStudyMinutes, lectureMinutes, discussionMinutes, credits, daysInWindow) {
   const weeksInWindow = Math.max(daysInWindow / 7, 1);
   const weeklyBenchmarkHours = credits * 2; // expected hrs/week
-  const actualWeeklyHours = (unitStudyMinutes / 60) / weeksInWindow;
+  
+  // Apply weighting
+  const effectiveMinutes = (personalStudyMinutes * 1.0) + (discussionMinutes * 0.7) + (lectureMinutes * 0.3);
+  const actualWeeklyHours = (effectiveMinutes / 60) / weeksInWindow;
   
   // ratio: 0 = no study, 1 = meeting benchmark, 2+ = exceeding
   const ratio = Math.min(actualWeeklyHours / Math.max(weeklyBenchmarkHours, 1), 2);
@@ -74,7 +78,7 @@ function calcStudyHoursFactor(unitStudyMinutes, credits, daysInWindow) {
   
   return { 
     score: Number(score.toFixed(1)), 
-    detail: `${actualWeeklyHours.toFixed(1)}/${weeklyBenchmarkHours}h per week` 
+    detail: `${actualWeeklyHours.toFixed(1)}/${weeklyBenchmarkHours} effective hrs/week` 
   };
 }
 
@@ -247,7 +251,9 @@ function calcBurnoutFactor(avgBurnoutRisk) {
  */
 function predictCourseMarkV2(course, courseTasks, context = {}) {
   const {
-    unitStudyMinutes = 0,
+    personalStudyMinutes = 0,
+    lectureMinutes = 0,
+    discussionMinutes = 0,
     daysInWindow = 14,
     avgFocusScore = null,
     streak = 0,
@@ -279,7 +285,7 @@ function predictCourseMarkV2(course, courseTasks, context = {}) {
   // Factors 2-10
   const factors = {
     taskCompletion: calcTaskCompletionFactor(courseTasks),
-    studyHours: calcStudyHoursFactor(unitStudyMinutes, course.credits || 3, daysInWindow),
+    studyHours: calcStudyHoursFactor(personalStudyMinutes, lectureMinutes, discussionMinutes, course.credits || 3, daysInWindow),
     topicsCoverage: calcTopicsCoverageFactor(course),
     focusQuality: calcFocusQualityFactor(avgFocusScore),
     consistency: calcConsistencyFactor(streak, daysSinceLastStudy),

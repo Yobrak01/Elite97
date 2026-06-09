@@ -369,11 +369,11 @@ exports.getGpaPrediction = async (req, res, next) => {
       ).length;
     }
 
-    // ── Sum study minutes per unit from TimeLogs ──
-    function getUnitStudyMinutes(unitCode) {
+    // ── Sum study minutes per unit by activity type from TimeLogs ──
+    function getUnitMinutesByType(unitCode, activityType) {
       return timeLogs
         .filter(log =>
-          (log.activityType === 'personal_study' || log.activityType === 'lecture') &&
+          log.activityType === activityType &&
           log.description &&
           log.description.toUpperCase().includes(unitCode.toUpperCase())
         )
@@ -385,7 +385,9 @@ exports.getGpaPrediction = async (req, res, next) => {
     const contextMap = {};
     courseUnits.forEach(course => {
       contextMap[course.unitCode] = {
-        unitStudyMinutes: getUnitStudyMinutes(course.unitCode),
+        personalStudyMinutes: getUnitMinutesByType(course.unitCode, 'personal_study'),
+        lectureMinutes: getUnitMinutesByType(course.unitCode, 'lecture'),
+        discussionMinutes: getUnitMinutesByType(course.unitCode, 'group_discussion'),
         daysInWindow,
         avgFocusScore,
         streak,
