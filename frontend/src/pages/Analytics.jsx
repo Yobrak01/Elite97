@@ -16,6 +16,13 @@ export const Analytics = () => {
   const { user, updateUser } = useContext(AuthContext);
   const [candidatesCount, setCandidatesCount] = useState(user?.majorCandidatesCount || 100);
   const [updatingCandidates, setUpdatingCandidates] = useState(false);
+  const [benchmarkUni, setBenchmarkUni] = useState(user?.benchmarkUniversity || 'MIT');
+
+  useEffect(() => {
+    if (user?.benchmarkUniversity) {
+      setBenchmarkUni(user.benchmarkUniversity);
+    }
+  }, [user?.benchmarkUniversity]);
 
   useEffect(() => {
     if (user?.majorCandidatesCount) {
@@ -24,11 +31,13 @@ export const Analytics = () => {
   }, [user?.majorCandidatesCount]);
 
   const handleUpdateBenchmark = async (uni) => {
+    setBenchmarkUni(uni);
     try {
       const res = await api.auth.updateSettings({ benchmarkUniversity: uni });
       updateUser(res.user);
     } catch (err) {
       console.error(err);
+      if (user?.benchmarkUniversity) setBenchmarkUni(user.benchmarkUniversity);
     }
   };
 
@@ -632,7 +641,7 @@ export const Analytics = () => {
             <Globe className="h-5 w-5 text-cyan-400" />
             <h3 className="text-xs font-black uppercase tracking-wider text-white">
               <select 
-                value={user?.benchmarkUniversity || 'MIT'}
+                value={benchmarkUni}
                 onChange={(e) => handleUpdateBenchmark(e.target.value)}
                 className="bg-transparent border-b border-white/20 focus:outline-none focus:border-cyan-400 cursor-pointer pr-1 appearance-none"
               >

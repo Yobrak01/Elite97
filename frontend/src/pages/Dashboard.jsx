@@ -106,7 +106,7 @@ export const Dashboard = () => {
       {/* Top Header Row */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">SYSTEM DASHBOARD</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">ELITE DASHBOARD</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
             Student node: <span className="text-cyan-400 font-black">ACTIVE</span> • Operations: <span className="text-blue-400 font-black">NOMINAL</span>
           </p>
