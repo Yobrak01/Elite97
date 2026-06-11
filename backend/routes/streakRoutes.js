@@ -7,7 +7,7 @@ const {
 } = require('../controllers/streakController');
 
 const router = express.Router();
-const { protect } = require('../middleware/auth');
+const protect = require('../middleware/auth');
 
 router.use(protect);
 
