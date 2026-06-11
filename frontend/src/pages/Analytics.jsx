@@ -692,7 +692,7 @@ export const Analytics = () => {
               {oracleData.verdict || "Calculating Trajectory..."}
             </p>
             <p className="text-sm font-bold uppercase tracking-widest text-slate-400 mt-2">
-              Projected Final Rank: <span className="text-white">#{oracleData.projectedRank || "?"}</span>
+              Projected Final Rank: <span className="text-white">#{oracleData?.projections?.rank || "?"}</span>
             </p>
           </div>
         </div>
