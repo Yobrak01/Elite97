@@ -113,8 +113,11 @@ export const Streaks = () => {
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {streaks.map(streak => (
-            <div key={streak.id} className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-orange-500/30 hover:shadow-[0_0_40px_rgba(249,115,22,0.15)] transition-all duration-500 space-y-5 relative group overflow-hidden flex flex-col">
+          {streaks.map(streak => {
+            const isCompletedToday = streak.lastCompletedDate && new Date(streak.lastCompletedDate).toDateString() === new Date().toDateString();
+            const currentStreak = streak.currentStreak || 0;
+            return (
+            <div key={streak._id} className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-orange-500/30 hover:shadow-[0_0_40px_rgba(249,115,22,0.15)] transition-all duration-500 space-y-5 relative group overflow-hidden flex flex-col">
               <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl group-hover:bg-orange-500/20 transition-all duration-700"></div>
               
               <div className="flex justify-between items-start z-10 relative">
@@ -123,12 +126,12 @@ export const Streaks = () => {
                   <div className="flex items-center gap-2 mt-2">
                     <Flame className="h-4 w-4 text-orange-400" />
                     <span className="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-red-500">
-                      {streak.count} Day{streak.count !== 1 ? 's' : ''}
+                      {currentStreak} Day{currentStreak !== 1 ? 's' : ''}
                     </span>
                   </div>
                 </div>
                 <button
-                  onClick={() => handleDelete(streak.id)}
+                  onClick={() => handleDelete(streak._id)}
                   className="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-400/10 transition-colors"
                   title="Terminate Vector"
                 >
@@ -137,14 +140,14 @@ export const Streaks = () => {
               </div>
 
               <div className="mt-auto pt-4 border-t border-white/5 z-10 relative">
-                {streak.completedToday ? (
+                {isCompletedToday ? (
                   <div className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-bold uppercase tracking-widest">
                     <Check className="h-4 w-4" />
                     Verified Today
                   </div>
                 ) : (
                   <button
-                    onClick={() => handleComplete(streak.id)}
+                    onClick={() => handleComplete(streak._id)}
                     className="w-full flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-orange-500/20 border border-white/10 hover:border-orange-500/50 rounded-xl text-white hover:text-orange-400 text-xs font-bold uppercase tracking-widest transition-all"
                   >
                     <Check className="h-4 w-4" />
@@ -153,7 +156,7 @@ export const Streaks = () => {
                 )}
               </div>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </div>
