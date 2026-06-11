@@ -24,7 +24,8 @@ const formatUserResponse = (user) => ({
   studyGauge: user.studyGauge,
   semesterSchedule: user.semesterSchedule,
   pastResults: user.pastResults,
-  benchmarkUniversity: user.benchmarkUniversity
+  benchmarkUniversity: user.benchmarkUniversity,
+  timezone: user.timezone
 });
 
 exports.register = async (req, res, next) => {
@@ -94,7 +95,7 @@ exports.getMe = async (req, res, next) => {
 
 exports.updateSettings = async (req, res, next) => {
   try {
-    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode, country, university, major, semesterSchedule, majorCandidatesCount, benchmarkUniversity } = req.body;
+    const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode, country, university, major, semesterSchedule, majorCandidatesCount, benchmarkUniversity, timezone } = req.body;
     
     if (settings) req.user.settings = { ...req.user.settings, ...settings };
     if (pantry) req.user.pantry = { ...req.user.pantry, ...pantry };
@@ -112,6 +113,7 @@ exports.updateSettings = async (req, res, next) => {
     if (major !== undefined) req.user.major = major;
     if (majorCandidatesCount !== undefined) req.user.majorCandidatesCount = majorCandidatesCount;
     if (benchmarkUniversity !== undefined) req.user.benchmarkUniversity = benchmarkUniversity;
+    if (timezone !== undefined) req.user.timezone = timezone;
     if (currentSemester !== undefined) req.user.currentSemester = currentSemester;
     if (timetable !== undefined) req.user.timetable = timetable;
     if (pastResults !== undefined) req.user.pastResults = pastResults;

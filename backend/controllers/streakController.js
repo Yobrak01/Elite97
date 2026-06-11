@@ -30,23 +30,25 @@ exports.completeStreakToday = async (req, res, next) => {
     const streak = await Streak.findOne({ _id: req.params.id, user: req.user._id });
     if (!streak) return res.status(404).json({ success: false, message: 'Streak not found' });
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const userTimezone = req.user.timezone || 'UTC';
+    const getLocalDateString = (dateObj) => {
+      try {
+        return new Intl.DateTimeFormat('en-CA', { timeZone: userTimezone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(dateObj);
+      } catch (e) {
+        return new Intl.DateTimeFormat('en-CA', { timeZone: 'UTC', year: 'numeric', month: '2-digit', day: '2-digit' }).format(dateObj);
+      }
+    };
 
-    let lastCompleted = null;
-    if (streak.lastCompletedDate) {
-      lastCompleted = new Date(streak.lastCompletedDate);
-      lastCompleted.setHours(0, 0, 0, 0);
-    }
+    const todayStr = getLocalDateString(new Date());
+    const lastCompletedStr = streak.lastCompletedDate ? getLocalDateString(new Date(streak.lastCompletedDate)) : null;
 
-    if (lastCompleted && lastCompleted.getTime() === today.getTime()) {
+    if (lastCompletedStr === todayStr) {
       return res.status(400).json({ success: false, message: 'Streak already completed today' });
     }
 
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = getLocalDateString(new Date(Date.now() - 86400000));
 
-    if (lastCompleted && lastCompleted.getTime() === yesterday.getTime()) {
+    if (lastCompletedStr === yesterdayStr) {
       streak.currentStreak += 1;
     } else {
       streak.currentStreak = 1;

@@ -14,6 +14,17 @@ export const AuthProvider = ({ children }) => {
         try {
           const res = await api.auth.getMe();
           setUser(res.user);
+          
+          // Sync timezone if it has changed
+          const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          if (res.user && res.user.timezone !== localTimezone) {
+            try {
+              const syncRes = await api.auth.updateSettings({ timezone: localTimezone });
+              setUser(syncRes.user);
+            } catch (syncErr) {
+              console.error('Failed to sync timezone', syncErr);
+            }
+          }
         } catch (err) {
           console.error('Failed to load profile', err);
           logout();

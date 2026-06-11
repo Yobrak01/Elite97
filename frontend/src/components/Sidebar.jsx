@@ -18,6 +18,8 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
     { name: 'Neural Vault', path: '/vault', icon: Brain },
     { name: 'Lifestyle', path: '/lifestyle', icon: Dumbbell },
     { name: 'Streaks', path: '/streaks', icon: Flame },
+    { name: 'Notes', path: '/notes', icon: BookOpen },
+    { name: 'Cognitive Profile', path: '/weakness', icon: Activity },
     { name: 'Settings', path: '/settings', icon: Sliders },
   ];
 

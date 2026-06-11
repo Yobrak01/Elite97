@@ -573,6 +573,53 @@ export const api = {
       });
       return handleResponse(res);
     }
+  },
+  notes: {
+    getAll: async () => {
+      const res = await fetch(`${API_URL}/notes`, { headers: getHeaders() });
+      return handleResponse(res);
+    },
+    getById: async (id) => {
+      const res = await fetch(`${API_URL}/notes/${id}`, { headers: getHeaders() });
+      return handleResponse(res);
+    },
+    create: async (data) => {
+      const res = await fetch(`${API_URL}/notes`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    },
+    update: async (id, data) => {
+      const res = await fetch(`${API_URL}/notes/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    },
+    delete: async (id) => {
+      const res = await fetch(`${API_URL}/notes/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    }
+  },
+  weakness: {
+    getAll: async () => {
+      const res = await fetch(`${API_URL}/weakness`, { headers: getHeaders() });
+      return handleResponse(res);
+    },
+    log: async (data) => {
+      const res = await fetch(`${API_URL}/weakness`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    }
   }
 };
 export default api;

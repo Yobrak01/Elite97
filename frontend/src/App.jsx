@@ -18,6 +18,8 @@ import HierarchyMatrix from './pages/HierarchyMatrix';
 import PredictiveOracle from './pages/PredictiveOracle';
 import { NeuralVault } from './pages/NeuralVault';
 import Streaks from './pages/Streaks';
+import Notes from './pages/Notes';
+import CognitiveWeakness from './pages/CognitiveWeakness';
 
 export const App = () => {
   return (
@@ -47,6 +49,8 @@ export const App = () => {
             <Route path="/oracle" element={<PredictiveOracle />} />
             <Route path="/vault" element={<NeuralVault />} />
             <Route path="/streaks" element={<Streaks />} />
+            <Route path="/notes" element={<Notes />} />
+            <Route path="/weakness" element={<CognitiveWeakness />} />
           </Route>
         </Route>
 

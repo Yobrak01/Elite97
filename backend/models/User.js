@@ -75,6 +75,10 @@ const UserSchema = new mongoose.Schema({
     type: String,
     default: 'MIT'
   },
+  timezone: {
+    type: String,
+    default: 'UTC'
+  },
   course: {
     type: String
   },
