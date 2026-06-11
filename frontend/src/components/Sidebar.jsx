@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, BarChart3, CheckSquare, Calendar, Sliders, X, Flame, BookOpen, Dumbbell, Globe, Eye, Brain } from 'lucide-react';
+import { LayoutDashboard, BarChart3, CheckSquare, Calendar, Sliders, X, Flame, BookOpen, Dumbbell, Globe, Eye, Brain, Activity } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 
 export const Sidebar = ({ isOpen, setIsOpen }) => {
