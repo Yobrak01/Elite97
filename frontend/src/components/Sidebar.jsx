@@ -17,6 +17,7 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
     { name: 'The Oracle', path: '/oracle', icon: Eye },
     { name: 'Neural Vault', path: '/vault', icon: Brain },
     { name: 'Lifestyle', path: '/lifestyle', icon: Dumbbell },
+    { name: 'Streaks', path: '/streaks', icon: Flame },
     { name: 'Settings', path: '/settings', icon: Sliders },
   ];
 

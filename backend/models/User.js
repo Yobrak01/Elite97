@@ -15,6 +15,10 @@ const UserSchema = new mongoose.Schema({
     trim: true,
     match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please add a valid email']
   },
+  majorCandidatesCount: {
+    type: Number,
+    default: 100 // Default to 100 to avoid division by zero or missing data
+  },
   password: {
     type: String,
     required: [true, 'Please add a password'],

@@ -1,5 +1,6 @@
 // oracleEngine.js
 const { calculateHonoursScore, getClassification } = require('./gpaPredictor');
+const { GoogleGenAI } = require('@google/genai');
 
 /**
  * Calculates a trajectory vector based on the last N days of data.
@@ -199,6 +200,50 @@ function runOracle(user, recentAnalytics, currentRank, predictedSemesterMark) {
   };
 }
 
+async function runGeminiOracle(user, recentAnalytics, currentRank, predictedSemesterMark) {
+  const baseResult = runOracle(user, recentAnalytics, currentRank, predictedSemesterMark);
+  
+  if (!process.env.GEMINI_API_KEY) {
+    console.warn("GEMINI_API_KEY not set. Using local Oracle.");
+    return baseResult;
+  }
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const prompt = `You are the Elite97 System Oracle, a highly advanced AI academic analyst.
+Analyze the following student data and provide a concise, ruthless, and precise "Class Position Projection" and "Verdict".
+Student Data:
+- Major Candidates Count: ${user.majorCandidatesCount || 100}
+- Current Computed Semester Mark: ${predictedSemesterMark}
+- Historical Focus Trajectory Vector: ${baseResult.trajectoryVector}
+- Days Remaining in Semester: ${baseResult.timeline.daysRemaining}
+
+Return ONLY a JSON object with this exact structure, nothing else:
+{
+  "projectedRank": <number between 1 and MajorCandidatesCount>,
+  "verdict": "<A harsh, 3-sentence prediction on their fate. If they are failing, tell them they are bleeding momentum. If they are succeeding, tell them to maintain dominance.>"
+}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: prompt,
+    });
+    
+    let text = response.text;
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const aiData = JSON.parse(text);
+
+    baseResult.projections.rank = aiData.projectedRank;
+    baseResult.verdict = aiData.verdict;
+    baseResult.aiEnhanced = true;
+
+  } catch (error) {
+    console.error("Gemini Oracle Error:", error.message);
+  }
+
+  return baseResult;
+}
+
 module.exports = {
-  runOracle
+  runOracle: runGeminiOracle
 };

@@ -17,6 +17,7 @@ import NeuralOverride from './pages/NeuralOverride';
 import HierarchyMatrix from './pages/HierarchyMatrix';
 import PredictiveOracle from './pages/PredictiveOracle';
 import { NeuralVault } from './pages/NeuralVault';
+import Streaks from './pages/Streaks';
 
 export const App = () => {
   return (
@@ -45,6 +46,7 @@ export const App = () => {
             <Route path="/hierarchy" element={<HierarchyMatrix />} />
             <Route path="/oracle" element={<PredictiveOracle />} />
             <Route path="/vault" element={<NeuralVault />} />
+            <Route path="/streaks" element={<Streaks />} />
           </Route>
         </Route>
 

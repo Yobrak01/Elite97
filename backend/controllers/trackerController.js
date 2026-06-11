@@ -101,6 +101,13 @@ exports.manualLog = async (req, res, next) => {
     const endTime = exactEndTime ? new Date(exactEndTime) : now;
     const startTime = exactStartTime ? new Date(exactStartTime) : new Date(endTime.getTime() - (durationMinutes * 60000));
 
+    if (activityType === 'lecture' && endTime > now) {
+      return res.status(400).json({
+        success: false,
+        message: 'Lecture has not ended yet. You cannot mark it as attended before the scheduled end time.'
+      });
+    }
+
     // Deduplication check: Check if this time overlaps with any existing time log
     if (!allowOverlap) {
       const overlappingLog = await TimeLog.findOne({

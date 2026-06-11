@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, Legend, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
-import { Calendar, BarChart3, TrendingUp, Cpu, Target, Award, GraduationCap, Globe, Compass, Zap, Activity } from 'lucide-react';
+import { Calendar, BarChart3, TrendingUp, Cpu, Target, Award, GraduationCap, Globe, Compass, Zap, Activity, Eye } from 'lucide-react';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import WeeklyBriefing from '../components/WeeklyBriefing';
@@ -12,7 +12,33 @@ export const Analytics = () => {
   const [loading, setLoading] = useState(true);
   const [gpaData, setGpaData] = useState(null);
   const [mitRanking, setMitRanking] = useState(null);
+  const [oracleData, setOracleData] = useState(null);
   const { user } = useContext(AuthContext);
+  const [candidatesCount, setCandidatesCount] = useState(user?.majorCandidatesCount || 100);
+  const [updatingCandidates, setUpdatingCandidates] = useState(false);
+
+  useEffect(() => {
+    if (user?.majorCandidatesCount) {
+      setCandidatesCount(user.majorCandidatesCount);
+    }
+  }, [user?.majorCandidatesCount]);
+
+  const handleUpdateCandidates = async () => {
+    if (!candidatesCount || isNaN(candidatesCount)) return;
+    setUpdatingCandidates(true);
+    try {
+      await api.auth.updateSettings({ majorCandidatesCount: Number(candidatesCount) });
+      const res = await api.analytics.getOracleData();
+      setOracleData(res.data);
+      const mitRes = await api.analytics.getMitRanking();
+      setMitRanking(mitRes.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setUpdatingCandidates(false);
+    }
+  };
+
 
   useEffect(() => {
     const fetchTrends = async () => {
@@ -46,6 +72,16 @@ export const Analytics = () => {
       }
     };
     fetchMitRanking();
+
+    const fetchOracleData = async () => {
+      try {
+        const res = await api.analytics.getOracleData();
+        setOracleData(res.data);
+      } catch (err) {
+        console.error('Oracle fetch error:', err);
+      }
+    };
+    fetchOracleData();
   }, []);
 
   useEffect(() => {
@@ -518,9 +554,20 @@ export const Analytics = () => {
               {/* Rank Display */}
               <div className="text-center py-2">
                 <p className="text-5xl font-black text-white">
-                  <span className="text-2xl text-cyan-400">#</span>{Math.max(1, Math.round(100 - (mitRanking.mitRankPercentile || 0)))}
+                  <span className="text-2xl text-cyan-400">#</span>{Math.max(1, Math.round(((100 - (mitRanking.mitRankPercentile || 0)) / 100) * candidatesCount))}
                 </p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Out of 100 Students</p>
+                <div className="flex items-center justify-center mt-2 gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Out of</span>
+                  <input
+                    type="number"
+                    value={candidatesCount}
+                    onChange={(e) => setCandidatesCount(e.target.value)}
+                    onBlur={handleUpdateCandidates}
+                    className="w-16 bg-navy-950/50 border border-white/10 rounded px-2 py-1 text-white text-xs text-center focus:outline-none focus:border-cyan-500/50"
+                  />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Candidates</span>
+                  {updatingCandidates && <span className="text-xs text-cyan-400 animate-pulse">...</span>}
+                </div>
               </div>
 
               {/* Gradient Progress Bar */}
@@ -629,6 +676,27 @@ export const Analytics = () => {
           )}
         </div>
       </div>
+
+      {/* Oracle Prediction Card */}
+      {oracleData && (
+        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-purple-500/30 transition-all duration-500 space-y-5 relative overflow-hidden group mt-6">
+          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
+            <Eye className="w-40 h-40 text-purple-400" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Eye className="h-5 w-5 text-purple-400 animate-pulse" />
+            <h3 className="text-xs font-black uppercase tracking-wider text-white">The Oracle's Verdict</h3>
+          </div>
+          <div className="text-center py-4">
+            <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">
+              {oracleData.verdict || "Calculating Trajectory..."}
+            </p>
+            <p className="text-sm font-bold uppercase tracking-widest text-slate-400 mt-2">
+              Projected Final Rank: <span className="text-white">#{oracleData.projectedRank || "?"}</span>
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Detailed Unit Projections — V2 10-Factor Engine */}
       {gpaData?.courseBreakdown && gpaData.courseBreakdown.length > 0 && (() => {

@@ -856,7 +856,7 @@ exports.getOracleProjections = async (req, res, next) => {
 
     const currentRank = req.user.mitRankPercentile || 50;
 
-    const oracleData = oracleEngine.runOracle(req.user, recentAnalytics, currentRank, predictedSemesterMark);
+    const oracleData = await oracleEngine.runOracle(req.user, recentAnalytics, currentRank, predictedSemesterMark);
 
     res.status(200).json({
       success: true,
