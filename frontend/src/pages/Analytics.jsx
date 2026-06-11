@@ -13,7 +13,7 @@ export const Analytics = () => {
   const [gpaData, setGpaData] = useState(null);
   const [mitRanking, setMitRanking] = useState(null);
   const [oracleData, setOracleData] = useState(null);
-  const { user } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
   const [candidatesCount, setCandidatesCount] = useState(user?.majorCandidatesCount || 100);
   const [updatingCandidates, setUpdatingCandidates] = useState(false);
 
@@ -23,11 +23,21 @@ export const Analytics = () => {
     }
   }, [user?.majorCandidatesCount]);
 
+  const handleUpdateBenchmark = async (uni) => {
+    try {
+      const res = await api.auth.updateSettings({ benchmarkUniversity: uni });
+      updateUser(res.user);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleUpdateCandidates = async () => {
     if (!candidatesCount || isNaN(candidatesCount)) return;
     setUpdatingCandidates(true);
     try {
-      await api.auth.updateSettings({ majorCandidatesCount: Number(candidatesCount) });
+      const authRes = await api.auth.updateSettings({ majorCandidatesCount: Number(candidatesCount) });
+      updateUser(authRes.user);
       const res = await api.analytics.getOracleData();
       setOracleData(res.data);
       const mitRes = await api.analytics.getMitRanking();
@@ -546,7 +556,7 @@ export const Analytics = () => {
           </div>
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">DeKUT Civil Eng. Rank</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider text-white">{user?.university || 'University'} {user?.major || ''} Rank</h3>
           </div>
 
           {mitRanking ? (
@@ -620,7 +630,18 @@ export const Analytics = () => {
           </div>
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">MIT Global Ranking</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider text-white">
+              <select 
+                value={user?.benchmarkUniversity || 'MIT'}
+                onChange={(e) => handleUpdateBenchmark(e.target.value)}
+                className="bg-transparent border-b border-white/20 focus:outline-none focus:border-cyan-400 cursor-pointer pr-1 appearance-none"
+              >
+                {['MIT', 'Harvard', 'Stanford', 'Oxford', 'Cambridge', 'Caltech', 'Imperial College', 'ETH Zurich', 'UCL', 'Chicago'].map(uni => (
+                  <option key={uni} value={uni} className="bg-navy-900 text-white">{uni}</option>
+                ))}
+              </select>
+              {' '}Global Ranking
+            </h3>
           </div>
 
           {mitRanking ? (

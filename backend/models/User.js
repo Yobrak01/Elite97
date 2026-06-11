@@ -71,6 +71,10 @@ const UserSchema = new mongoose.Schema({
   major: {
     type: String
   },
+  benchmarkUniversity: {
+    type: String,
+    default: 'MIT'
+  },
   course: {
     type: String
   },
