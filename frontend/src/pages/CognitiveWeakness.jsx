@@ -149,7 +149,7 @@ export const CognitiveWeakness = () => {
         {/* Analytics Area */}
         <div className="lg:col-span-2 space-y-6">
           {/* Summary Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
             {WEAKNESSES.map(w => {
               const count = stats[w.id] || 0;
               return (
@@ -184,8 +184,8 @@ export const CognitiveWeakness = () => {
                       <div className={`p-3 rounded-lg ${weakInfo.bg} border ${weakInfo.border} shrink-0`}>
                         <weakInfo.icon className={`w-5 h-5 ${weakInfo.color}`} />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
+                        <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-sm font-black text-white">{log.weaknessType}</h4>
                           <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Intensity: {log.intensity}/10</span>
                         </div>

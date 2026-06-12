@@ -43,13 +43,23 @@ const limiter = rateLimit({
   max: 200, // Limit each IP to 200 requests per window
   message: { message: 'Too many requests, please try again later.' }
 });
+
+// Stricter rate limiter for authentication routes
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // Only 10 login/register attempts per 15 minutes
+  message: { message: 'Too many authentication attempts, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
 app.use('/api', limiter);
 
 // Request Parsing
 app.use(express.json({ limit: '10mb' }));
 
 // Mount Routes
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/sessions', sessionRoutes);
 app.use('/api/schedule', scheduleRoutes);

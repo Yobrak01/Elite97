@@ -94,10 +94,10 @@ export const Notes = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col md:flex-row gap-6 animate-fade-in">
+    <div className="h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-6 animate-fade-in">
       
       {/* Sidebar List */}
-      <div className="w-full md:w-1/3 flex flex-col gap-4">
+      <div className="w-full lg:w-1/3 flex flex-col gap-4 max-h-[40vh] lg:max-h-none">
         <div className="flex items-center justify-between glass-panel p-4 rounded-2xl border border-white/10">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-cyan-400" />

@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useMemo, useCallback } from 'react';
 import api from '../services/api';
 
 export const AuthContext = createContext();
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     fetchUser();
   }, [token]);
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     setLoading(true);
     try {
       const res = await api.auth.login(email, password);
@@ -49,9 +49,9 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const register = async (name, email, password, country, university, major, yearOfStudy, currentSemester) => {
+  const register = useCallback(async (name, email, password, country, university, major, yearOfStudy, currentSemester) => {
     setLoading(true);
     try {
       const res = await api.auth.register(name, email, password, country, university, major, yearOfStudy, currentSemester);
@@ -64,23 +64,27 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     localStorage.removeItem('elite97_token');
     setToken(null);
     setUser(null);
-  };
+  }, []);
 
-  const updateUser = (updatedUser) => {
+  const updateUser = useCallback((updatedUser) => {
     setUser(updatedUser);
-  };
+  }, []);
+
+  // Memoize the context value to prevent unnecessary re-renders in consumers
+  const value = useMemo(() => ({
+    user, token, loading, login, register, logout, updateUser
+  }), [user, token, loading, login, register, logout, updateUser]);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, updateUser }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
 };
 export default AuthContext;
-

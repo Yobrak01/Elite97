@@ -2,8 +2,21 @@ const Streak = require('../models/Streak');
 
 exports.getStreaks = async (req, res, next) => {
   try {
-    const streaks = await Streak.find({ user: req.user._id }).sort({ createdAt: -1 });
-    res.status(200).json({ success: true, data: streaks });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 50;
+    const skip = (page - 1) * limit;
+
+    const total = await Streak.countDocuments({ user: req.user._id });
+    const streaks = await Streak.find({ user: req.user._id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      data: streaks,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
   } catch (error) {
     next(error);
   }

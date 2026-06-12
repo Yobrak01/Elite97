@@ -8,10 +8,15 @@ const {
 
 const router = express.Router();
 const protect = require('../middleware/auth');
+const validate = require('../middleware/validate');
+
+const createStreakSchema = {
+  title: { type: 'string', required: true, min: 1, max: 200 }
+};
 
 router.route('/')
   .get(protect, getStreaks)
-  .post(protect, createStreak);
+  .post(protect, validate(createStreakSchema), createStreak);
 
 router.route('/:id/complete')
   .patch(protect, completeStreakToday);

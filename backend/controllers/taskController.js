@@ -4,28 +4,37 @@ const mongoose = require('mongoose');
 
 exports.getTasks = async (req, res, next) => {
   try {
-    const { status, type, priority } = req.query;
+    const { status, type, priority, page: pageStr, limit: limitStr } = req.query;
+    const page = parseInt(pageStr) || 1;
+    const limit = parseInt(limitStr) || 100;
+    const skip = (page - 1) * limit;
     const query = { user: req.user._id };
 
     if (status) query.status = status;
     if (type) query.type = type;
     if (priority) query.priority = Number(priority);
 
-    let tasks = await Task.find(query).sort({ priority: -1, deadline: 1 });
-
+    // Auto-escalate overdue tasks
     const endOfToday = new Date();
     endOfToday.setHours(23, 59, 59, 999);
     
-    const updateResult = await Task.updateMany(
+    await Task.updateMany(
       { user: req.user._id, status: { $ne: 'completed' }, deadline: { $lte: endOfToday }, priority: { $lt: 5 } },
       { $set: { priority: 5, aiSuggestedTier: 'tier1_critical' } }
     );
 
-    if (updateResult.modifiedCount > 0) {
-      tasks = await Task.find(query).sort({ priority: -1, deadline: 1 });
-    }
+    const total = await Task.countDocuments(query);
+    const tasks = await Task.find(query)
+      .sort({ priority: -1, deadline: 1 })
+      .skip(skip)
+      .limit(limit);
 
-    res.status(200).json({ success: true, count: tasks.length, data: tasks });
+    res.status(200).json({
+      success: true,
+      count: tasks.length,
+      data: tasks,
+      pagination: { page, limit, total, pages: Math.ceil(total / limit) }
+    });
   } catch (error) {
     next(error);
   }
