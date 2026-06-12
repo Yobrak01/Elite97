@@ -9,16 +9,14 @@ const {
 const router = express.Router();
 const protect = require('../middleware/auth');
 
-router.use(protect);
-
 router.route('/')
-  .get(getStreaks)
-  .post(createStreak);
+  .get(protect, getStreaks)
+  .post(protect, createStreak);
 
 router.route('/:id/complete')
-  .patch(completeStreakToday);
+  .patch(protect, completeStreakToday);
 
 router.route('/:id')
-  .delete(deleteStreak);
+  .delete(protect, deleteStreak);
 
 module.exports = router;
