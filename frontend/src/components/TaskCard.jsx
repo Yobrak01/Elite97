@@ -50,6 +50,12 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
             <span className={`rounded-lg border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${getTypeClasses(task.type)}`}>
               {task.type}
             </span>
+            {task.courseUnit && (
+              <span className="flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border-cyan-500/20">
+                <BookOpen className="h-3 w-3" />
+                {task.courseUnit.unitCode}
+              </span>
+            )}
           </div>
         </div>
 

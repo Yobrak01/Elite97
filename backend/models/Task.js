@@ -11,6 +11,10 @@ const TaskSchema = new mongoose.Schema({
     required: [true, 'Please add a title'],
     trim: true
   },
+  courseUnit: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'CourseUnit'
+  },
   description: {
     type: String
   },

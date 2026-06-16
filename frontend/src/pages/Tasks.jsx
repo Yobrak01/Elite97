@@ -41,6 +41,7 @@ export const Tasks = () => {
     setEstimatedHours(task.estimatedHours.toString());
     setType(task.type);
     setDeadline(task.deadline ? task.deadline.split('T')[0] : '');
+    setSelectedCourse(task.courseUnit?._id || task.courseUnit || '');
     setEditingId(task._id);
     setModalOpen(true);
   };
@@ -62,9 +63,6 @@ export const Tasks = () => {
     setSubmitting(true);
     
     let finalDesc = description;
-    if (selectedCourse && !description.includes(selectedCourse)) {
-      finalDesc = finalDesc ? `${description}\n\n[Unit: ${selectedCourse}]` : `[Unit: ${selectedCourse}]`;
-    }
 
     try {
       if (editingId) {
@@ -74,7 +72,8 @@ export const Tasks = () => {
           priority: Number(priority),
           estimatedHours: Number(estimatedHours),
           type,
-          deadline: deadline || undefined
+          deadline: deadline || undefined,
+          courseUnit: selectedCourse || undefined
         });
       } else {
         await createTask({
@@ -83,7 +82,8 @@ export const Tasks = () => {
           priority: Number(priority),
           estimatedHours: Number(estimatedHours),
           type,
-          deadline: deadline || undefined
+          deadline: deadline || undefined,
+          courseUnit: selectedCourse || undefined
         });
       }
       setModalOpen(false);
@@ -317,7 +317,7 @@ export const Tasks = () => {
                   >
                     <option value="">-- No specific unit --</option>
                     {courses.map(c => (
-                      <option key={c._id} value={c.unitCode}>{c.unitCode} - {c.unitName}</option>
+                      <option key={c._id} value={c._id}>{c.unitCode} - {c.unitName}</option>
                     ))}
                   </select>
                 </div>

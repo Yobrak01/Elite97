@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, User, Award, Loader2, Eye, EyeOff, Globe, BookOpen, GraduationCap, ChevronRight, ChevronLeft } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
+import { COUNTRIES } from '../utils/countries';
 
 const MAJORS = [
   "Accounting", "Aerospace Engineering", "Agriculture", "Architecture", 
@@ -45,19 +46,9 @@ export const Register = () => {
     if (token) navigate('/', { replace: true });
   }, [token, navigate]);
 
-  // Fetch countries on mount
+  // Load hardcoded countries on mount
   useEffect(() => {
-    const fetchCountries = async () => {
-      try {
-        const res = await fetch('https://restcountries.com/v3.1/all?fields=name');
-        const data = await res.json();
-        const sorted = data.map(c => c.name.common).sort();
-        setCountries(sorted);
-      } catch (err) {
-        console.error("Failed to fetch countries", err);
-      }
-    };
-    fetchCountries();
+    setCountries(COUNTRIES);
   }, []);
 
   // Fetch universities when country changes

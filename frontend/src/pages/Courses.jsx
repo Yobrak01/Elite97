@@ -210,7 +210,8 @@ export const Courses = () => {
       const formattedTasks = syllabusTasks.map(task => ({
         title: task.title,
         description: `Auto-extracted from syllabus.\nOriginal text: "${task.sourceText}"`,
-        type: 'academic',
+        type: 'assignment',
+        courseUnit: targetCourseId,
         priority: task.priority,
         deadline: task.deadline,
         estimatedPomodoros: task.estimatedPomodoros,

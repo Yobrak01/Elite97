@@ -25,6 +25,7 @@ exports.getTasks = async (req, res, next) => {
 
     const total = await Task.countDocuments(query);
     const tasks = await Task.find(query)
+      .populate('courseUnit', 'unitCode unitName difficulty')
       .sort({ priority: -1, deadline: 1 })
       .skip(skip)
       .limit(limit);

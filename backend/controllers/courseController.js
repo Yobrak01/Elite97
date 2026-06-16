@@ -1,4 +1,5 @@
 const CourseUnit = require('../models/CourseUnit');
+const Task = require('../models/Task');
 const { predictCourseDifficulty, predictCourseCredits } = require('../services/studyMethodology');
 const { parseSyllabus } = require('../services/syllabusParser');
 
@@ -84,6 +85,9 @@ exports.deleteCourse = async (req, res, next) => {
     if (!course) {
       return res.status(404).json({ message: 'Course not found or access denied.' });
     }
+
+    // Cascade delete: remove pending/in-progress tasks, preserve completed tasks for historical record
+    await Task.deleteMany({ courseUnit: req.params.id, user: req.user._id, status: { $ne: 'completed' } });
 
     res.status(200).json({ success: true, message: 'Course removed.' });
   } catch (error) {
