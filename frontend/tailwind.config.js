@@ -7,28 +7,37 @@ export default {
   theme: {
     extend: {
       colors: {
+        white: 'var(--color-text-main)',
+        slate: {
+          400: 'var(--color-text-muted)',
+          500: 'var(--color-text-muted-dark)',
+          800: 'var(--color-bg-800)',
+          900: 'var(--color-bg-900)',
+        },
         navy: {
-          950: '#000000', // True Void Black
-          900: '#02050A', // Abyssal depth
-          800: '#040A14',
-          700: '#081224',
-          600: '#0D1E3A',
+          950: 'var(--color-bg-950)',
+          900: 'var(--color-bg-900)',
+          800: 'var(--color-bg-800)',
+          700: 'var(--color-bg-700)',
+          600: 'var(--color-bg-600)',
         },
         accent: {
-          gold: '#00F0FF', // Ice Cyan
-          amber: '#4A00E0', // Deep purple
-          glow: 'rgba(0, 240, 255, 0.4)',
-        }
+          gold: 'var(--color-accent-gold)',
+          amber: 'var(--color-accent-amber)',
+          glow: 'var(--color-glow-cyan)',
+        },
+        textMain: 'var(--color-text-main)',
+        textMuted: 'var(--color-text-muted)',
       },
       fontFamily: {
-        sans: ['Rajdhani', 'sans-serif'], // Body text
-        display: ['Syncopate', 'sans-serif'], // Chilling headings
+        sans: ['Rajdhani', 'sans-serif'],
+        display: ['Syncopate', 'sans-serif'],
       },
       boxShadow: {
-        'glow-cyan': '0 0 20px rgba(0, 240, 255, 0.4)',
-        'glow-cyan-intense': '0 0 35px rgba(0, 240, 255, 0.6)',
-        'glow-amber': '0 0 15px rgba(74, 0, 224, 0.4)',
-        'glow-red': '0 0 15px rgba(239, 68, 68, 0.4)',
+        'glow-cyan': '0 0 20px var(--color-glow-cyan)',
+        'glow-cyan-intense': '0 0 35px var(--color-glow-cyan)',
+        'glow-amber': '0 0 15px var(--color-glow-amber)',
+        'glow-red': '0 0 15px var(--color-glow-red)',
       },
       animation: {
         'pulse-glow': 'pulseGlow 2s infinite ease-in-out',
@@ -37,8 +46,8 @@ export default {
       },
       keyframes: {
         pulseGlow: {
-          '0%, 100%': { boxShadow: '0 0 10px rgba(0, 240, 255, 0.2)' },
-          '50%': { boxShadow: '0 0 25px rgba(0, 240, 255, 0.6)' },
+          '0%, 100%': { boxShadow: '0 0 10px var(--color-glow-cyan)' },
+          '50%': { boxShadow: '0 0 25px var(--color-glow-cyan)' },
         },
         fadeIn: {
           '0%': { opacity: '0' },

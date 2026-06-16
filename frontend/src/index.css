@@ -4,9 +4,99 @@
 
 @layer base {
   body {
-    background-color: #000000;
+    background-color: var(--color-bg-950);
+    color: var(--color-text-main);
     font-family: 'Montserrat', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
+}
+
+/* 1. Void Theme (Default Elite97 Dark) */
+:root, [data-theme="void"] {
+  --color-bg-950: #000000;
+  --color-bg-900: #02050A;
+  --color-bg-800: #040A14;
+  --color-bg-700: #081224;
+  --color-bg-600: #0D1E3A;
+  
+  --color-text-main: #FFFFFF;
+  --color-text-muted: #94A3B8; /* slate-400 */
+  --color-text-muted-dark: #64748B; /* slate-500 */
+  
+  --color-accent-gold: #00F0FF; /* Actually cyan but kept for variable mapping */
+  --color-accent-amber: #4A00E0;
+  --color-glow-cyan: rgba(0, 240, 255, 0.4);
+  --color-glow-amber: rgba(74, 0, 224, 0.4);
+  --color-glow-red: rgba(239, 68, 68, 0.4);
+  
+  --color-panel-border: rgba(255, 255, 255, 0.05);
+  --color-panel-border-hover: rgba(0, 240, 255, 0.3);
+}
+
+/* 2. Hyperlight Theme (Day Mode) */
+[data-theme="hyperlight"] {
+  --color-bg-950: #F8FAFC;
+  --color-bg-900: #F1F5F9;
+  --color-bg-800: #E2E8F0;
+  --color-bg-700: #CBD5E1;
+  --color-bg-600: #94A3B8;
+  
+  --color-text-main: #0F172A;
+  --color-text-muted: #475569;
+  --color-text-muted-dark: #334155;
+  
+  --color-accent-gold: #0284C7; /* Sky Blue */
+  --color-accent-amber: #4F46E5; /* Indigo */
+  --color-glow-cyan: rgba(2, 132, 199, 0.2);
+  --color-glow-amber: rgba(79, 70, 229, 0.2);
+  --color-glow-red: rgba(220, 38, 38, 0.2);
+  
+  --color-panel-border: rgba(0, 0, 0, 0.1);
+  --color-panel-border-hover: rgba(2, 132, 199, 0.4);
+}
+
+/* 3. Cyberpunk Theme */
+[data-theme="cyberpunk"] {
+  --color-bg-950: #050505;
+  --color-bg-900: #0a0a0c;
+  --color-bg-800: #121217;
+  --color-bg-700: #1c1c24;
+  --color-bg-600: #292936;
+  
+  --color-text-main: #F3F4F6;
+  --color-text-muted: #A1A1AA;
+  --color-text-muted-dark: #71717A;
+  
+  --color-accent-gold: #00FFCC; /* Electric Cyan */
+  --color-accent-amber: #F000FF; /* Neon Pink */
+  --color-glow-cyan: rgba(0, 255, 204, 0.4);
+  --color-glow-amber: rgba(240, 0, 255, 0.4);
+  --color-glow-red: rgba(255, 0, 60, 0.4);
+  
+  --color-panel-border: rgba(240, 0, 255, 0.1);
+  --color-panel-border-hover: rgba(0, 255, 204, 0.5);
+}
+
+/* 4. Zenith Theme (Forest/Natural) */
+[data-theme="zenith"] {
+  --color-bg-950: #05100B;
+  --color-bg-900: #0A1C14;
+  --color-bg-800: #122B20;
+  --color-bg-700: #1C3D2E;
+  --color-bg-600: #2C5542;
+  
+  --color-text-main: #ECFDF5;
+  --color-text-muted: #6EE7B7;
+  --color-text-muted-dark: #34D399;
+  
+  --color-accent-gold: #10B981; /* Emerald */
+  --color-accent-amber: #D97706; /* Amber */
+  --color-glow-cyan: rgba(16, 185, 129, 0.3);
+  --color-glow-amber: rgba(217, 119, 6, 0.3);
+  --color-glow-red: rgba(239, 68, 68, 0.3);
+  
+  --color-panel-border: rgba(16, 185, 129, 0.1);
+  --color-panel-border-hover: rgba(16, 185, 129, 0.4);
 }
 
 /* Custom Scrollbar for sleek futuristic style */
@@ -30,26 +120,27 @@
 
 /* Premium glassmorphic cards utility - Smoked Glass */
 .glass-panel {
-  background: rgba(8, 12, 20, 0.75);
+  background: var(--color-bg-800);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(212, 175, 55, 0.1);
+  border: 1px solid var(--color-panel-border);
+  color: var(--color-text-main);
 }
 
 .glass-panel-hover:hover {
-  border-color: rgba(212,175,55, 0.5);
-  box-shadow: 0 0 35px rgba(212,175,55, 0.2);
+  border-color: var(--color-panel-border-hover);
+  box-shadow: var(--color-glow-cyan);
   transform: translateY(-3px);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Custom text glow utility */
 .text-glow-gold {
-  text-shadow: 0 0 15px rgba(212,175,55, 0.8);
+  text-shadow: 0 0 15px var(--color-accent-gold);
 }
 
 .text-glow-amber {
-  text-shadow: 0 0 15px rgba(245,158,11, 0.8);
+  text-shadow: 0 0 15px var(--color-accent-amber);
 }
 
 /* Elite Watermark Background */
