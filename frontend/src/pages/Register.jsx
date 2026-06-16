@@ -59,7 +59,20 @@ export const Register = () => {
       setUniversities([]);
       setUniversity('');
       try {
-        const res = await fetch(`https://universities.hipolabs.com/search?country=${encodeURIComponent(country)}`);
+        const countryMap = {
+          "United States of America": "United States",
+          "South Korea": "Korea, Republic of",
+          "North Korea": "Democratic People's Republic of Korea",
+          "Russia": "Russian Federation",
+          "Vietnam": "Viet Nam",
+          "Syria": "Syrian Arab Republic",
+          "Iran": "Iran, Islamic Republic of",
+          "Czechia (Czech Republic)": "Czech Republic",
+          "Myanmar (formerly Burma)": "Myanmar",
+          "Congo (Congo-Brazzaville)": "Congo"
+        };
+        const queryCountry = countryMap[country] || country;
+        const res = await fetch(`https://universities.hipolabs.com/search?country=${encodeURIComponent(queryCountry)}`);
         const data = await res.json();
         const sorted = [...new Set(data.map(u => u.name))].sort();
         setUniversities(sorted);
