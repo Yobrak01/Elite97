@@ -134,7 +134,18 @@ export const Register = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-navy-950 p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <style>{`
+        /* Bypass cache and force Chrome autofill to respect dark mode */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #040A14 inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            caret-color: #ffffff !important;
+        }
+      `}</style>
       {/* Global Watermark */}
       <div className="elite-watermark-container"></div>
       
