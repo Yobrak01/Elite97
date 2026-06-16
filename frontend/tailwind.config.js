@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        white: 'var(--color-text-main)',
+        white: 'rgb(var(--color-text-main-rgb) / <alpha-value>)',
         slate: {
           400: 'var(--color-text-muted)',
           500: 'var(--color-text-muted-dark)',

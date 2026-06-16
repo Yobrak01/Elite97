@@ -20,6 +20,7 @@
   --color-bg-600: #0D1E3A;
   
   --color-text-main: #FFFFFF;
+  --color-text-main-rgb: 255 255 255;
   --color-text-muted: #94A3B8; /* slate-400 */
   --color-text-muted-dark: #64748B; /* slate-500 */
   
@@ -42,6 +43,7 @@
   --color-bg-600: #94A3B8;
   
   --color-text-main: #0F172A;
+  --color-text-main-rgb: 15 23 42;
   --color-text-muted: #475569;
   --color-text-muted-dark: #334155;
   
@@ -64,6 +66,7 @@
   --color-bg-600: #292936;
   
   --color-text-main: #F3F4F6;
+  --color-text-main-rgb: 243 244 246;
   --color-text-muted: #A1A1AA;
   --color-text-muted-dark: #71717A;
   
@@ -86,6 +89,7 @@
   --color-bg-600: #2C5542;
   
   --color-text-main: #ECFDF5;
+  --color-text-main-rgb: 236 253 245;
   --color-text-muted: #6EE7B7;
   --color-text-muted-dark: #34D399;
   
