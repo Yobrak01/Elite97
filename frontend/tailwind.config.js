@@ -16,7 +16,7 @@ export default {
         },
         navy: {
           950: 'var(--color-bg-950)',
-          900: 'var(--color-bg-900)',
+          900: 'rgb(var(--color-bg-900-rgb) / <alpha-value>)',
           800: 'var(--color-bg-800)',
           700: 'var(--color-bg-700)',
           600: 'var(--color-bg-600)',

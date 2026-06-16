@@ -26,6 +26,7 @@ input:-webkit-autofill:active {
 :root, [data-theme="void"] {
   --color-bg-950: #000000;
   --color-bg-900: #02050A;
+  --color-bg-900-rgb: 2 5 10;
   --color-bg-800: #040A14;
   --color-bg-700: #081224;
   --color-bg-600: #0D1E3A;
@@ -49,6 +50,7 @@ input:-webkit-autofill:active {
 [data-theme="hyperlight"] {
   --color-bg-950: #F8FAFC;
   --color-bg-900: #F1F5F9;
+  --color-bg-900-rgb: 241 245 249;
   --color-bg-800: #E2E8F0;
   --color-bg-700: #CBD5E1;
   --color-bg-600: #94A3B8;
@@ -72,6 +74,7 @@ input:-webkit-autofill:active {
 [data-theme="cyberpunk"] {
   --color-bg-950: #050505;
   --color-bg-900: #0a0a0c;
+  --color-bg-900-rgb: 10 10 12;
   --color-bg-800: #121217;
   --color-bg-700: #1c1c24;
   --color-bg-600: #292936;
@@ -95,6 +98,7 @@ input:-webkit-autofill:active {
 [data-theme="zenith"] {
   --color-bg-950: #05100B;
   --color-bg-900: #0A1C14;
+  --color-bg-900-rgb: 10 28 20;
   --color-bg-800: #122B20;
   --color-bg-700: #1C3D2E;
   --color-bg-600: #2C5542;
