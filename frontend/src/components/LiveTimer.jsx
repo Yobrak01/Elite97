@@ -151,13 +151,15 @@ export const LiveTimer = () => {
       await api.tracker.manualLog({
         activityType,
         durationMinutes: Number(manualDuration),
-        description: finalDesc
+        description: finalDesc,
+        allowOverlap: true // Fix: allow overlapping manual logs so long sleep/rest doesn't get silently rejected
       });
       setManualDuration('');
       fetchTodayLogs();
       window.dispatchEvent(new CustomEvent('time-logged'));
     } catch (err) {
       console.error('Failed to log manually:', err);
+      alert(err.message || 'Failed to log time. Please try again.');
     } finally {
       setLoadingAction(false);
     }
