@@ -236,11 +236,11 @@ export const Register = () => {
                   required
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all appearance-none cursor-pointer"
+                  className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all cursor-pointer"
                 >
-                  <option value="" disabled>Select your country</option>
+                  <option value="" disabled className="bg-navy-950">Select your country</option>
                   {countries.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                    <option key={c} value={c} className="bg-navy-950">{c}</option>
                   ))}
                 </select>
               </div>
@@ -260,13 +260,13 @@ export const Register = () => {
                     disabled={!country}
                     value={university}
                     onChange={(e) => setUniversity(e.target.value)}
-                    className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all appearance-none cursor-pointer disabled:opacity-50"
+                    className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all cursor-pointer disabled:opacity-50"
                   >
-                    <option value="" disabled>{country ? 'Select your university' : 'Select a country first'}</option>
+                    <option value="" disabled className="bg-navy-950">{country ? 'Select your university' : 'Select a country first'}</option>
                     {universities.map((u) => (
-                      <option key={u} value={u}>{u}</option>
+                      <option key={u} value={u} className="bg-navy-950">{u}</option>
                     ))}
-                    {country && <option value="Other">My university is not listed</option>}
+                    {country && <option value="Other" className="bg-navy-950 text-cyan-400 font-bold">My university is not listed</option>}
                   </select>
                 )}
               </div>
@@ -293,11 +293,11 @@ export const Register = () => {
                   required
                   value={major}
                   onChange={(e) => setMajor(e.target.value)}
-                  className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all appearance-none cursor-pointer"
+                  className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all cursor-pointer"
                 >
-                  <option value="" disabled>Select your major</option>
+                  <option value="" disabled className="bg-navy-950">Select your major</option>
                   {MAJORS.map((m) => (
-                    <option key={m} value={m}>{m}</option>
+                    <option key={m} value={m} className="bg-navy-950">{m}</option>
                   ))}
                 </select>
               </div>
