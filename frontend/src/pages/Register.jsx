@@ -36,6 +36,7 @@ export const Register = () => {
   const [countries, setCountries] = useState([]);
   const [universities, setUniversities] = useState([]);
   const [fetchingUnis, setFetchingUnis] = useState(false);
+  const [apiError, setApiError] = useState(false);
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -56,6 +57,7 @@ export const Register = () => {
     if (!country) return;
     const fetchUniversities = async () => {
       setFetchingUnis(true);
+      setApiError(false);
       setUniversities([]);
       setUniversity('');
       try {
@@ -73,11 +75,15 @@ export const Register = () => {
         };
         const queryCountry = countryMap[country] || country;
         const res = await fetch(`https://universities.hipolabs.com/search?country=${encodeURIComponent(queryCountry)}`);
+        
+        if (!res.ok) throw new Error('API failed');
+        
         const data = await res.json();
         const sorted = [...new Set(data.map(u => u.name))].sort();
         setUniversities(sorted);
       } catch (err) {
         console.error("Failed to fetch universities", err);
+        setApiError(true);
       } finally {
         setFetchingUnis(false);
       }
@@ -167,6 +173,7 @@ export const Register = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Tesla Maxwell"
+                  autoComplete="off"
                   className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all"
                 />
               </div>
@@ -182,6 +189,7 @@ export const Register = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="engineering.student@elite97.com"
+                  autoComplete="new-password"
                   className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all"
                 />
               </div>
@@ -197,6 +205,7 @@ export const Register = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Min 6 characters"
+                  autoComplete="new-password"
                   className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all"
                 />
                 <button
@@ -219,6 +228,7 @@ export const Register = () => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-12 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all"
                 />
                 <button
@@ -275,11 +285,15 @@ export const Register = () => {
                     onChange={(e) => setUniversity(e.target.value)}
                     className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all cursor-pointer disabled:opacity-50"
                   >
-                    <option value="" disabled className="bg-navy-950">{country ? 'Select your university' : 'Select a country first'}</option>
+                    <option value="" disabled className="bg-navy-950">
+                      {apiError ? 'University Database Offline' : country ? 'Select your university' : 'Select a country first'}
+                    </option>
                     {universities.map((u) => (
                       <option key={u} value={u} className="bg-navy-950">{u}</option>
                     ))}
-                    {country && <option value="Other" className="bg-navy-950 text-cyan-400 font-bold">My university is not listed</option>}
+                    {country && <option value="Other" className="bg-navy-950 text-cyan-400 font-bold">
+                      {apiError ? 'Click here to manually enter university' : 'My university is not listed'}
+                    </option>}
                   </select>
                 )}
               </div>

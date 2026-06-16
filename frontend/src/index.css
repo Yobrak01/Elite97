@@ -9,16 +9,17 @@
     font-family: 'Montserrat', sans-serif;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
+}
 
-  /* Fix Chrome autofill making background white and text invisible */
-  input:-webkit-autofill,
-  input:-webkit-autofill:hover, 
-  input:-webkit-autofill:focus, 
-  input:-webkit-autofill:active {
-      -webkit-box-shadow: 0 0 0 30px var(--color-bg-900) inset !important;
-      -webkit-text-fill-color: var(--color-text-main) !important;
-      transition: background-color 5000s ease-in-out 0s;
-  }
+/* Fix Chrome autofill making background white and text invisible */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px #040A14 inset !important; /* Hardcoded dark to ensure it works regardless of variables */
+    -webkit-text-fill-color: #FFFFFF !important;
+    caret-color: #FFFFFF !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 /* 1. Void Theme (Default Elite97 Dark) */
