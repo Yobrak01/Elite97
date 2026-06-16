@@ -10,6 +10,7 @@ router.get('/workout/weekly', lifeController.getWeeklyWorkout);
 router.post('/workout/regenerate', lifeController.regenerateWeeklyWorkout);
 router.get('/workout/today', lifeController.getTodayWorkout);
 router.patch('/workout/:id/exercise', lifeController.completeExercise);
+router.post('/workout/manual', lifeController.setManualWorkout);
 
 // Meal routes
 router.get('/meal/today', lifeController.getDailyMeal);

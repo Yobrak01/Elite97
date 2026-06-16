@@ -430,6 +430,14 @@ export const api = {
       });
       return handleResponse(res);
     },
+    setManualWorkout: async (data) => {
+      const res = await fetch(`${API_URL}/life/workout/manual`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    },
     getTodayMeal: async () => {
       const res = await fetch(`${API_URL}/life/meal/today`, {
         headers: getHeaders()

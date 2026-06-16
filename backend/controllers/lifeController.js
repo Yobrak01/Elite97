@@ -177,7 +177,44 @@ exports.completeExercise = async (req, res, next) => {
   }
 };
 
+// @desc    Manually set today's workout
+// @route   POST /api/life/workout/manual
+// @access  Private
+exports.setManualWorkout = async (req, res, next) => {
+  try {
+    const { splitType, exercises, durationMinutes } = req.body;
+    
+    if (!splitType || !exercises) {
+      return res.status(400).json({ success: false, message: 'Please provide splitType and exercises.' });
+    }
+
+    const today = getTodayMidnight();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // Update or insert workout for today
+    const workout = await Workout.findOneAndUpdate(
+      { user: req.user._id, date: { $gte: today, $lt: tomorrow } },
+      {
+        $set: {
+          splitType,
+          exercises,
+          durationMinutes: durationMinutes || 0,
+          isCompleted: false,
+          date: today
+        }
+      },
+      { new: true, upsert: true }
+    );
+
+    res.status(200).json({ success: true, data: workout });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get (or generate) today's meal plan
+
 // @route   GET /api/life/meal/today
 // @access  Private
 exports.getDailyMeal = async (req, res, next) => {

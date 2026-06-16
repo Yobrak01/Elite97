@@ -43,6 +43,12 @@ const GymTab = () => {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [completedExercises, setCompletedExercises] = useState(new Set());
+  const [isManualMode, setIsManualMode] = useState(false);
+  const [manualData, setManualData] = useState({
+    splitType: 'full_body',
+    durationMinutes: 60,
+    exercises: []
+  });
 
   const fetchWorkout = useCallback(async () => {
     try {
@@ -88,6 +94,38 @@ const GymTab = () => {
     } catch (err) {
       console.error('Failed to toggle exercise:', err);
     }
+  };
+
+  const handleSaveManual = async () => {
+    try {
+      await api.life.setManualWorkout(manualData);
+      setIsManualMode(false);
+      await fetchWorkout();
+    } catch (err) {
+      console.error('Failed to save manual workout:', err);
+    }
+  };
+
+  const addManualExercise = () => {
+    setManualData(prev => ({
+      ...prev,
+      exercises: [...prev.exercises, { name: '', targetMuscle: 'default', sets: 3, reps: '10' }]
+    }));
+  };
+
+  const updateManualExercise = (index, field, value) => {
+    setManualData(prev => {
+      const newExercises = [...prev.exercises];
+      newExercises[index] = { ...newExercises[index], [field]: value };
+      return { ...prev, exercises: newExercises };
+    });
+  };
+
+  const removeManualExercise = (index) => {
+    setManualData(prev => {
+      const newExercises = prev.exercises.filter((_, i) => i !== index);
+      return { ...prev, exercises: newExercises };
+    });
   };
 
   if (loading) {
@@ -136,22 +174,138 @@ const GymTab = () => {
             </div>
           )}
           <button
+            onClick={() => setIsManualMode(!isManualMode)}
+            className={`flex items-center gap-2 rounded-xl border px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all ${
+              isManualMode 
+                ? 'bg-slate-800 border-slate-700 text-slate-300' 
+                : 'bg-indigo-500/15 border-indigo-500/20 text-indigo-400 hover:bg-indigo-500 hover:text-white'
+            }`}
+          >
+            {isManualMode ? 'Cancel Manual' : 'Manual Entry'}
+          </button>
+          <button
             onClick={handleGenerateWeekly}
             disabled={generating}
             className="flex items-center gap-2 rounded-xl bg-green-500/15 border border-green-500/20 text-green-400 hover:bg-green-500 hover:text-white px-4 py-2.5 text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${generating ? 'animate-spin' : ''}`} />
-            Generate Weekly Plan
+            {isManualMode ? 'AI Generate' : 'Generate Weekly'}
           </button>
         </div>
       </div>
 
-      {/* Exercise List */}
-      {exercises.length === 0 ? (
+      {/* Exercise List or Manual Form */}
+      {isManualMode ? (
+        <div className="glass-panel rounded-2xl border border-white/5 p-6 animate-fade-in space-y-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1 space-y-1">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Split Type</label>
+              <select
+                value={manualData.splitType}
+                onChange={e => setManualData({...manualData, splitType: e.target.value})}
+                className="w-full rounded-xl bg-navy-900 border border-white/5 py-3 pl-4 pr-8 text-sm text-white focus:border-green-500 focus:shadow-glow-cyan transition-all"
+              >
+                <option value="push">Push</option>
+                <option value="pull">Pull</option>
+                <option value="legs">Legs</option>
+                <option value="upper">Upper Body</option>
+                <option value="lower">Lower Body</option>
+                <option value="full_body">Full Body</option>
+                <option value="rest">Rest Day</option>
+              </select>
+            </div>
+            <div className="w-full sm:w-32 space-y-1">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Duration (min)</label>
+              <input
+                type="number"
+                value={manualData.durationMinutes}
+                onChange={e => setManualData({...manualData, durationMinutes: e.target.value})}
+                className="w-full rounded-xl bg-navy-900 border border-white/5 py-3 px-4 text-sm text-white focus:border-green-500 focus:shadow-glow-cyan transition-all"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h4 className="text-xs font-black uppercase tracking-widest text-slate-400 border-b border-white/5 pb-2">Exercises</h4>
+            {manualData.exercises.map((ex, idx) => (
+              <div key={idx} className="flex flex-wrap sm:flex-nowrap gap-3 items-end p-3 rounded-xl bg-white/5 border border-white/5">
+                <div className="w-full sm:flex-1 space-y-1">
+                  <label className="text-[9px] font-bold text-slate-500 uppercase">Exercise Name</label>
+                  <input
+                    type="text"
+                    value={ex.name}
+                    onChange={e => updateManualExercise(idx, 'name', e.target.value)}
+                    placeholder="e.g. Bench Press"
+                    className="w-full rounded-lg bg-navy-950 border border-white/5 p-2 text-sm text-white focus:border-green-500"
+                  />
+                </div>
+                <div className="w-full sm:w-32 space-y-1">
+                  <label className="text-[9px] font-bold text-slate-500 uppercase">Target Muscle</label>
+                  <select
+                    value={ex.targetMuscle}
+                    onChange={e => updateManualExercise(idx, 'targetMuscle', e.target.value)}
+                    className="w-full rounded-lg bg-navy-950 border border-white/5 p-2 text-sm text-white focus:border-green-500"
+                  >
+                    <option value="chest">Chest</option>
+                    <option value="back">Back</option>
+                    <option value="shoulders">Shoulders</option>
+                    <option value="legs">Legs</option>
+                    <option value="arms">Arms</option>
+                    <option value="core">Core</option>
+                    <option value="default">Other</option>
+                  </select>
+                </div>
+                <div className="w-24 space-y-1">
+                  <label className="text-[9px] font-bold text-slate-500 uppercase">Sets</label>
+                  <input
+                    type="number"
+                    value={ex.sets}
+                    onChange={e => updateManualExercise(idx, 'sets', e.target.value)}
+                    className="w-full rounded-lg bg-navy-950 border border-white/5 p-2 text-sm text-white focus:border-green-500"
+                  />
+                </div>
+                <div className="w-24 space-y-1">
+                  <label className="text-[9px] font-bold text-slate-500 uppercase">Reps</label>
+                  <input
+                    type="text"
+                    value={ex.reps}
+                    onChange={e => updateManualExercise(idx, 'reps', e.target.value)}
+                    placeholder="8-12"
+                    className="w-full rounded-lg bg-navy-950 border border-white/5 p-2 text-sm text-white focus:border-green-500"
+                  />
+                </div>
+                <button
+                  onClick={() => removeManualExercise(idx)}
+                  className="p-2.5 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-all border border-red-500/20"
+                >
+                  <Dumbbell className="h-4 w-4 rotate-45" />
+                </button>
+              </div>
+            ))}
+            
+            <button
+              onClick={addManualExercise}
+              className="w-full py-3 rounded-xl border-2 border-dashed border-white/10 text-slate-400 hover:border-green-500/50 hover:text-green-400 transition-all text-xs font-bold uppercase tracking-wider"
+            >
+              + Add Exercise
+            </button>
+          </div>
+
+          <div className="pt-4 border-t border-white/5">
+            <button
+              onClick={handleSaveManual}
+              disabled={manualData.exercises.length === 0}
+              className="w-full py-3 rounded-xl bg-green-500 text-white font-black uppercase tracking-widest hover:bg-green-400 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+            >
+              Save Manual Workout
+            </button>
+          </div>
+        </div>
+      ) : exercises.length === 0 ? (
         <div className="glass-panel rounded-2xl border border-white/5 p-12 text-center">
           <Dumbbell className="h-12 w-12 text-slate-600 mx-auto mb-4" />
           <p className="text-sm font-bold text-slate-400">No workout scheduled for today.</p>
-          <p className="text-xs text-slate-500 mt-1">Generate a weekly plan to get started.</p>
+          <p className="text-xs text-slate-500 mt-1">Generate a weekly plan or enter a manual workout to get started.</p>
         </div>
       ) : (
         <div className="grid gap-3">
