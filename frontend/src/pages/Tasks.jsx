@@ -82,9 +82,9 @@ export const Tasks = () => {
           estimatedHours: Number(estimatedHours),
           type,
           deadline: deadline || undefined,
-          fixedDate: type === 'event' ? (fixedDate || undefined) : undefined,
-          fixedStartTime: type === 'event' ? (fixedStartTime || undefined) : undefined,
-          fixedEndTime: type === 'event' ? (fixedEndTime || undefined) : undefined,
+          fixedDate: (type === 'event' || type === 'lecture') ? (fixedDate || undefined) : undefined,
+          fixedStartTime: (type === 'event' || type === 'lecture') ? (fixedStartTime || undefined) : undefined,
+          fixedEndTime: (type === 'event' || type === 'lecture') ? (fixedEndTime || undefined) : undefined,
           courseUnit: selectedCourse || undefined
         });
       } else {
@@ -95,9 +95,9 @@ export const Tasks = () => {
           estimatedHours: Number(estimatedHours),
           type,
           deadline: deadline || undefined,
-          fixedDate: type === 'event' ? (fixedDate || undefined) : undefined,
-          fixedStartTime: type === 'event' ? (fixedStartTime || undefined) : undefined,
-          fixedEndTime: type === 'event' ? (fixedEndTime || undefined) : undefined,
+          fixedDate: (type === 'event' || type === 'lecture') ? (fixedDate || undefined) : undefined,
+          fixedStartTime: (type === 'event' || type === 'lecture') ? (fixedStartTime || undefined) : undefined,
+          fixedEndTime: (type === 'event' || type === 'lecture') ? (fixedEndTime || undefined) : undefined,
           courseUnit: selectedCourse || undefined
         });
       }
@@ -209,12 +209,14 @@ export const Tasks = () => {
             className="rounded-xl bg-navy-900 border border-white/5 px-3 py-2.5 text-xs text-slate-300 font-bold focus:outline-none"
           >
             <option value="">All Types</option>
-            <option value="event">Event / Personal</option>
-            <option value="theory">Theory</option>
-            <option value="procedural">Procedural</option>
+            <option value="theory">Theory Focus</option>
+            <option value="procedural">Procedural / Solving</option>
             <option value="assignment">Assignment</option>
-            <option value="revision">Revision</option>
-            <option value="project">Project</option>
+            <option value="revision">Retrieval / Revision</option>
+            <option value="project">Project Work</option>
+            <option value="group_discussion">Group Discussion</option>
+            <option value="lecture">Lecture / Class</option>
+            <option value="personal_study">Personal Study</option>
           </select>
 
           <select
@@ -320,11 +322,13 @@ export const Tasks = () => {
                     className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
                   >
                     <option value="theory">Theory Focus</option>
-                    <option value="event">Event / Non-Educational</option>
                     <option value="procedural">Procedural / Solving</option>
                     <option value="assignment">Assignment</option>
                     <option value="revision">Retrieval / Revision</option>
                     <option value="project">Project Work</option>
+                    <option value="group_discussion">Group Discussion</option>
+                    <option value="lecture">Lecture / Class</option>
+                    <option value="personal_study">Personal Study</option>
                   </select>
                 </div>
 
@@ -345,10 +349,10 @@ export const Tasks = () => {
                 )}
               </div>
 
-              {type === 'event' ? (
+              {(type === 'event' || type === 'lecture') ? (
                 <>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Event Date</label>
+                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Scheduled Date</label>
                     <input
                       type="date"
                       required

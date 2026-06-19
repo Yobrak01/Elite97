@@ -38,7 +38,7 @@ const TaskSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['procedural', 'theory', 'assignment', 'revision', 'project', 'event'],
+    enum: ['procedural', 'theory', 'assignment', 'revision', 'project', 'group_discussion', 'lecture', 'personal_study'],
     default: 'theory'
   },
   fixedDate: {
