@@ -55,6 +55,19 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await api.auth.register(name, email, password, country, university, major, yearOfStudy, currentSemester);
+      // Registration now returns { status: 'pending_verification', email }
+      return res;
+    } catch (err) {
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const verifyEmail = useCallback(async (email, otp) => {
+    setLoading(true);
+    try {
+      const res = await api.auth.verifyEmail(email, otp);
       localStorage.setItem('elite97_token', res.token);
       setToken(res.token);
       setUser(res.user);
@@ -78,8 +91,8 @@ export const AuthProvider = ({ children }) => {
 
   // Memoize the context value to prevent unnecessary re-renders in consumers
   const value = useMemo(() => ({
-    user, token, loading, login, register, logout, updateUser
-  }), [user, token, loading, login, register, logout, updateUser]);
+    user, token, loading, login, register, verifyEmail, logout, updateUser
+  }), [user, token, loading, login, register, verifyEmail, logout, updateUser]);
 
   return (
     <AuthContext.Provider value={value}>

@@ -41,6 +41,22 @@ export const api = {
       });
       return handleResponse(res);
     },
+    verifyEmail: async (email, otp) => {
+      const res = await fetch(`${API_URL}/auth/verify-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp })
+      });
+      return handleResponse(res);
+    },
+    resendOtp: async (email) => {
+      const res = await fetch(`${API_URL}/auth/resend-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      return handleResponse(res);
+    },
     getMe: async () => {
       const res = await fetch(`${API_URL}/auth/me`, {
         headers: getHeaders()

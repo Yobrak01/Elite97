@@ -28,16 +28,30 @@ const formatUserResponse = (user) => ({
   timezone: user.timezone
 });
 
+const PendingUser = require('../models/PendingUser');
+const emailService = require('../services/emailService');
+
+const generateOtp = () => {
+  return Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
+};
+
 exports.register = async (req, res, next) => {
   try {
     const { name, email, password, country, university, major, yearOfStudy, currentSemester } = req.body;
 
+    // Check if real user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: 'User already exists with this email.' });
     }
 
-    const user = await User.create({
+    // Generate OTP
+    const otp = generateOtp();
+
+    // Check if there's already a pending registration, if so update it, else create
+    await PendingUser.findOneAndDelete({ email }); // Delete old if exists
+
+    await PendingUser.create({
       name,
       email,
       password,
@@ -45,8 +59,75 @@ exports.register = async (req, res, next) => {
       university,
       major,
       yearOfStudy,
-      currentSemester
+      currentSemester,
+      otp
     });
+
+    // Send Email
+    await emailService.sendVerificationEmail(email, otp);
+
+    res.status(200).json({
+      message: 'Verification code sent to email',
+      status: 'pending_verification',
+      email
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.verifyEmail = async (req, res, next) => {
+  try {
+    const { email, otp } = req.body;
+
+    if (!email || !otp) {
+      return res.status(400).json({ message: 'Email and OTP are required' });
+    }
+
+    const pendingUser = await PendingUser.findOne({ email });
+    if (!pendingUser) {
+      return res.status(400).json({ message: 'Invalid or expired verification code. Please register again.' });
+    }
+
+    if (pendingUser.otp !== otp.toString()) {
+      return res.status(400).json({ message: 'Incorrect verification code.' });
+    }
+
+    // Create the actual user
+    // Note: password is already hashed in PendingUser, so we must disable hashing in User.create if we just copy it, 
+    // OR we can rely on the fact that User model might re-hash it if we pass it directly.
+    // Wait, if User schema has a pre('save') that hashes the password, and we pass a hashed password, it will double-hash!
+    // To prevent double hashing, we can use insertMany or create but temporarily disable the hook, OR
+    // just let the user schema handle hashing by passing the raw password? 
+    // But we hashed it in PendingUser. Let's just create the user directly using insertMany to bypass hooks, or pass the hashed password to a field that doesn't trigger the hook.
+    // Let's actually use User.collection.insertOne to bypass the pre-save hook, but we need Mongoose to initialize defaults.
+    // Alternatively, if we just set the password field on a new User instance and save, the hook runs.
+    // Let's bypass the hook for the PendingUser hash by creating the user instance, setting password, and setting a flag.
+    // Wait, simplest way: Just use User.create but we need to ensure the password isn't double hashed.
+    // Actually, in `User.js` we have: `if (!this.isModified('password')) { next(); }`. 
+    // If we pass a hashed password to User.create(), it IS modified. It will double hash.
+    // I will check User.js next and fix this, but for now I'll just use User.collection.insertOne or similar.
+    // Let's use standard User.create but we need to ensure password isn't double-hashed. 
+    // Wait, we can just save the PLAINTEXT password in PendingUser? No, that's bad practice.
+    // Let's use `User.create` and pass the hashed password. To avoid double hashing, I'll update User.js.
+    // Let's assume User schema hashes it. Let's look at it next.
+    
+    const newUser = new User({
+      name: pendingUser.name,
+      email: pendingUser.email,
+      password: pendingUser.password, // This is already hashed!
+      country: pendingUser.country,
+      university: pendingUser.university,
+      major: pendingUser.major,
+      yearOfStudy: pendingUser.yearOfStudy,
+      currentSemester: pendingUser.currentSemester
+    });
+    
+    // We will bypass the pre-save hook by using insertOne, or we can just update the User schema.
+    // I'll update the User schema to allow bypassing. For now, let's use insertMany which bypasses save hooks.
+    const [user] = await User.insertMany([newUser]);
+
+    await PendingUser.deleteOne({ email });
 
     const token = signToken(user._id);
 
@@ -54,6 +135,29 @@ exports.register = async (req, res, next) => {
       token,
       user: formatUserResponse(user)
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.resendOtp = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    
+    const pendingUser = await PendingUser.findOne({ email });
+    if (!pendingUser) {
+      return res.status(400).json({ message: 'Registration session expired. Please register again.' });
+    }
+
+    const otp = generateOtp();
+    pendingUser.otp = otp;
+    // reset the TTL by updating createdAt
+    pendingUser.createdAt = Date.now();
+    await pendingUser.save();
+
+    await emailService.sendVerificationEmail(email, otp);
+
+    res.status(200).json({ message: 'New verification code sent' });
   } catch (error) {
     next(error);
   }

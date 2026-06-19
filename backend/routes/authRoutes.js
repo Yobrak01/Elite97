@@ -19,6 +19,8 @@ const loginSchema = {
 };
 
 router.post('/register', validate(registerSchema), authController.register);
+router.post('/verify-email', authController.verifyEmail);
+router.post('/resend-otp', authController.resendOtp);
 router.post('/login', validate(loginSchema), authController.login);
 router.get('/me', authMiddleware, authController.getMe);
 router.put('/settings', authMiddleware, authController.updateSettings);

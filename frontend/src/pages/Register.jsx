@@ -1,7 +1,8 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, User, Award, Loader2, Eye, EyeOff, Globe, BookOpen, GraduationCap, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Mail, Lock, User, Award, Loader2, Eye, EyeOff, Globe, BookOpen, GraduationCap, ChevronRight, ChevronLeft, ShieldCheck } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
+import api from '../services/api';
 import { COUNTRIES } from '../utils/countries';
 
 const MAJORS = [
@@ -17,7 +18,7 @@ const MAJORS = [
 ];
 
 export const Register = () => {
-  const { register, token } = useContext(AuthContext);
+  const { register, verifyEmail: verifyEmailContext, token } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -34,6 +35,9 @@ export const Register = () => {
   const [yearOfStudy, setYearOfStudy] = useState('');
   const [currentSemester, setCurrentSemester] = useState('');
 
+  const [otp, setOtp] = useState('');
+  const [resending, setResending] = useState(false);
+
   const [countries, setCountries] = useState([]);
   const [universities, setUniversities] = useState([]);
   const [fetchingUnis, setFetchingUnis] = useState(false);
@@ -42,6 +46,7 @@ export const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -98,6 +103,7 @@ export const Register = () => {
   const handleNextStep = (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     if (password !== confirmPassword) {
       return setError('Passwords do not match.');
     }
@@ -110,6 +116,7 @@ export const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
 
     if (!country || !university || !major) {
       return setError('Please complete your academic profile.');
@@ -127,13 +134,56 @@ export const Register = () => {
 
     setSubmitting(true);
     try {
-      await register(name, email, password, country, finalUniversity, finalMajor, Number(yearOfStudy) || undefined, Number(currentSemester) || undefined);
-      navigate('/', { replace: true });
+      const res = await register(name, email, password, country, finalUniversity, finalMajor, Number(yearOfStudy) || undefined, Number(currentSemester) || undefined);
+      if (res && res.status === 'pending_verification') {
+        setStep(3);
+        setSuccess('Verification code sent to your email.');
+      } else {
+        // Fallback if the backend still logs in immediately
+        navigate('/', { replace: true });
+      }
     } catch (err) {
       console.error(err);
       setError(err.message || 'Registration failed. Try again.');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleVerifyEmail = async (e) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+
+    if (!otp || otp.length !== 6) {
+      return setError('Please enter a valid 6-digit code.');
+    }
+
+    setSubmitting(true);
+    try {
+      await verifyEmailContext(email, otp);
+      navigate('/', { replace: true });
+    } catch (err) {
+      console.error(err);
+      setError(err.message || 'Verification failed. Please check your code.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleResendOtp = async () => {
+    if (resending) return;
+    setResending(true);
+    setError('');
+    setSuccess('');
+    
+    try {
+      await api.auth.resendOtp(email);
+      setSuccess('A new verification code has been sent to your email.');
+    } catch (err) {
+      setError(err.message || 'Failed to resend code.');
+    } finally {
+      setResending(false);
     }
   };
 
@@ -149,19 +199,25 @@ export const Register = () => {
       <div className="glass-panel w-full max-w-md rounded-3xl p-8 border border-white/5 shadow-2xl relative z-10 transition-all duration-500">
         <div className="flex flex-col items-center text-center space-y-2 mb-8">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-glow-cyan">
-            <Award className="h-6 w-6" />
+            {step === 3 ? <ShieldCheck className="h-6 w-6" /> : <Award className="h-6 w-6" />}
           </div>
           <h2 className="text-3xl font-display font-black tracking-widest text-white mt-4 text-glow-gold">
             ELITE<span className="text-cyan-400">97</span> REGISTRY
           </h2>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
-            {step === 1 ? 'Step 1: Node Credentials' : 'Step 2: Academic Matrix'}
+            {step === 1 ? 'Step 1: Node Credentials' : step === 2 ? 'Step 2: Academic Matrix' : 'Step 3: Identity Verification'}
           </p>
         </div>
 
         {error && (
           <div className="mb-6 rounded-2xl bg-red-500/10 border border-red-500/20 p-4 text-xs font-bold text-red-400">
             {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-6 rounded-2xl bg-green-500/10 border border-green-500/20 p-4 text-xs font-bold text-green-400">
+            {success}
           </div>
         )}
 
@@ -386,16 +442,49 @@ export const Register = () => {
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 rounded-2xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-glow-cyan hover:shadow-glow-cyan/80 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full rounded-2xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-glow-cyan hover:shadow-glow-cyan/80 transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-50"
               >
-                {submitting ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Initializing...
-                  </>
-                ) : (
-                  'Establish Link'
-                )}
+                {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'INITIALIZE MATRIX'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <form onSubmit={handleVerifyEmail} className="space-y-4 animate-fade-in">
+            <p className="text-sm text-slate-300 text-center mb-6">
+              We've sent a 6-digit verification code to <span className="text-cyan-400 font-bold">{email}</span>.
+            </p>
+            
+            <div className="space-y-1">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Verification Code</label>
+              <div className="relative">
+                <ShieldCheck className="absolute left-4 top-3.5 h-5 w-5 text-slate-500" />
+                <input
+                  type="text"
+                  required
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="Enter 6-digit code"
+                  className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all text-center tracking-[0.5em] font-bold"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting || otp.length !== 6}
+              className="w-full rounded-2xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 py-3.5 text-sm font-black uppercase tracking-widest text-white shadow-glow-cyan hover:shadow-glow-cyan/80 transition-all flex items-center justify-center gap-2 cursor-pointer mt-4 disabled:opacity-50"
+            >
+              {submitting ? <Loader2 className="h-5 w-5 animate-spin" /> : 'VERIFY & ACCESS'}
+            </button>
+
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={handleResendOtp}
+                disabled={resending}
+                className="text-xs text-slate-400 hover:text-cyan-400 transition-colors font-bold uppercase tracking-wider disabled:opacity-50"
+              >
+                {resending ? 'Resending...' : 'Resend Code'}
               </button>
             </div>
           </form>
