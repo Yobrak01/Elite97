@@ -441,9 +441,22 @@ exports.establishAnchor = async (req, res, next) => {
     const hours = h !== undefined ? parseInt(h, 10) : now.getHours();
     const minutes = m !== undefined ? parseInt(m, 10) : now.getMinutes();
     
-    // 4:30 AM to 5:30 AM is success
+    const anchorTimeStr = user.settings?.circadianAnchorTime || '05:30';
+    const anchorGrace = user.settings?.circadianAnchorGraceMinutes || 30;
+
+    const [anchorHour, anchorMinute] = anchorTimeStr.split(':').map(Number);
+    const windowStart = new Date(now);
+    windowStart.setHours(anchorHour, anchorMinute, 0, 0);
+
+    const windowEnd = new Date(windowStart);
+    windowEnd.setMinutes(windowEnd.getMinutes() + anchorGrace);
+
+    // Provide a small 5 minute buffer before the windowStart to avoid frustration
+    const windowStartBuffer = new Date(windowStart);
+    windowStartBuffer.setMinutes(windowStartBuffer.getMinutes() - 5);
+
     let status = 'breached';
-    if ((hours === 4 && minutes >= 30) || (hours === 5 && minutes <= 30)) {
+    if (now >= windowStartBuffer && now <= windowEnd) {
       status = 'success';
     }
 

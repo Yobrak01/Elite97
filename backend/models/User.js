@@ -45,7 +45,9 @@ const UserSchema = new mongoose.Schema({
     notifications: { type: Boolean, default: true },
     taskGenerationMode: { type: String, enum: ['infinite', 'daily'], default: 'daily' },
     wakeTime: { type: String, default: '06:00' },
-    sleepTime: { type: String, default: '22:30' }
+    sleepTime: { type: String, default: '22:30' },
+    circadianAnchorTime: { type: String, default: '05:30' },
+    circadianAnchorGraceMinutes: { type: Number, default: 30 }
   },
   pastResults: [{
     year: Number,

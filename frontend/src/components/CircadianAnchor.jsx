@@ -2,7 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Anchor, ShieldAlert, ShieldCheck, Clock } from 'lucide-react';
 import api from '../services/api';
 
+import AuthContext from '../context/AuthContext';
+
 const CircadianAnchor = ({ onAnchorUpdate }) => {
+  const { user } = React.useContext(AuthContext);
   const [status, setStatus] = useState('loading'); // loading, pending, success, breached
   const [loading, setLoading] = useState(true);
 
@@ -89,6 +92,9 @@ const CircadianAnchor = ({ onAnchorUpdate }) => {
     );
   }
 
+  const anchorTimeStr = user?.settings?.circadianAnchorTime || '05:30';
+  const anchorGrace = user?.settings?.circadianAnchorGraceMinutes || 30;
+
   // Pending
   return (
     <div className="glass-panel rounded-2xl border border-amber-500/30 bg-amber-900/10 p-6 flex flex-col md:flex-row items-center justify-between shadow-[0_0_30px_rgba(245,158,11,0.1)] relative overflow-hidden">
@@ -99,7 +105,7 @@ const CircadianAnchor = ({ onAnchorUpdate }) => {
         </div>
         <div>
           <h2 className="text-xl font-black text-amber-400 tracking-widest uppercase">Circadian Anchor Pending</h2>
-          <p className="text-xs text-amber-200/70 font-bold uppercase tracking-wider mt-1">Window: 4:30 AM - 5:30 AM</p>
+          <p className="text-xs text-amber-200/70 font-bold uppercase tracking-wider mt-1">Window starts at {anchorTimeStr} (Grace: {anchorGrace}m)</p>
         </div>
       </div>
       <div className="mt-4 md:mt-0">

@@ -36,7 +36,16 @@ async function buildContext(userId, today, streak) {
       circadianStatus = log.status;
     } else {
       const now = new Date();
-      if (now.getHours() > 5 || (now.getHours() === 5 && now.getMinutes() > 30)) {
+      const anchorTimeStr = user.settings?.circadianAnchorTime || '05:30';
+      const anchorGrace = user.settings?.circadianAnchorGraceMinutes || 30;
+      
+      const [anchorHour, anchorMinute] = anchorTimeStr.split(':').map(Number);
+      
+      const deadline = new Date(now);
+      deadline.setHours(anchorHour, anchorMinute, 0, 0);
+      deadline.setMinutes(deadline.getMinutes() + anchorGrace);
+
+      if (now > deadline) {
         circadianStatus = 'breached';
       }
     }
