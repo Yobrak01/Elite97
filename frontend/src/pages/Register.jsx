@@ -80,6 +80,9 @@ export const Register = () => {
         if (!res.ok) throw new Error('API failed');
         
         const data = await res.json();
+        if (!data || data.length === 0) {
+          throw new Error('No universities found for this country');
+        }
         const sorted = [...new Set(data.map(u => u.name))].sort();
         setUniversities(sorted);
       } catch (err) {
@@ -287,7 +290,7 @@ export const Register = () => {
                     className="w-full rounded-2xl bg-navy-900/60 border border-white/5 py-3.5 pl-12 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:shadow-glow-cyan transition-all cursor-pointer disabled:opacity-50"
                   >
                     <option value="" disabled className="bg-navy-950">
-                      {apiError ? 'University Database Offline' : country ? 'Select your university' : 'Select a country first'}
+                      {apiError ? 'No universities listed / Database offline' : country ? 'Select your university' : 'Select a country first'}
                     </option>
                     {universities.map((u) => (
                       <option key={u} value={u} className="bg-navy-950">{u}</option>
