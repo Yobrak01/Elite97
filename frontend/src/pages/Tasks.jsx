@@ -24,6 +24,9 @@ export const Tasks = () => {
   const [estimatedHours, setEstimatedHours] = useState('1');
   const [type, setType] = useState('theory');
   const [deadline, setDeadline] = useState('');
+  const [fixedDate, setFixedDate] = useState('');
+  const [fixedStartTime, setFixedStartTime] = useState('');
+  const [fixedEndTime, setFixedEndTime] = useState('');
   const [selectedCourse, setSelectedCourse] = useState('');
   const [courses, setCourses] = useState([]);
   const [submitting, setSubmitting] = useState(false);
@@ -41,6 +44,9 @@ export const Tasks = () => {
     setEstimatedHours(task.estimatedHours.toString());
     setType(task.type);
     setDeadline(task.deadline ? task.deadline.split('T')[0] : '');
+    setFixedDate(task.fixedDate ? task.fixedDate.split('T')[0] : '');
+    setFixedStartTime(task.fixedStartTime || '');
+    setFixedEndTime(task.fixedEndTime || '');
     setSelectedCourse(task.courseUnit?._id || task.courseUnit || '');
     setEditingId(task._id);
     setModalOpen(true);
@@ -53,6 +59,9 @@ export const Tasks = () => {
     setEstimatedHours('1');
     setType('theory');
     setDeadline('');
+    setFixedDate('');
+    setFixedStartTime('');
+    setFixedEndTime('');
     setSelectedCourse('');
     setEditingId(null);
     setModalOpen(true);
@@ -73,6 +82,9 @@ export const Tasks = () => {
           estimatedHours: Number(estimatedHours),
           type,
           deadline: deadline || undefined,
+          fixedDate: type === 'event' ? (fixedDate || undefined) : undefined,
+          fixedStartTime: type === 'event' ? (fixedStartTime || undefined) : undefined,
+          fixedEndTime: type === 'event' ? (fixedEndTime || undefined) : undefined,
           courseUnit: selectedCourse || undefined
         });
       } else {
@@ -83,6 +95,9 @@ export const Tasks = () => {
           estimatedHours: Number(estimatedHours),
           type,
           deadline: deadline || undefined,
+          fixedDate: type === 'event' ? (fixedDate || undefined) : undefined,
+          fixedStartTime: type === 'event' ? (fixedStartTime || undefined) : undefined,
+          fixedEndTime: type === 'event' ? (fixedEndTime || undefined) : undefined,
           courseUnit: selectedCourse || undefined
         });
       }
@@ -93,6 +108,9 @@ export const Tasks = () => {
       setEstimatedHours('1');
       setType('theory');
       setDeadline('');
+      setFixedDate('');
+      setFixedStartTime('');
+      setFixedEndTime('');
       setSelectedCourse('');
       setEditingId(null);
     } catch (err) {
@@ -196,6 +214,7 @@ export const Tasks = () => {
             <option value="assignment">Assignment</option>
             <option value="revision">Revision</option>
             <option value="project">Project</option>
+            <option value="event">Event / Personal</option>
           </select>
 
           <select
@@ -305,33 +324,73 @@ export const Tasks = () => {
                     <option value="assignment">Assignment</option>
                     <option value="revision">Retrieval / Revision</option>
                     <option value="project">Project Work</option>
+                    <option value="event">Event / Non-Educational</option>
                   </select>
                 </div>
 
+                {type !== 'event' && (
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Course Unit (Optional)</label>
+                    <select
+                      value={selectedCourse}
+                      onChange={(e) => setSelectedCourse(e.target.value)}
+                      className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
+                    >
+                      <option value="">-- No specific unit --</option>
+                      {courses.map(c => (
+                        <option key={c._id} value={c._id}>{c.unitCode} - {c.unitName}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+              </div>
+
+              {type === 'event' ? (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Event Date</label>
+                    <input
+                      type="date"
+                      required
+                      value={fixedDate}
+                      onChange={(e) => setFixedDate(e.target.value)}
+                      className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Start Time</label>
+                      <input
+                        type="time"
+                        required
+                        value={fixedStartTime}
+                        onChange={(e) => setFixedStartTime(e.target.value)}
+                        className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">End Time</label>
+                      <input
+                        type="time"
+                        required
+                        value={fixedEndTime}
+                        onChange={(e) => setFixedEndTime(e.target.value)}
+                        className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Course Unit (Optional)</label>
-                  <select
-                    value={selectedCourse}
-                    onChange={(e) => setSelectedCourse(e.target.value)}
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Deadline Date</label>
+                  <input
+                    type="date"
+                    value={deadline}
+                    onChange={(e) => setDeadline(e.target.value)}
                     className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
-                  >
-                    <option value="">-- No specific unit --</option>
-                    {courses.map(c => (
-                      <option key={c._id} value={c._id}>{c.unitCode} - {c.unitName}</option>
-                    ))}
-                  </select>
+                  />
                 </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Deadline Date</label>
-                <input
-                  type="date"
-                  value={deadline}
-                  onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
-                />
-              </div>
+              )}
 
               <div className="flex justify-end gap-2 pt-2">
                 <button

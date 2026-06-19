@@ -47,6 +47,10 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
   // Filter lectures for the target day
   const targetLectures = timetable.filter(t => t.dayOfWeek === targetDayName || t.day === targetDayName);
   
+  // Filter events scheduled for the target day
+  const targetEvents = tasks.filter(t => t.type === 'event' && t.status !== 'completed' && t.fixedDate && 
+      (new Date(t.fixedDate).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) === dateString));
+  
   const parseTime = (timeStr) => {
     if (!timeStr) return 0;
     const [h, m] = timeStr.split(':').map(Number);
@@ -56,8 +60,14 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
   const lectures = targetLectures.map(l => ({
     start: parseTime(l.startTime),
     end: parseTime(l.endTime),
-    unitName: l.unitName
-  })).sort((a, b) => a.start - b.start);
+    unitName: l.unitName,
+    isEvent: false
+  })).concat(targetEvents.map(e => ({
+    start: parseTime(e.fixedStartTime),
+    end: parseTime(e.fixedEndTime),
+    unitName: e.title,
+    isEvent: true
+  }))).sort((a, b) => a.start - b.start);
 
   const activeTasks = tasks.filter(t => t.status !== 'completed')
     .sort((a, b) => (b.priority - a.priority) || (new Date(a.deadline) - new Date(b.deadline)));
@@ -98,8 +108,8 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
         blocks.push({
           startTime: formatTimeStr(currentMinute),
           endTime: formatTimeStr(lec.end),
-          activity: `Lecture: ${lec.unitName}`,
-          category: 'lecture',
+          activity: lec.isEvent ? `Event: ${lec.unitName}` : `Lecture: ${lec.unitName}`,
+          category: lec.isEvent ? 'event' : 'lecture',
           duration: lec.end - currentMinute
         });
         currentMinute = lec.end;

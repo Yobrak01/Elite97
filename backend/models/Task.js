@@ -38,8 +38,17 @@ const TaskSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['procedural', 'theory', 'assignment', 'revision', 'project'],
+    enum: ['procedural', 'theory', 'assignment', 'revision', 'project', 'event'],
     default: 'theory'
+  },
+  fixedDate: {
+    type: Date
+  },
+  fixedStartTime: {
+    type: String // Format: 'HH:mm'
+  },
+  fixedEndTime: {
+    type: String // Format: 'HH:mm'
   },
   completedAt: {
     type: Date
