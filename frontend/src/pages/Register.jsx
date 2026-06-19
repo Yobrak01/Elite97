@@ -309,7 +309,7 @@ export const Register = () => {
               <ChevronRight className="h-5 w-5" />
             </button>
           </form>
-        ) : (
+        ) : step === 2 ? (
           <form onSubmit={handleSubmit} className="space-y-4 animate-fade-in">
             <div className="space-y-1">
               <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Nation of Operation</label>

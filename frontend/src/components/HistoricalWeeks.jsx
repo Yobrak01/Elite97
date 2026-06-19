@@ -28,7 +28,14 @@ export const HistoricalWeeks = () => {
     );
   }
 
-  if (!weeks || weeks.length === 0) return null;
+  if (!weeks || weeks.length === 0) {
+    return (
+      <div className="bg-navy-900/60 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_10px_50px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-700 mt-6 p-8 text-center">
+        <h3 className="text-lg font-black uppercase tracking-wider text-slate-500 mb-2">Historical Weekly Output</h3>
+        <p className="text-sm font-bold text-slate-600">No time logs recorded yet. Start tracking to generate your weekly aggregates!</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-navy-900/60 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_10px_50px_rgba(0,0,0,0.6)] overflow-hidden transition-all duration-700 mt-6">
