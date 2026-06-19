@@ -28,6 +28,7 @@ export const Register = () => {
   
   const [country, setCountry] = useState('');
   const [university, setUniversity] = useState('');
+  const [customUniversity, setCustomUniversity] = useState('');
   const [major, setMajor] = useState('');
   const [customMajor, setCustomMajor] = useState('');
   const [yearOfStudy, setYearOfStudy] = useState('');
