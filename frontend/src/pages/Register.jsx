@@ -135,17 +135,6 @@ export const Register = () => {
 
   return (
     <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
-      <style>{`
-        /* Force Chrome autofill to use black text on white background to guarantee readability */
-        input:-webkit-autofill,
-        input:-webkit-autofill:hover, 
-        input:-webkit-autofill:focus, 
-        input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
-            -webkit-text-fill-color: #000000 !important;
-            caret-color: #000000 !important;
-        }
-      `}</style>
       {/* Global Watermark */}
       <div className="elite-watermark-container"></div>
       

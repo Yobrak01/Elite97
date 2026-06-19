@@ -209,12 +209,12 @@ export const Tasks = () => {
             className="rounded-xl bg-navy-900 border border-white/5 px-3 py-2.5 text-xs text-slate-300 font-bold focus:outline-none"
           >
             <option value="">All Types</option>
+            <option value="event">Event / Personal</option>
             <option value="theory">Theory</option>
             <option value="procedural">Procedural</option>
             <option value="assignment">Assignment</option>
             <option value="revision">Revision</option>
             <option value="project">Project</option>
-            <option value="event">Event / Personal</option>
           </select>
 
           <select
@@ -320,11 +320,11 @@ export const Tasks = () => {
                     className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
                   >
                     <option value="theory">Theory Focus</option>
+                    <option value="event">Event / Non-Educational</option>
                     <option value="procedural">Procedural / Solving</option>
                     <option value="assignment">Assignment</option>
                     <option value="revision">Retrieval / Revision</option>
                     <option value="project">Project Work</option>
-                    <option value="event">Event / Non-Educational</option>
                   </select>
                 </div>
 
