@@ -431,6 +431,12 @@ export const api = {
         headers: getHeaders()
       });
       return handleResponse(res);
+    },
+    getHistoricalWeeks: async () => {
+      const res = await fetch(`${API_URL}/tracker/historical-weeks`, {
+        headers: getHeaders()
+      });
+      return handleResponse(res);
     }
   },
   streaks: {

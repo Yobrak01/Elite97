@@ -416,3 +416,93 @@ exports.completeOverride = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Get historical weekly averages grouped by week
+// @route   GET /api/tracker/historical-weeks
+// @access  Private
+exports.getHistoricalWeeks = async (req, res, next) => {
+  try {
+    const logs = await TimeLog.find({ user: req.user._id }).sort({ date: 1 });
+
+    const getMonday = (d) => {
+      const date = new Date(d);
+      date.setHours(0, 0, 0, 0);
+      const day = date.getDay();
+      const diff = date.getDate() - day + (day === 0 ? -6 : 1); 
+      return new Date(date.setDate(diff));
+    };
+
+    const getSunday = (monday) => {
+      const sunday = new Date(monday);
+      sunday.setDate(sunday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+      return sunday;
+    };
+
+    const formatDateRange = (monday, sunday) => {
+      const options = { month: 'short', day: 'numeric' };
+      return `${monday.toLocaleDateString('en-US', options)} - ${sunday.toLocaleDateString('en-US', options)}`;
+    };
+
+    const weeksMap = new Map();
+
+    logs.forEach(log => {
+      const monday = getMonday(log.date);
+      const key = monday.toISOString();
+      
+      if (!weeksMap.has(key)) {
+        weeksMap.set(key, {
+          weekString: formatDateRange(monday, getSunday(monday)),
+          mondayTime: monday.getTime(),
+          totalStudyMinutes: 0,
+          activities: {
+            personal_study: 0,
+            group_discussion: 0,
+            lecture: 0,
+            project: 0,
+            gym: 0,
+            rest: 0,
+            chore: 0
+          }
+        });
+      }
+
+      const weekData = weeksMap.get(key);
+      const duration = log.durationMinutes || 0;
+      
+      if (weekData.activities[log.activityType] !== undefined) {
+        weekData.activities[log.activityType] += duration;
+      } else {
+        weekData.activities[log.activityType] = duration;
+      }
+
+      if (['personal_study', 'group_discussion', 'lecture', 'project'].includes(log.activityType)) {
+        weekData.totalStudyMinutes += duration;
+      }
+    });
+
+    const weeksList = Array.from(weeksMap.values()).sort((a, b) => b.mondayTime - a.mondayTime);
+
+    // Format final response
+    const formattedWeeks = weeksList.map((w, index) => {
+      return {
+        id: `week_${index + 1}`,
+        weekLabel: `Week ${weeksList.length - index}. ${w.weekString}`,
+        totalStudyHours: Number((w.totalStudyMinutes / 60).toFixed(1)),
+        averageStudyHoursPerDay: Number((w.totalStudyMinutes / 60 / 7).toFixed(1)),
+        breakdown: {
+          personalStudy: Number((w.activities.personal_study / 60).toFixed(1)),
+          lecture: Number((w.activities.lecture / 60).toFixed(1)),
+          gym: Number((w.activities.gym / 60).toFixed(1)),
+          rest: Number((w.activities.rest / 60).toFixed(1)),
+          chore: Number((w.activities.chore / 60).toFixed(1)),
+          other: Number(((w.activities.group_discussion + w.activities.project) / 60).toFixed(1))
+        }
+      };
+    });
+
+    res.status(200).json({ success: true, data: formattedWeeks });
+  } catch (error) {
+    next(error);
+  }
+};

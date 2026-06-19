@@ -16,5 +16,6 @@ router.post('/manual', trackerController.manualLog);
 router.get('/today', trackerController.getTodayLogs);
 router.get('/weekly', trackerController.getWeeklySummary);
 router.get('/weekly-logs', authMiddleware, trackerController.getWeeklyLogs);
+router.get('/historical-weeks', trackerController.getHistoricalWeeks);
 
 module.exports = router;
