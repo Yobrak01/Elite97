@@ -213,6 +213,23 @@ exports.manualLog = async (req, res, next) => {
   }
 };
 
+// @desc    Delete a time log
+// @route   DELETE /api/tracker/:id
+// @access  Private
+exports.deleteLog = async (req, res, next) => {
+  try {
+    const log = await TimeLog.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+    
+    if (!log) {
+      return res.status(404).json({ success: false, message: 'Time log not found or unauthorized' });
+    }
+
+    res.status(200).json({ success: true, message: 'Time log deleted successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Get all time logs for today
 // @route   GET /api/tracker/today
 // @access  Private

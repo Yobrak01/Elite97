@@ -40,11 +40,9 @@ export const Login = () => {
 
       <div className="glass-panel w-full max-w-md rounded-3xl p-8 border border-white/5 shadow-2xl relative z-10">
         <div className="flex flex-col items-center text-center space-y-2 mb-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-glow-cyan">
-            <Zap className="h-8 w-8" />
-          </div>
+          <img src="/logo.png" alt="ELITE97" className="h-24 w-24 rounded-full object-cover border-2 border-amber-500/40 shadow-[0_0_40px_rgba(217,169,78,0.4)]" />
           <h2 className="text-4xl md:text-5xl font-display font-black tracking-[0.2em] text-white mt-6 text-glow-gold">
-            ELITE<span className="text-cyan-400">97</span>
+            ELITE<span className="text-accent-gold">97</span>
           </h2>
           <p className="text-sm text-slate-400 font-medium uppercase tracking-[0.3em] mt-2">
             Academic Performance Operating System

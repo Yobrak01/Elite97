@@ -198,11 +198,9 @@ export const Register = () => {
 
       <div className="glass-panel w-full max-w-md rounded-3xl p-8 border border-white/5 shadow-2xl relative z-10 transition-all duration-500">
         <div className="flex flex-col items-center text-center space-y-2 mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-glow-cyan">
-            {step === 3 ? <ShieldCheck className="h-6 w-6" /> : <Award className="h-6 w-6" />}
-          </div>
+          <img src="/logo.png" alt="ELITE97" className="h-20 w-20 rounded-full object-cover border-2 border-amber-500/40 shadow-[0_0_30px_rgba(217,169,78,0.4)]" />
           <h2 className="text-4xl md:text-5xl font-display font-black tracking-[0.2em] text-white mt-6 text-glow-gold">
-            ELITE<span className="text-cyan-400">97</span>
+            ELITE<span className="text-accent-gold">97</span>
           </h2>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mt-2">
             {step === 1 ? 'Step 1: Node Credentials' : step === 2 ? 'Step 2: Academic Matrix' : 'Step 3: Identity Verification'}

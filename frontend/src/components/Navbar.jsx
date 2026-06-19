@@ -48,8 +48,8 @@ export const Navbar = ({ setSidebarOpen }) => {
         </button>
 
         {/* Branding title */}
-        <div className="hidden items-center gap-2 sm:flex">
-          <Award className="h-6 w-6 text-accent-gold" />
+        <div className="hidden items-center gap-3 sm:flex">
+          <img src="/logo.png" alt="ELITE97" className="h-8 w-8 rounded-full object-cover border border-amber-500/30 shadow-[0_0_10px_rgba(217,169,78,0.3)]" />
           <span className="text-lg font-black tracking-wider text-textMain">
             ELITE<span className="text-accent-gold">97</span>
           </span>

@@ -40,9 +40,10 @@ export const Sidebar = ({ isOpen, setIsOpen }) => {
         }`}
       >
         <div className="flex h-16 items-center justify-between px-6 border-b border-white/5">
-          <div className="flex items-center gap-2">
-            <span className="text-2xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">
-              ELITE<span className="text-cyan-400">97</span>
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="ELITE97" className="h-10 w-10 rounded-full object-cover border border-amber-500/30 shadow-[0_0_15px_rgba(217,169,78,0.3)]" />
+            <span className="text-lg font-display font-light tracking-[0.3em] text-cyan-50 text-glow-cyan uppercase opacity-80">
+              ELITE<span className="text-accent-gold">97</span>
             </span>
           </div>
           <button
