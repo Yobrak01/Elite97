@@ -322,19 +322,37 @@ exports.regenerateWeeklyWorkout = async (req, res, next) => {
 // @access  Private
 exports.getTodayRoutine = async (req, res, next) => {
   try {
+    const formatTime12h = (totalMinutes) => {
+      let h = Math.floor(totalMinutes / 60) % 24;
+      const m = totalMinutes % 60;
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12;
+      h = h ? h : 12; 
+      return `${h}:${m.toString().padStart(2, '0')} ${ampm}`;
+    };
+
+    const parseTimeStr = (timeStr, defaultMinutes) => {
+      if (!timeStr) return defaultMinutes;
+      const [h, m] = timeStr.split(':').map(Number);
+      return isNaN(h) || isNaN(m) ? defaultMinutes : h * 60 + m;
+    };
+
+    const wakeTimeMinutes = parseTimeStr(req.user?.settings?.wakeTime, 360);
+    const sleepTimeMinutes = parseTimeStr(req.user?.settings?.sleepTime, 1350);
+
     const BASELINE_ROUTINE = [
-      { time: '6:00 AM', minutes: 360, label: 'Wake Up', icon: 'Sunrise', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Rise early. No snooze. Discipline starts here.' },
-      { time: '6:15 AM', minutes: 375, label: 'Morning Routine', icon: 'ShowerHead', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Shower, brush teeth, skincare, get dressed.' },
-      { time: '6:45 AM', minutes: 405, label: 'Breakfast Prep & Eat', icon: 'Coffee', color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Cook a proper breakfast. High protein, complex carbs.' },
-      { time: '7:30 AM', minutes: 450, label: 'Morning Study Block', icon: 'BookOpen', color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Deep focus study session. Most important tasks first.' },
+      { time: formatTime12h(wakeTimeMinutes), minutes: wakeTimeMinutes, label: 'Wake Up', icon: 'Sunrise', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Rise early. No snooze. Discipline starts here.' },
+      { time: formatTime12h(wakeTimeMinutes + 15), minutes: wakeTimeMinutes + 15, label: 'Morning Routine', icon: 'ShowerHead', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Shower, brush teeth, skincare, get dressed.' },
+      { time: formatTime12h(wakeTimeMinutes + 45), minutes: wakeTimeMinutes + 45, label: 'Breakfast Prep & Eat', icon: 'Coffee', color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Cook a proper breakfast. High protein, complex carbs.' },
+      { time: formatTime12h(wakeTimeMinutes + 90), minutes: wakeTimeMinutes + 90, label: 'Morning Study Block', icon: 'BookOpen', color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Deep focus study session. Most important tasks first.' },
       { time: '12:30 PM', minutes: 750, label: 'Lunch Prep & Eat', icon: 'UtensilsCrossed', color: 'text-green-400', bg: 'bg-green-500/10', description: 'Cook lunch. Balanced meal with vegetables.' },
       { time: '1:15 PM', minutes: 795, label: 'Afternoon Study Block', icon: 'BookOpen', color: 'text-purple-400', bg: 'bg-purple-500/10', description: 'Continued studying or coursework.' },
       { time: '5:00 PM', minutes: 1020, label: 'Gym Session', icon: 'Dumbbell', color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'Strength training. Follow the weekly split.' },
       { time: '6:30 PM', minutes: 1110, label: 'Cooking & Dinner', icon: 'UtensilsCrossed', color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Prepare dinner. Meal prep for tomorrow if possible.' },
       { time: '7:30 PM', minutes: 1170, label: 'Evening Study', icon: 'BookOpen', color: 'text-indigo-400', bg: 'bg-indigo-500/10', description: 'Review notes, assignments, lighter study tasks.' },
       { time: '9:00 PM', minutes: 1260, label: 'Cleaning / Laundry', icon: 'Shirt', color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Dishes, wipe surfaces, take out trash, laundry cycle.' },
-      { time: '10:00 PM', minutes: 1320, label: 'Wind Down', icon: 'Sunset', color: 'text-pink-400', bg: 'bg-pink-500/10', description: 'No screens. Read, stretch, plan tomorrow.' },
-      { time: '10:30 PM', minutes: 1350, label: 'Sleep', icon: 'BedDouble', color: 'text-slate-400', bg: 'bg-slate-500/10', description: '7.5 hours of sleep. Non-negotiable recovery.' }
+      { time: formatTime12h(sleepTimeMinutes - 30), minutes: sleepTimeMinutes - 30, label: 'Wind Down', icon: 'Sunset', color: 'text-pink-400', bg: 'bg-pink-500/10', description: 'No screens. Read, stretch, plan tomorrow.' },
+      { time: formatTime12h(sleepTimeMinutes), minutes: sleepTimeMinutes, label: 'Sleep', icon: 'BedDouble', color: 'text-slate-400', bg: 'bg-slate-500/10', description: 'Get enough sleep. Non-negotiable recovery.' }
     ];
 
     // Get today's lectures from timetable

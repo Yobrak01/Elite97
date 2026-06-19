@@ -12,6 +12,8 @@ export const Settings = () => {
   const [regenAfterSessions, setRegenAfterSessions] = useState(user?.settings?.regenAfterSessions || 4);
   const [taskGenerationMode, setTaskGenerationMode] = useState(user?.settings?.taskGenerationMode || 'daily');
   const [notifications, setNotifications] = useState(user?.settings?.notifications ?? true);
+  const [wakeTime, setWakeTime] = useState(user?.settings?.wakeTime || '06:00');
+  const [sleepTime, setSleepTime] = useState(user?.settings?.sleepTime || '22:30');
   const [studyMode, setStudyMode] = useState(user?.studyMode || 'normal');
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -92,7 +94,9 @@ export const Settings = () => {
           breakDuration: Number(breakDuration),
           regenAfterSessions: Number(regenAfterSessions),
           taskGenerationMode,
-          notifications
+          notifications,
+          wakeTime,
+          sleepTime
         }
       });
       updateUser(res.user);
@@ -222,6 +226,34 @@ export const Settings = () => {
               <option value="daily">Daily Mode - Generate once per day based on timetable</option>
               <option value="infinite">Infinite Mode - Constantly auto-generate new tasks</option>
             </select>
+          </div>
+
+          {/* Circadian Rhythm Boundaries */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Target Wake Time</label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                <input
+                  type="time"
+                  value={wakeTime}
+                  onChange={(e) => setWakeTime(e.target.value)}
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Target Sleep Time</label>
+              <div className="relative">
+                <Clock className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+                <input
+                  type="time"
+                  value={sleepTime}
+                  onChange={(e) => setSleepTime(e.target.value)}
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-cyan-500 transition-colors"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Toggle notifications */}

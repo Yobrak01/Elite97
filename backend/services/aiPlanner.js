@@ -23,15 +23,22 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     };
   }
 
-  // Duplicate declarations removed
+  const parseTimeStr = (timeStr, defaultMinutes) => {
+    if (!timeStr) return defaultMinutes;
+    const [h, m] = timeStr.split(':').map(Number);
+    return isNaN(h) || isNaN(m) ? defaultMinutes : h * 60 + m;
+  };
+
+  const wakeTimeMinutes = parseTimeStr(settings.wakeTime, 8 * 60);
+  let sleepTimeMinutes = parseTimeStr(settings.sleepTime, 22 * 60 + 30); // 22:30 default
+
+  let currentMinute = wakeTimeMinutes;
   
-  let currentMinute = 8 * 60; // Start at 08:00 AM
-  
-  if (currentTotalMinutes >= 20 * 60) {
-    // It's after 8 PM, plan for tomorrow
+  if (currentTotalMinutes >= sleepTimeMinutes) {
+    // It's after sleep time, plan for tomorrow
     targetDate.setDate(targetDate.getDate() + 1);
   } else {
-    currentMinute = Math.max(8 * 60, currentTotalMinutes); 
+    currentMinute = Math.max(wakeTimeMinutes, currentTotalMinutes); 
     // Round up to the next 15-minute mark
     const remainder = currentMinute % 15;
     if (remainder !== 0) {
@@ -99,7 +106,12 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     return `${h}:${m}`;
   };
 
-  while (remainingStudyMinutes > 0 && currentMinute < 24 * 60) { // cap at midnight
+  // Handle sleep times past midnight
+  if (sleepTimeMinutes <= wakeTimeMinutes) {
+    sleepTimeMinutes += 24 * 60;
+  }
+
+  while (remainingStudyMinutes > 0 && currentMinute < sleepTimeMinutes) {
     // If we hit a lecture time
     if (lectureIndex < lectures.length && currentMinute >= lectures[lectureIndex].start) {
       const lec = lectures[lectureIndex];
@@ -118,10 +130,10 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
       continue; // re-evaluate next iteration
     }
 
-    // Determine free time until next lecture
-    let maxFreeTime = 24 * 60 - currentMinute;
+    // Determine free time until next lecture or sleep
+    let maxFreeTime = sleepTimeMinutes - currentMinute;
     if (lectureIndex < lectures.length && lectures[lectureIndex].start > currentMinute) {
-      maxFreeTime = lectures[lectureIndex].start - currentMinute;
+      maxFreeTime = Math.min(maxFreeTime, lectures[lectureIndex].start - currentMinute);
     }
 
     // If gap is too small, skip it
