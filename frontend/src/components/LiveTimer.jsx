@@ -38,6 +38,7 @@ export const LiveTimer = () => {
   const [todayLogs, setTodayLogs] = useState([]);
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState('');
+  const [customDescription, setCustomDescription] = useState('');
   const [loadingAction, setLoadingAction] = useState(false);
   const intervalRef = useRef(null);
 
@@ -106,7 +107,7 @@ export const LiveTimer = () => {
       setActivityType(overrideType);
     }
     
-    const finalDesc = description || (selectedCourse ? `[Unit: ${selectedCourse}]` : undefined);
+    const finalDesc = description || customDescription || (selectedCourse ? `[Unit: ${selectedCourse}]` : undefined);
 
     try {
       const res = await api.tracker.startTimer({ activityType: typeToUse, description: finalDesc });
@@ -195,7 +196,7 @@ export const LiveTimer = () => {
   const handleManualLog = async () => {
     if (loadingAction || !manualDuration || Number(manualDuration) <= 0) return;
     setLoadingAction(true);
-    const finalDesc = selectedCourse ? `[Unit: ${selectedCourse}]` : undefined;
+    const finalDesc = customDescription || (selectedCourse ? `[Unit: ${selectedCourse}]` : undefined);
     try {
       await api.tracker.manualLog({
         activityType,
@@ -328,6 +329,20 @@ export const LiveTimer = () => {
                   <option key={c._id} value={c.unitCode}>{c.unitCode} - {c.unitName}</option>
                 ))}
               </select>
+            </div>
+          )}
+
+          {/* Custom Activity Name */}
+          {!isRunning && (
+            <div className="space-y-2 animate-fade-in">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Activity Name (Optional)</p>
+              <input
+                type="text"
+                value={customDescription}
+                onChange={(e) => setCustomDescription(e.target.value)}
+                placeholder={activityType === 'gym' ? 'e.g. Chest & Triceps' : activityType === 'chore' ? 'e.g. Groceries' : 'Specific topic or task...'}
+                className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/30 transition-colors"
+              />
             </div>
           )}
 
