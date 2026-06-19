@@ -3,6 +3,7 @@ const Task = require('../models/Task');
 const { predictCourseDifficulty, predictCourseCredits } = require('../services/studyMethodology');
 const { parseSyllabus } = require('../services/syllabusParser');
 const plannerController = require('./plannerController');
+const { computeAiTier } = require('../services/tierEngine');
 
 // Suggest AI Tier based on difficulty and credits
 const suggestCourseTier = (difficulty, credits) => {
@@ -79,6 +80,31 @@ exports.updateCourse = async (req, res, next) => {
 
     // Synchronize tasks with AI Planner
     await plannerController.autoGenerateWeaknessTasks(req.user);
+
+    // Cascade Tier Sync to incomplete tasks linked to this course
+    const incompleteTasks = await Task.find({ 
+      courseUnit: course._id, 
+      user: req.user._id, 
+      status: { $ne: 'completed' } 
+    });
+
+    if (incompleteTasks.length > 0) {
+      const taskUpdates = incompleteTasks.map(t => {
+        const aiData = computeAiTier(t.toObject(), course.aiSuggestedTier);
+        return {
+          updateOne: {
+            filter: { _id: t._id },
+            update: {
+              $set: {
+                aiSuggestedTier: aiData.tier,
+                tierScore: aiData.score
+              }
+            }
+          }
+        };
+      });
+      await Task.bulkWrite(taskUpdates);
+    }
 
     res.status(200).json({ success: true, data: course });
   } catch (error) {

@@ -1,4 +1,5 @@
 const Task = require('../models/Task');
+const CourseUnit = require('../models/CourseUnit');
 const { computeAiTier } = require('../services/tierEngine');
 const mongoose = require('mongoose');
 
@@ -45,8 +46,15 @@ exports.createTask = async (req, res, next) => {
   try {
     req.body.user = req.user._id;
     
+    // Fetch course tier if linked
+    let courseTier = null;
+    if (req.body.courseUnit) {
+      const course = await CourseUnit.findById(req.body.courseUnit);
+      if (course) courseTier = course.aiSuggestedTier;
+    }
+
     // Auto-compute AI tier
-    const aiData = computeAiTier(req.body);
+    const aiData = computeAiTier(req.body, courseTier);
     req.body.aiSuggestedTier = aiData.tier;
     req.body.tierScore = aiData.score;
 
@@ -64,8 +72,19 @@ exports.createBulkTasks = async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid tasks array provided.' });
     }
 
+    // Cache course tiers to avoid repetitive DB calls
+    const courseTierCache = {};
+    const courseIds = [...new Set(tasks.map(t => t.courseUnit).filter(Boolean))];
+    if (courseIds.length > 0) {
+      const courses = await CourseUnit.find({ _id: { $in: courseIds } });
+      courses.forEach(c => {
+        courseTierCache[c._id.toString()] = c.aiSuggestedTier;
+      });
+    }
+
     const tasksToInsert = tasks.map(task => {
-      const aiData = computeAiTier(task);
+      const courseTier = task.courseUnit ? courseTierCache[task.courseUnit.toString()] : null;
+      const aiData = computeAiTier(task, courseTier);
       return {
         ...task,
         user: req.user._id,
@@ -89,9 +108,17 @@ exports.updateTask = async (req, res, next) => {
       return res.status(404).json({ message: 'Task not found or access denied.' });
     }
 
-    // Auto-compute AI tier for updates
     const updatedData = { ...task.toObject(), ...req.body };
-    const aiData = computeAiTier(updatedData);
+
+    // Fetch course tier if linked
+    let courseTier = null;
+    if (updatedData.courseUnit) {
+      const course = await CourseUnit.findById(updatedData.courseUnit);
+      if (course) courseTier = course.aiSuggestedTier;
+    }
+
+    // Auto-compute AI tier for updates
+    const aiData = computeAiTier(updatedData, courseTier);
     req.body.aiSuggestedTier = aiData.tier;
     req.body.tierScore = aiData.score;
 

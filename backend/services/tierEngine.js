@@ -1,4 +1,4 @@
-function computeAiTier(task) {
+function computeAiTier(task, courseTier = null) {
   // task = { title, priority, estimatedHours, type, deadline, ... }
   let score = 0;
 
@@ -9,6 +9,15 @@ function computeAiTier(task) {
   if (task.type === 'assignment' || task.type === 'project') score += 15;
   if (task.type === 'theory' || task.type === 'procedural') score += 10;
   if (task.type === 'revision') score += 5;
+
+  // Course Tier Synchronization
+  if (courseTier) {
+    if (courseTier === 'tier1_critical') score += 25;
+    else if (courseTier === 'tier2_high') score += 15;
+    else if (courseTier === 'tier3_standard') score += 5;
+    else if (courseTier === 'tier4_low') score -= 5;
+    else if (courseTier === 'tier5_minimal') score -= 10;
+  }
 
   // Deadline modifier
   if (task.deadline) {
