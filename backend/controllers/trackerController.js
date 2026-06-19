@@ -1,6 +1,7 @@
 const TimeLog = require('../models/TimeLog');
 const Analytics = require('../models/Analytics');
 const mongoose = require('mongoose');
+const { getStartOfDay, getEndOfDay } = require('../utils/dateUtils');
 
 // @desc    Start a new timer (creates a TimeLog entry with startTime = now)
 // @route   POST /api/tracker/start
@@ -217,8 +218,7 @@ exports.manualLog = async (req, res, next) => {
 // @access  Private
 exports.getTodayLogs = async (req, res, next) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
 
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
@@ -240,9 +240,8 @@ exports.getTodayLogs = async (req, res, next) => {
 exports.getWeeklyLogs = async (req, res, next) => {
   try {
     const now = new Date();
-    const sevenDaysAgo = new Date();
+    const sevenDaysAgo = getStartOfDay(req.user.timezone);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
 
     const logs = await TimeLog.find({
       user: req.user._id,
@@ -261,9 +260,8 @@ exports.getWeeklyLogs = async (req, res, next) => {
 exports.getWeeklySummary = async (req, res, next) => {
   try {
     const now = new Date();
-    const sevenDaysAgo = new Date();
+    const sevenDaysAgo = getStartOfDay(req.user.timezone);
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-    sevenDaysAgo.setHours(0, 0, 0, 0);
 
     // Aggregate total minutes per activityType over the last 7 days
     const byActivity = await TimeLog.aggregate([
@@ -361,8 +359,7 @@ exports.breachOverride = async (req, res, next) => {
     await timeLog.save();
 
     // Punish Analytics
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
     
     await Analytics.findOneAndUpdate(
       { user: req.user._id, date: today },
@@ -399,8 +396,7 @@ exports.completeOverride = async (req, res, next) => {
     await timeLog.save();
 
     // Reward Analytics
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
     
     await Analytics.findOneAndUpdate(
       { user: req.user._id, date: today },
@@ -425,8 +421,7 @@ exports.getHistoricalWeeks = async (req, res, next) => {
     const logs = await TimeLog.find({ user: req.user._id }).sort({ date: 1 });
 
     const getMonday = (d) => {
-      const date = new Date(d);
-      date.setHours(0, 0, 0, 0);
+      const date = getStartOfDay(req.user.timezone, new Date(d));
       const day = date.getDay();
       const diff = date.getDate() - day + (day === 0 ? -6 : 1); 
       return new Date(date.setDate(diff));
@@ -435,8 +430,7 @@ exports.getHistoricalWeeks = async (req, res, next) => {
     const getSunday = (monday) => {
       const sunday = new Date(monday);
       sunday.setDate(sunday.getDate() + 6);
-      sunday.setHours(23, 59, 59, 999);
-      return sunday;
+      return getEndOfDay(req.user.timezone, sunday);
     };
 
     const formatDateRange = (monday, sunday) => {

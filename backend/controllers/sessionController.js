@@ -5,6 +5,7 @@ const Analytics = require('../models/Analytics');
 const analyticsEngine = require('../services/analyticsEngine');
 const burnoutDetector = require('../services/burnoutDetector');
 const aiPlanner = require('../services/aiPlanner');
+const { getStartOfDay, getEndOfDay, getLocalDateString } = require('../utils/dateUtils');
 
 exports.getSessions = async (req, res, next) => {
   try {
@@ -20,13 +21,11 @@ exports.createSession = async (req, res, next) => {
     const { studyHours, focusScore, breaks, notes, subjects, date } = req.body;
     
     // Ensure date defaults to today
-    const sessionDate = date ? new Date(date) : new Date();
-    sessionDate.setHours(0, 0, 0, 0);
+    const sessionDate = date ? getStartOfDay(req.user.timezone, new Date(date)) : getStartOfDay(req.user.timezone);
 
     // Get count of completed tasks today
     const startOfDay = new Date(sessionDate);
-    const endOfDay = new Date(sessionDate);
-    endOfDay.setHours(23, 59, 59, 999);
+    const endOfDay = date ? getEndOfDay(req.user.timezone, new Date(date)) : getEndOfDay(req.user.timezone);
 
     const totalTasks = await Task.countDocuments({
       user: req.user._id,
@@ -103,8 +102,7 @@ exports.createSession = async (req, res, next) => {
 
 exports.getTodaySession = async (req, res, next) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
 
     const session = await StudySession.findOne({
       user: req.user._id,

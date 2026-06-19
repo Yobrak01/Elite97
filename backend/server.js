@@ -5,8 +5,6 @@ const rateLimit = require('express-rate-limit');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Enforce local timezone for all Date operations globally (East Africa Time)
-process.env.TZ = process.env.TZ || 'Africa/Nairobi';
 if (!process.env.JWT_SECRET) {
   console.error('FATAL: JWT_SECRET environment variable is not set.');
   process.exit(1);

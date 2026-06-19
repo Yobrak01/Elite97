@@ -258,7 +258,6 @@ export const Settings = () => {
                 />
               </div>
             </div>
-            </div>
             
             <div className="space-y-2 col-span-2 border-t border-white/5 pt-4 mt-2">
               <label className="text-[10px] font-black uppercase tracking-wider text-accent-gold">Circadian Anchor</label>

@@ -2,6 +2,7 @@ const Task = require('../models/Task');
 const CourseUnit = require('../models/CourseUnit');
 const { computeAiTier } = require('../services/tierEngine');
 const mongoose = require('mongoose');
+const { getEndOfDay } = require('../utils/dateUtils');
 
 exports.getTasks = async (req, res, next) => {
   try {
@@ -16,8 +17,7 @@ exports.getTasks = async (req, res, next) => {
     if (priority) query.priority = Number(priority);
 
     // Auto-escalate overdue tasks
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+    const endOfToday = getEndOfDay(req.user.timezone);
     
     await Task.updateMany(
       { user: req.user._id, status: { $ne: 'completed' }, deadline: { $lte: endOfToday }, priority: { $lt: 5 } },

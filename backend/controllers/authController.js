@@ -112,11 +112,14 @@ exports.verifyEmail = async (req, res, next) => {
     // Let's use `User.create` and pass the hashed password. To avoid double hashing, I'll update User.js.
     // Let's assume User schema hashes it. Let's look at it next.
     
+    const { getTimezoneFromCountry } = require('../utils/dateUtils');
+    
     const newUser = new User({
       name: pendingUser.name,
       email: pendingUser.email,
       password: pendingUser.password, // This is already hashed!
       country: pendingUser.country,
+      timezone: getTimezoneFromCountry(pendingUser.country),
       university: pendingUser.university,
       major: pendingUser.major,
       yearOfStudy: pendingUser.yearOfStudy,
@@ -212,7 +215,11 @@ exports.updateSettings = async (req, res, next) => {
       req.user.studyMode = studyMode;
     }
     if (yearOfStudy !== undefined) req.user.yearOfStudy = yearOfStudy;
-    if (country !== undefined) req.user.country = country;
+    if (country !== undefined) {
+      req.user.country = country;
+      const { getTimezoneFromCountry } = require('../utils/dateUtils');
+      req.user.timezone = getTimezoneFromCountry(country);
+    }
     if (university !== undefined) req.user.university = university;
     if (major !== undefined) req.user.major = major;
     if (majorCandidatesCount !== undefined) req.user.majorCandidatesCount = majorCandidatesCount;
