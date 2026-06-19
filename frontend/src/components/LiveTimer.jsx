@@ -332,7 +332,7 @@ export const LiveTimer = () => {
           )}
 
           {/* Start / Stop / Log Button */}
-          <div>
+          <div className="flex gap-2">
             {manualMode ? (
               <button
                 onClick={handleManualLog}
@@ -342,7 +342,7 @@ export const LiveTimer = () => {
                 <Check className="h-4 w-4" />
                 {loadingAction ? 'Saving...' : 'Log Time'}
               </button>
-            ) : !isRunning ? (
+            ) : !isRunning && !isPaused ? (
               <button
                 onClick={handleStart}
                 disabled={loadingAction}
@@ -352,14 +352,24 @@ export const LiveTimer = () => {
                 {loadingAction ? 'Starting...' : 'Start Session'}
               </button>
             ) : (
-              <button
-                onClick={handleStop}
-                disabled={loadingAction}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-red-500/10 disabled:opacity-50"
-              >
-                <Square className="h-4 w-4" />
-                {loadingAction ? 'Stopping...' : 'Stop & Save'}
-              </button>
+              <>
+                <button
+                  onClick={isPaused ? handleResume : handlePause}
+                  disabled={loadingAction}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-yellow-500/20 border border-yellow-500/30 text-yellow-400 hover:bg-yellow-500 hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-yellow-500/10 disabled:opacity-50"
+                >
+                  {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                  {isPaused ? 'Resume' : 'Pause'}
+                </button>
+                <button
+                  onClick={handleStop}
+                  disabled={loadingAction}
+                  className="flex-1 flex items-center justify-center gap-2 rounded-xl bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-red-500/10 disabled:opacity-50"
+                >
+                  <Square className="h-4 w-4" />
+                  {loadingAction ? 'Stopping...' : 'Stop'}
+                </button>
+              </>
             )}
           </div>
 
