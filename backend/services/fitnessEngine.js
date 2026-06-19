@@ -50,10 +50,11 @@ function calculateHours(startTime, endTime) {
   return (eH + eM/60) - (sH + sM/60);
 }
 
-function generateWeeklyWorkoutPlan(startDate, userTimetable = []) {
+const { getStartOfDay } = require('../utils/dateUtils');
+
+function generateWeeklyWorkoutPlan(startDate, userTimetable = [], timezone = 'UTC') {
   const plan = [];
-  const start = new Date(startDate);
-  start.setHours(0, 0, 0, 0);
+  const start = getStartOfDay(timezone, new Date(startDate));
 
   const daysInfo = [];
   for (let i = 0; i < 7; i++) {

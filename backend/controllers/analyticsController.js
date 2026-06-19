@@ -198,7 +198,7 @@ exports.getWeekly = async (req, res, next) => {
       date: { $gte: lastWeek }
     });
 
-    const weeklyData = analyticsEngine.generateWeeklyAnalytics(sessions);
+    const weeklyData = analyticsEngine.generateWeeklyAnalytics(sessions, req.user.timezone);
     res.status(200).json({ success: true, data: weeklyData });
   } catch (error) {
     next(error);
@@ -661,6 +661,7 @@ exports.getHierarchyMatrix = async (req, res, next) => {
       avgProductivity
     };
 
+    currentUserStats.timezone = req.user.timezone;
     const matrix = hierarchyMatrix.generateMatrix(currentUserStats);
 
     res.status(200).json({

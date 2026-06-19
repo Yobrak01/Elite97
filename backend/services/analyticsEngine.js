@@ -1,3 +1,5 @@
+const { getStartOfDay } = require('../utils/dateUtils');
+
 /**
  * Calculates a genuine focus quality score based on a 7-component formula.
  * @param {Object} context
@@ -96,14 +98,12 @@ function calculateProductivityScore(focusScore, completionPercentage, streak, ci
   return Math.min(100, Math.round(score));
 }
 
-function calculateStreak(lastStudyDate, currentStreak) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+function calculateStreak(lastStudyDate, currentStreak, timezone) {
+  const today = getStartOfDay(timezone);
   
   if (!lastStudyDate) return 1;
   
-  const last = new Date(lastStudyDate);
-  last.setHours(0, 0, 0, 0);
+  const last = getStartOfDay(timezone, new Date(lastStudyDate));
   
   const diffTime = Math.abs(today - last);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -117,21 +117,18 @@ function calculateStreak(lastStudyDate, currentStreak) {
   }
 }
 
-function generateWeeklyAnalytics(sessions) {
+function generateWeeklyAnalytics(sessions, timezone) {
   const last7Days = [];
   for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    d.setHours(0, 0, 0, 0);
+    const d = getStartOfDay(timezone);
+    d.setUTCDate(d.getUTCDate() - i);
     last7Days.push(d);
   }
 
   return last7Days.map(date => {
     const daySessions = sessions.filter(s => {
-      const sDate = new Date(s.date);
-      return sDate.getDate() === date.getDate() &&
-             sDate.getMonth() === date.getMonth() &&
-             sDate.getFullYear() === date.getFullYear();
+      const sDate = getStartOfDay(timezone, new Date(s.date));
+      return sDate.getTime() === date.getTime();
     });
 
     const studyHours = daySessions.reduce((sum, s) => sum + s.studyHours, 0);

@@ -44,7 +44,7 @@ exports.getWeeklyWorkout = async (req, res, next) => {
 
     // If no workouts exist for this week, generate them
     if (workouts.length === 0) {
-      const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable || []);
+      const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(, , req.user.timezone);
 
       const ops = weeklyPlan.map(day => ({
         updateOne: {
@@ -102,7 +102,7 @@ exports.getTodayWorkout = async (req, res, next) => {
 
       // Generate the full week if it doesn't exist yet
       if (weekExists === 0) {
-        const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable || []);
+        const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(, , req.user.timezone);
         
         const ops = weeklyPlan.map(day => ({
           updateOne: {
@@ -298,7 +298,7 @@ exports.regenerateWeeklyWorkout = async (req, res, next) => {
     });
 
     // Generate new workouts
-    const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable || []);
+    const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(, , req.user.timezone);
     
     const workoutDocs = weeklyPlan.map(day => ({
       user: req.user._id,

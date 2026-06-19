@@ -58,7 +58,7 @@ exports.createSession = async (req, res, next) => {
     });
 
     // Update streak
-    const newStreak = analyticsEngine.calculateStreak(req.user.lastStudyDate, req.user.streak);
+    const newStreak = analyticsEngine.calculateStreak(req.user.lastStudyDate, req.user.streak, req.user.timezone);
     req.user.streak = newStreak;
     req.user.lastStudyDate = new Date();
     await req.user.save();

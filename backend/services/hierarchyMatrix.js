@@ -44,13 +44,15 @@ function generateAlias(rng) {
   }
 }
 
+const { getLocalDateString } = require('../utils/dateUtils');
+
 /**
  * Generates the live leaderboard matrix.
  * @param {Object} currentUserStats - The real user's actual stats to inject into the matrix.
  */
 function generateMatrix(currentUserStats) {
   // Use today's date string as the seed so the matrix is stable per day, but shifts daily.
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getLocalDateString(currentUserStats.timezone || 'UTC');
   let seed = 0;
   for (let i = 0; i < todayStr.length; i++) {
     seed += todayStr.charCodeAt(i);

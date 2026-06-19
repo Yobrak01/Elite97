@@ -6,6 +6,7 @@ const modeManager = require('../services/modeManager');
 const { computeAiTier } = require('../services/tierEngine');
 
 const CourseUnit = require('../models/CourseUnit');
+const { getStartOfDay } = require('../utils/dateUtils');
 
 exports.autoGenerateWeaknessTasks = async (user) => {
   const userId = user._id;
@@ -28,8 +29,7 @@ exports.autoGenerateWeaknessTasks = async (user) => {
 
   const taskGenerationMode = user.settings && user.settings.taskGenerationMode ? user.settings.taskGenerationMode : 'daily';
   
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = getStartOfDay(user.timezone);
 
   // Find all remaining valid auto-generated tasks for this user
   const existingAutoTasks = await Task.find({ 
@@ -96,8 +96,7 @@ exports.autoGenerateWeaknessTasks = async (user) => {
 
 exports.getDailyPlan = async (req, res, next) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
 
     const analytics = await Analytics.findOne({ user: req.user._id, date: today });
     const currentMode = analytics ? analytics.mode : 'balanced';
@@ -125,8 +124,7 @@ exports.getDailyPlan = async (req, res, next) => {
 
 exports.generatePlan = async (req, res, next) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
 
     const analytics = await Analytics.findOne({ user: req.user._id, date: today });
     const currentMode = analytics ? analytics.mode : 'balanced';
@@ -150,8 +148,7 @@ exports.generatePlan = async (req, res, next) => {
 
 exports.getRecommendations = async (req, res, next) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
 
     const analytics = await Analytics.findOne({ user: req.user._id, date: today });
     const currentMode = analytics ? analytics.mode : 'balanced';

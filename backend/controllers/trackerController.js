@@ -26,7 +26,7 @@ exports.startTimer = async (req, res, next) => {
 
     const timeLog = await TimeLog.create({
       user: req.user._id,
-      date: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+      date: getStartOfDay(req.user.timezone, now),
       activityType,
       description: description || '',
       startTime: now,
@@ -197,7 +197,7 @@ exports.manualLog = async (req, res, next) => {
 
     const timeLog = await TimeLog.create({
       user: req.user._id,
-      date: new Date(targetDate.getFullYear(), targetDate.getMonth(), targetDate.getDate()),
+      date: getStartOfDay(req.user.timezone, targetDate),
       activityType,
       description: description || 'Manual entry',
       startTime: startTime,
