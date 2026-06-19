@@ -355,6 +355,27 @@ export const api = {
       });
       return handleResponse(res);
     },
+    pauseTimer: async (id) => {
+      const res = await fetch(`${API_URL}/tracker/${id}/pause`, {
+        method: 'PATCH',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    resumeTimer: async (id) => {
+      const res = await fetch(`${API_URL}/tracker/${id}/resume`, {
+        method: 'PATCH',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
+    deleteLog: async (id) => {
+      const res = await fetch(`${API_URL}/tracker/${id}`, {
+        method: 'DELETE',
+        headers: getHeaders()
+      });
+      return handleResponse(res);
+    },
     breachOverride: async (id) => {
       const res = await fetch(`${API_URL}/tracker/${id}/breach`, {
         method: 'PATCH',

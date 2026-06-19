@@ -30,6 +30,17 @@ const TimeLogSchema = new mongoose.Schema({
   endTime: {
     type: Date
   },
+  accumulatedSeconds: {
+    type: Number,
+    default: 0
+  },
+  isPaused: {
+    type: Boolean,
+    default: false
+  },
+  lastResumeTime: {
+    type: Date
+  },
   createdAt: {
     type: Date,
     default: Date.now

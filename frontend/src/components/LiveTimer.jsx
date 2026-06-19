@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Timer, Play, Square, ChevronDown, ChevronUp, BookOpen, GraduationCap, Dumbbell, Brush, Moon, Clock, Check, Users, Briefcase } from 'lucide-react';
+import { Timer, Play, Square, Pause, Trash2, ChevronDown, ChevronUp, BookOpen, GraduationCap, Dumbbell, Brush, Moon, Clock, Check, Users, Briefcase } from 'lucide-react';
 import api from '../services/api';
 
 const ACTIVITIES = [
@@ -29,6 +29,7 @@ const formatMinutes = (mins) => {
 export const LiveTimer = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [activeLogId, setActiveLogId] = useState(null);
   const [activityType, setActivityType] = useState('personal_study');
@@ -67,18 +68,25 @@ export const LiveTimer = () => {
   // Restore running timer if one exists in today's logs
   useEffect(() => {
     const activeLog = todayLogs.find(log => !log.endTime && log.startTime);
-    if (activeLog && !isRunning) {
+    if (activeLog && !isRunning && !isPaused) {
       setActiveLogId(activeLog._id || activeLog.id);
       setActivityType(activeLog.activityType);
-      const elapsed = Math.floor((Date.now() - new Date(activeLog.startTime).getTime()) / 1000);
+      
+      let elapsed = activeLog.accumulatedSeconds || 0;
+      if (!activeLog.isPaused) {
+        const resumeTime = activeLog.lastResumeTime ? new Date(activeLog.lastResumeTime) : new Date(activeLog.startTime);
+        elapsed += Math.floor((Date.now() - resumeTime.getTime()) / 1000);
+      }
       setElapsedSeconds(elapsed > 0 ? elapsed : 0);
-      setIsRunning(true);
+      
+      setIsPaused(activeLog.isPaused || false);
+      setIsRunning(!activeLog.isPaused);
     }
-  }, [todayLogs, isRunning]);
+  }, [todayLogs, isRunning, isPaused]);
 
   // Timer tick
   useEffect(() => {
-    if (isRunning) {
+    if (isRunning && !isPaused) {
       intervalRef.current = setInterval(() => {
         setElapsedSeconds(prev => prev + 1);
       }, 1000);
@@ -86,7 +94,7 @@ export const LiveTimer = () => {
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
-  }, [isRunning]);
+  }, [isRunning, isPaused]);
 
   const handleStart = useCallback(async (overrideType = null, description = null) => {
     if (loadingAction) return;
@@ -104,6 +112,7 @@ export const LiveTimer = () => {
       const res = await api.tracker.startTimer({ activityType: typeToUse, description: finalDesc });
       setActiveLogId(res.data?._id || res.data?.id);
       setElapsedSeconds(0);
+      setIsPaused(false);
       setIsRunning(true);
     } catch (err) {
       console.error('Failed to start timer:', err);
@@ -132,6 +141,7 @@ export const LiveTimer = () => {
     try {
       await api.tracker.stopTimer(activeLogId);
       setIsRunning(false);
+      setIsPaused(false);
       setActiveLogId(null);
       setElapsedSeconds(0);
       fetchTodayLogs();
@@ -140,6 +150,45 @@ export const LiveTimer = () => {
       console.error('Failed to stop timer:', err);
     } finally {
       setLoadingAction(false);
+    }
+  };
+
+  const handlePause = async () => {
+    if (loadingAction || !activeLogId || isPaused) return;
+    setLoadingAction(true);
+    try {
+      await api.tracker.pauseTimer(activeLogId);
+      setIsPaused(true);
+      setIsRunning(false);
+    } catch (err) {
+      console.error('Failed to pause timer:', err);
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+  const handleResume = async () => {
+    if (loadingAction || !activeLogId || !isPaused) return;
+    setLoadingAction(true);
+    try {
+      await api.tracker.resumeTimer(activeLogId);
+      setIsPaused(false);
+      setIsRunning(true);
+    } catch (err) {
+      console.error('Failed to resume timer:', err);
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+  const handleDeleteLog = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this log?")) return;
+    try {
+      await api.tracker.deleteLog(id);
+      fetchTodayLogs();
+      window.dispatchEvent(new CustomEvent('time-logged'));
+    } catch (err) {
+      console.error('Failed to delete log:', err);
     }
   };
 

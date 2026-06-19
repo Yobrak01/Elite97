@@ -29,6 +29,9 @@ exports.startTimer = async (req, res, next) => {
       activityType,
       description: description || '',
       startTime: now,
+      lastResumeTime: now,
+      accumulatedSeconds: 0,
+      isPaused: false,
       durationMinutes: 0
     });
 
@@ -63,13 +66,77 @@ exports.stopTimer = async (req, res, next) => {
     const now = new Date();
     timeLog.endTime = now;
 
-    // Calculate duration in minutes from startTime to endTime
-    const diffMs = now.getTime() - new Date(timeLog.startTime).getTime();
-    timeLog.durationMinutes = Math.round(diffMs / 60000);
+    // Calculate duration in minutes from lastResumeTime to now, plus accumulatedSeconds
+    let activeMs = 0;
+    if (!timeLog.isPaused) {
+      const resumeTime = timeLog.lastResumeTime ? new Date(timeLog.lastResumeTime) : new Date(timeLog.startTime);
+      activeMs = now.getTime() - resumeTime.getTime();
+    }
+    
+    const totalSeconds = (timeLog.accumulatedSeconds || 0) + Math.max(0, activeMs / 1000);
+    timeLog.durationMinutes = Math.round(totalSeconds / 60);
 
     await timeLog.save();
 
     res.status(200).json({ success: true, data: timeLog });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Pause a running timer
+// @route   PATCH /api/tracker/:id/pause
+// @access  Private
+exports.pauseTimer = async (req, res, next) => {
+  try {
+    const timeLog = await TimeLog.findOne({ _id: req.params.id, user: req.user._id });
+    if (!timeLog) return res.status(404).json({ success: false, message: 'TimeLog not found.' });
+    if (timeLog.endTime) return res.status(400).json({ success: false, message: 'Timer already stopped.' });
+    if (timeLog.isPaused) return res.status(400).json({ success: false, message: 'Timer is already paused.' });
+
+    const now = new Date();
+    const resumeTime = timeLog.lastResumeTime ? new Date(timeLog.lastResumeTime) : new Date(timeLog.startTime);
+    const activeMs = now.getTime() - resumeTime.getTime();
+    
+    timeLog.accumulatedSeconds = (timeLog.accumulatedSeconds || 0) + Math.max(0, activeMs / 1000);
+    timeLog.isPaused = true;
+    
+    await timeLog.save();
+    res.status(200).json({ success: true, data: timeLog });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Resume a paused timer
+// @route   PATCH /api/tracker/:id/resume
+// @access  Private
+exports.resumeTimer = async (req, res, next) => {
+  try {
+    const timeLog = await TimeLog.findOne({ _id: req.params.id, user: req.user._id });
+    if (!timeLog) return res.status(404).json({ success: false, message: 'TimeLog not found.' });
+    if (timeLog.endTime) return res.status(400).json({ success: false, message: 'Timer already stopped.' });
+    if (!timeLog.isPaused) return res.status(400).json({ success: false, message: 'Timer is not paused.' });
+
+    timeLog.isPaused = false;
+    timeLog.lastResumeTime = new Date();
+    
+    await timeLog.save();
+    res.status(200).json({ success: true, data: timeLog });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete a log entry
+// @route   DELETE /api/tracker/:id
+// @access  Private
+exports.deleteLog = async (req, res, next) => {
+  try {
+    const timeLog = await TimeLog.findOneAndDelete({ _id: req.params.id, user: req.user._id });
+    if (!timeLog) return res.status(404).json({ success: false, message: 'TimeLog not found.' });
+    
+    res.status(200).json({ success: true, message: 'Log deleted successfully' });
   } catch (error) {
     next(error);
   }

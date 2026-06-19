@@ -1,24 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Clock, CheckCircle2, ChevronRight, Activity } from 'lucide-react';
+import { Calendar, Clock, CheckCircle2, ChevronRight, Activity, Trash2 } from 'lucide-react';
 import api from '../services/api';
 
 export const WeeklyHistoryTable = () => {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchLogs = async () => {
+    try {
+      const res = await api.tracker.getWeeklyLogs();
+      setLogs(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchLogs = async () => {
-      try {
-        const res = await api.tracker.getWeeklyLogs();
-        setLogs(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchLogs();
   }, []);
+
+  const handleDeleteLog = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this log?")) return;
+    try {
+      await api.tracker.deleteLog(id);
+      fetchLogs();
+      window.dispatchEvent(new CustomEvent('time-logged')); // Trigger recalculation in other components
+    } catch (err) {
+      console.error('Failed to delete log:', err);
+    }
+  };
 
   if (loading) {
     return (
@@ -96,6 +108,13 @@ export const WeeklyHistoryTable = () => {
                       <div className="text-right">
                         <p className="text-xl font-black text-white">{log.durationMinutes}<span className="text-xs text-slate-500 ml-1">min</span></p>
                       </div>
+                      <button
+                        onClick={() => handleDeleteLog(log._id || log.id)}
+                        className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                        title="Delete Log"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
                     </div>
                   </div>
                 ))}
