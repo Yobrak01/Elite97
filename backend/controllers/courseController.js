@@ -2,6 +2,7 @@ const CourseUnit = require('../models/CourseUnit');
 const Task = require('../models/Task');
 const { predictCourseDifficulty, predictCourseCredits } = require('../services/studyMethodology');
 const { parseSyllabus } = require('../services/syllabusParser');
+const plannerController = require('./plannerController');
 
 // Suggest AI Tier based on difficulty and credits
 const suggestCourseTier = (difficulty, credits) => {
@@ -40,6 +41,10 @@ exports.createCourse = async (req, res, next) => {
     req.body.aiSuggestedTier = suggestCourseTier(req.body.difficulty, req.body.credits);
 
     const course = await CourseUnit.create(req.body);
+    
+    // Synchronize tasks with AI Planner
+    await plannerController.autoGenerateWeaknessTasks(req.user);
+
     res.status(201).json({ success: true, data: course });
   } catch (error) {
     next(error);
@@ -72,6 +77,9 @@ exports.updateCourse = async (req, res, next) => {
       runValidators: true
     });
 
+    // Synchronize tasks with AI Planner
+    await plannerController.autoGenerateWeaknessTasks(req.user);
+
     res.status(200).json({ success: true, data: course });
   } catch (error) {
     next(error);
@@ -88,6 +96,9 @@ exports.deleteCourse = async (req, res, next) => {
 
     // Cascade delete: remove pending/in-progress tasks, preserve completed tasks for historical record
     await Task.deleteMany({ courseUnit: req.params.id, user: req.user._id, status: { $ne: 'completed' } });
+
+    // Synchronize tasks with AI Planner
+    await plannerController.autoGenerateWeaknessTasks(req.user);
 
     res.status(200).json({ success: true, message: 'Course removed.' });
   } catch (error) {
