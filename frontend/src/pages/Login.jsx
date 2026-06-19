@@ -1,6 +1,6 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Mail, Lock, Award, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Award, Loader2, Eye, EyeOff, Zap } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 
 export const Login = () => {
@@ -40,13 +40,13 @@ export const Login = () => {
 
       <div className="glass-panel w-full max-w-md rounded-3xl p-8 border border-white/5 shadow-2xl relative z-10">
         <div className="flex flex-col items-center text-center space-y-2 mb-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-glow-cyan">
-            <Award className="h-6 w-6" />
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-glow-cyan">
+            <Zap className="h-8 w-8" />
           </div>
-          <h2 className="text-2xl font-black tracking-widest text-white mt-4">
-            ELITE<span className="text-cyan-400">97</span> SYSTEM
+          <h2 className="text-4xl md:text-5xl font-display font-black tracking-[0.2em] text-white mt-6 text-glow-gold">
+            ELITE<span className="text-cyan-400">97</span>
           </h2>
-          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
+          <p className="text-sm text-slate-400 font-medium uppercase tracking-[0.3em] mt-2">
             Academic Performance Operating System
           </p>
         </div>

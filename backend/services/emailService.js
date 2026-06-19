@@ -48,7 +48,7 @@ exports.sendVerificationEmail = async (email, otp) => {
         <h1 style="color: #00F0FF; letter-spacing: 2px;">ELITE<span style="color: #fff;">97</span></h1>
         <h3 style="color: #94A3B8; text-transform: uppercase;">Verification Required</h3>
         <p style="font-size: 16px; color: #E2E8F0; max-width: 500px; margin: 0 auto 30px;">
-          Welcome to the Elite97 Study System. Please verify your email address to activate your node credentials.
+          Welcome to Elite97. Please verify your email address to activate your node credentials.
         </p>
         <div style="background-color: #040A14; border: 1px solid rgba(0, 240, 255, 0.3); padding: 20px; border-radius: 10px; display: inline-block;">
           <h2 style="margin: 0; font-size: 32px; letter-spacing: 5px; color: #00F0FF;">${otp}</h2>

@@ -201,10 +201,10 @@ export const Register = () => {
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-glow-cyan">
             {step === 3 ? <ShieldCheck className="h-6 w-6" /> : <Award className="h-6 w-6" />}
           </div>
-          <h2 className="text-3xl font-display font-black tracking-widest text-white mt-4 text-glow-gold">
-            ELITE<span className="text-cyan-400">97</span> REGISTRY
+          <h2 className="text-4xl md:text-5xl font-display font-black tracking-[0.2em] text-white mt-6 text-glow-gold">
+            ELITE<span className="text-cyan-400">97</span>
           </h2>
-          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
+          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider mt-2">
             {step === 1 ? 'Step 1: Node Credentials' : step === 2 ? 'Step 2: Academic Matrix' : 'Step 3: Identity Verification'}
           </p>
         </div>
