@@ -50,7 +50,7 @@ const { getLocalDateString } = require('../utils/dateUtils');
  * Generates the live leaderboard matrix.
  * @param {Object} currentUserStats - The real user's actual stats to inject into the matrix.
  */
-function generateMatrix(currentUserStats) {
+function generateMatrix(currentUserStats, realPeers = []) {
   // Use today's date string as the seed so the matrix is stable per day, but shifts daily.
   const todayStr = getLocalDateString(currentUserStats.timezone || 'UTC');
   let seed = 0;
@@ -61,10 +61,11 @@ function generateMatrix(currentUserStats) {
 
   const rivals = [];
   
-  // Generate 99 elite rivals
-  for (let i = 0; i < 99; i++) {
-    // Top 20 rivals are absolute monsters (closer to MIT_BASELINE)
-    // The rest are standard elite engineers
+  // Decide how many simulated rivals to generate. 
+  // We want a robust matrix of ~100 people total.
+  const simulatedCount = Math.max(0, 99 - realPeers.length);
+
+  for (let i = 0; i < simulatedCount; i++) {
     const isTopTier = i < 20;
     
     const studyHoursMean = isTopTier ? 45 : 30;
@@ -77,13 +78,11 @@ function generateMatrix(currentUserStats) {
     let avgCompletion = randomNormal(rng, completionMean, 15);
     let avgProductivity = randomNormal(rng, prodScoreMean, 15);
 
-    // Clamp values
     weeklyStudyHours = Math.max(0, Math.min(100, weeklyStudyHours));
     avgFocusScore = Math.max(0, Math.min(100, avgFocusScore));
     avgCompletion = Math.max(0, Math.min(100, avgCompletion));
     avgProductivity = Math.max(0, Math.min(100, avgProductivity));
 
-    // Calculate their composite score using the exact same formula as mitBenchmarker.js
     const hoursScore = Math.min(100, (weeklyStudyHours / MIT_BASELINE.maxStudyHours) * 100);
     const fScore = Math.min(100, (avgFocusScore / MIT_BASELINE.maxFocusScore) * 100);
     const cScore = Math.min(100, (avgCompletion / MIT_BASELINE.maxCompletion) * 100);
@@ -91,7 +90,6 @@ function generateMatrix(currentUserStats) {
 
     const compositeScore = (hoursScore * 0.4) + (fScore * 0.3) + (pScore * 0.2) + (cScore * 0.1);
     
-    // Assign a trend (up, down, stable)
     const trendValue = rng();
     let trend = 'stable';
     if (trendValue > 0.66) trend = 'up';
@@ -107,6 +105,27 @@ function generateMatrix(currentUserStats) {
       trend
     });
   }
+
+  // Inject the real peers
+  realPeers.forEach(peer => {
+    const hoursScore = Math.min(100, ((peer.weeklyStudyHours || 0) / MIT_BASELINE.maxStudyHours) * 100);
+    const fScore = Math.min(100, ((peer.avgFocusScore || 0) / MIT_BASELINE.maxFocusScore) * 100);
+    const cScore = Math.min(100, ((peer.avgCompletion || 0) / MIT_BASELINE.maxCompletion) * 100);
+    const pScore = Math.min(100, ((peer.avgProductivity || 0) / MIT_BASELINE.maxProductivity) * 100);
+    
+    const compositeScore = (hoursScore * 0.4) + (fScore * 0.3) + (pScore * 0.2) + (cScore * 0.1);
+
+    rivals.push({
+      id: peer.id,
+      alias: peer.alias || 'Peer',
+      isUser: false, // Don't highlight them in UI as the current user
+      isRealPeer: true,
+      weeklyStudyHours: Number((peer.weeklyStudyHours || 0).toFixed(1)),
+      avgFocusScore: Number((peer.avgFocusScore || 0).toFixed(0)),
+      compositeScore: Number(compositeScore.toFixed(2)),
+      trend: 'up' // default trend for peers
+    });
+  });
 
   // Inject the real user
   const userHoursScore = Math.min(100, ((currentUserStats.weeklyStudyHours || 0) / MIT_BASELINE.maxStudyHours) * 100);

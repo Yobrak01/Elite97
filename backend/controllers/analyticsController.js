@@ -663,7 +663,60 @@ exports.getHierarchyMatrix = async (req, res, next) => {
     };
 
     currentUserStats.timezone = req.user.timezone;
-    const matrix = hierarchyMatrix.generateMatrix(currentUserStats);
+
+    // Fetch stats for all other real users
+    const otherUsers = await User.find({ _id: { $ne: req.user._id } }).select('name _id');
+    
+    // Aggregate their study time
+    const peerTimeLogs = await TimeLog.aggregate([
+      {
+        $match: {
+          user: { $in: otherUsers.map(u => u._id) },
+          date: { $gte: sevenDaysAgo, $lte: now },
+          activityType: { $in: ['personal_study', 'lecture'] }
+        }
+      },
+      {
+        $group: {
+          _id: '$user',
+          totalStudyMinutes: { $sum: '$durationMinutes' }
+        }
+      }
+    ]);
+
+    // Aggregate their analytics
+    const peerAnalytics = await Analytics.aggregate([
+      {
+        $match: {
+          user: { $in: otherUsers.map(u => u._id) },
+          date: { $gte: sevenDaysAgo }
+        }
+      },
+      {
+        $group: {
+          _id: '$user',
+          avgFocus: { $avg: '$focusScore' },
+          avgComp: { $avg: '$completionPercentage' },
+          avgProd: { $avg: '$productivityScore' }
+        }
+      }
+    ]);
+
+    const realPeers = otherUsers.map(peer => {
+      const timeMatch = peerTimeLogs.find(t => t._id.toString() === peer._id.toString());
+      const anMatch = peerAnalytics.find(a => a._id.toString() === peer._id.toString());
+      
+      return {
+        id: peer._id.toString(),
+        alias: peer.name,
+        weeklyStudyHours: timeMatch ? timeMatch.totalStudyMinutes / 60 : 0,
+        avgFocusScore: anMatch ? anMatch.avgFocus || 0 : 0,
+        avgCompletion: anMatch ? anMatch.avgComp || 0 : 0,
+        avgProductivity: anMatch ? anMatch.avgProd || 0 : 0
+      };
+    });
+
+    const matrix = hierarchyMatrix.generateMatrix(currentUserStats, realPeers);
 
     res.status(200).json({
       success: true,
