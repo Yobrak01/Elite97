@@ -2,14 +2,16 @@ const pdf = require('pdf-parse');
 const mammoth = require('mammoth');
 const { GoogleGenAI } = require('@google/genai');
 
-exports.generateFromMaterial = async (fileBuffer, mimetype) => {
+exports.generateFromMaterial = async (fileBuffer, mimetype = '', originalname = '') => {
   try {
     let text = '';
+    const isPdf = mimetype.includes('pdf') || originalname.toLowerCase().endsWith('.pdf');
+    const isWord = mimetype.includes('wordprocessingml') || mimetype.includes('msword') || originalname.toLowerCase().endsWith('.docx') || originalname.toLowerCase().endsWith('.doc');
     
-    if (mimetype.includes('pdf')) {
+    if (isPdf) {
       const data = await pdf(fileBuffer);
       text = data.text;
-    } else if (mimetype.includes('wordprocessingml') || mimetype.includes('msword')) {
+    } else if (isWord) {
       const result = await mammoth.convertToHtml({ buffer: fileBuffer });
       text = result.value;
     } else {
