@@ -5,6 +5,8 @@ import AuthContext from '../context/AuthContext';
 import api from '../services/api';
 import { COUNTRIES } from '../utils/countries';
 
+import { UNIVERSITIES } from '../utils/universities';
+
 const MAJORS = [
   "Accounting", "Aerospace Engineering", "Agriculture", "Architecture", 
   "Biology", "Biomedical Engineering", "Business Administration", 
@@ -58,14 +60,24 @@ export const Register = () => {
     setCountries(COUNTRIES);
   }, []);
 
-  // Fetch universities when country changes
+  // Load universities from built-in database when country changes
   useEffect(() => {
     if (!country) return;
-    const fetchUniversities = async () => {
-      setFetchingUnis(true);
-      setApiError(false);
-      setUniversities([]);
-      setUniversity('');
+    setFetchingUnis(true);
+    setApiError(false);
+    setUniversities([]);
+    setUniversity('');
+
+    // Use the built-in database as primary source
+    const localUnis = UNIVERSITIES[country];
+    if (localUnis && localUnis.length > 0) {
+      setUniversities([...localUnis].sort());
+      setFetchingUnis(false);
+      return;
+    }
+
+    // Fallback: try external API for countries not in our local database
+    const fetchFromApi = async () => {
       try {
         const countryMap = {
           "United States of America": "United States",
@@ -80,7 +92,10 @@ export const Register = () => {
           "Congo (Congo-Brazzaville)": "Congo"
         };
         const queryCountry = countryMap[country] || country;
-        const res = await fetch(`https://universities.hipolabs.com/search?country=${encodeURIComponent(queryCountry)}`);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const res = await fetch(`https://universities.hipolabs.com/search?country=${encodeURIComponent(queryCountry)}`, { signal: controller.signal });
+        clearTimeout(timeoutId);
         
         if (!res.ok) throw new Error('API failed');
         
@@ -91,13 +106,13 @@ export const Register = () => {
         const sorted = [...new Set(data.map(u => u.name))].sort();
         setUniversities(sorted);
       } catch (err) {
-        console.error("Failed to fetch universities", err);
+        console.warn("External university API unavailable, using manual entry.", err.message);
         setApiError(true);
       } finally {
         setFetchingUnis(false);
       }
     };
-    fetchUniversities();
+    fetchFromApi();
   }, [country]);
 
   const handleNextStep = (e) => {
