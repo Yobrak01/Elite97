@@ -14,6 +14,7 @@ export const Settings = () => {
   const [notifications, setNotifications] = useState(user?.settings?.notifications ?? true);
   const [wakeTime, setWakeTime] = useState(user?.settings?.wakeTime || '06:00');
   const [sleepTime, setSleepTime] = useState(user?.settings?.sleepTime || '22:30');
+  const [circadianEnabled, setCircadianEnabled] = useState(user?.settings?.circadianEnabled || false);
   const [circadianAnchorTime, setCircadianAnchorTime] = useState(user?.settings?.circadianAnchorTime || '05:30');
   const [circadianAnchorGraceMinutes, setCircadianAnchorGraceMinutes] = useState(user?.settings?.circadianAnchorGraceMinutes || 30);
   const [studyMode, setStudyMode] = useState(user?.studyMode || 'normal');
@@ -260,10 +261,23 @@ export const Settings = () => {
             </div>
             
             <div className="space-y-2 col-span-2 border-t border-white/5 pt-4 mt-2">
-              <label className="text-[10px] font-black uppercase tracking-wider text-accent-gold">Circadian Anchor</label>
-              <p className="text-[9px] text-slate-500 mb-2">Configure the absolute latest time you must activate the dashboard to prove you are awake.</p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-between mb-2">
                 <div>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-accent-gold">Circadian Protocol</label>
+                  <p className="text-[9px] text-slate-500">Enable absolute wake-up verification to build extreme discipline.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setCircadianEnabled(!circadianEnabled)}
+                  className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${circadianEnabled ? 'bg-cyan-500' : 'bg-slate-700'}`}
+                >
+                  <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${circadianEnabled ? 'translate-x-5' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {circadianEnabled && (
+                <div className="grid grid-cols-2 gap-4 mt-4">
+                  <div>
                   <label className="text-[9px] font-black uppercase tracking-wider text-slate-400">Anchor Target Time</label>
                   <div className="relative mt-1">
                     <Clock className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
@@ -288,8 +302,9 @@ export const Settings = () => {
                       className="w-full rounded-xl bg-navy-900 border border-white/5 py-2 pl-9 pr-4 text-xs text-white focus:outline-none focus:border-cyan-500 transition-colors"
                     />
                   </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
