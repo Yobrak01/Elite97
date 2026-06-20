@@ -4,51 +4,68 @@ const { GoogleGenAI } = require('@google/genai');
 
 exports.generateFromMaterial = async (fileBuffer, mimetype = '', originalname = '') => {
   try {
-    let text = '';
     const isPdf = mimetype.includes('pdf') || originalname.toLowerCase().endsWith('.pdf');
     const isWord = mimetype.includes('wordprocessingml') || mimetype.includes('msword') || originalname.toLowerCase().endsWith('.docx') || originalname.toLowerCase().endsWith('.doc');
     
-    if (isPdf) {
-      const data = await pdf(fileBuffer);
-      text = data.text;
-    } else if (isWord) {
+    let text = '';
+    
+    if (isWord) {
       const result = await mammoth.convertToHtml({ buffer: fileBuffer });
       text = result.value;
-    } else {
+    } else if (!isPdf) {
       text = fileBuffer.toString('utf8');
     }
     
-    if (!text || text.trim().length === 0) {
+    // For Word or text, if there is no text and it's not a PDF, we throw.
+    if (!isPdf && (!text || text.trim().length === 0)) {
       throw new Error('Could not extract text from the provided file.');
     }
 
-    // 2. Fallback to mock data if no Gemini key is provided
+    // Fallback to mock data if no Gemini key is provided
     if (!process.env.GEMINI_API_KEY) {
       console.warn("GEMINI_API_KEY is not set. Falling back to mock Neural Extraction.");
-      return generateMockData(text);
+      return generateMockData(text || "Scanned PDF");
     }
 
-    // 3. Initialize Gemini
+    // Initialize Gemini
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     
     const prompt = `
-      You are an elite academic tutor. I will provide you with the text/HTML of a lecture or syllabus.
+      You are an elite academic tutor. I will provide you with the source material (either as text/HTML or as a direct file attachment).
       I need you to extract the core concepts and return a structured JSON object containing exactly two things:
       1. "note": A beautifully formatted markdown string summarizing the material. It should use headers, bullet points, and bold text for emphasis.
       2. "flashcards": An array of objects, each containing a "front" (Question) and "back" (Answer). Keep the answers concise and focused on high-yield testable information. Generate 5 flashcards.
       
       CRITICAL: The text provided may contain OCR errors or symbol-font transcription errors (like 'g' being used instead of the Greek letter 'gamma').
-      If the context is clearly mathematical or scientific and you see strange substitutions, YOU MUST correct them to their proper Unicode symbols (e.g. use 'γ' instead of 'g'). DO NOT use LaTeX rendering for symbols. Use raw Unicode characters instead because the frontend displays plain text.
+      Whenever you see an obvious symbol error that breaks the math/science context, intelligently fix it in the final output.
       
-      Respond ONLY with valid JSON. Do not include markdown code block syntax like \`\`\`json.
-      
-      Material Text (first 15000 chars):
-      ${text.substring(0, 15000)}
+      Return ONLY a JSON object with the exact structure below. Do NOT use markdown blocks like \`\`\`json.
+      {
+        "note": "...",
+        "flashcards": [
+          { "front": "...", "back": "..." }
+        ]
+      }
     `;
+
+    // Prepare contents payload
+    const contents = [];
+    
+    if (isPdf) {
+      contents.push({
+        inlineData: {
+          data: fileBuffer.toString('base64'),
+          mimeType: 'application/pdf'
+        }
+      });
+      contents.push(prompt);
+    } else {
+      contents.push(prompt + "\n\n=== SOURCE MATERIAL ===\n" + text);
+    }
 
     const response = await ai.models.generateContent({
       model: 'gemini-2.0-flash',
-      contents: prompt,
+      contents: contents,
     });
 
     let resultText = response.text;
