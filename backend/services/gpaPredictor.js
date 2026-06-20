@@ -352,6 +352,7 @@ function predictCurrentSemesterMark(courseUnits, tasks, contextMap = {}) {
 
   courseUnits.forEach(course => {
     const courseTasks = tasks.filter(t => 
+      (t.courseUnit && t.courseUnit.toString() === course._id.toString()) ||
       t.title.includes(course.unitCode) || 
       (t.description && t.description.includes(course.unitCode))
     );
