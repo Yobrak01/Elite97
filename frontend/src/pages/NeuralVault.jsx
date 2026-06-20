@@ -502,7 +502,7 @@ export const NeuralVault = () => {
                 <div className="border-2 border-dashed border-white/10 hover:border-purple-500/50 rounded-xl p-8 text-center transition-colors bg-navy-900/50 relative">
                    <input 
                      type="file" 
-                     accept=".pdf,.txt"
+                     accept=".pdf,.txt,.doc,.docx"
                      onChange={(e) => setSelectedFile(e.target.files[0])}
                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                    />
@@ -516,7 +516,7 @@ export const NeuralVault = () => {
                      <div className="flex flex-col items-center gap-2 text-slate-500">
                        <UploadCloud className="h-8 w-8" />
                        <span className="text-sm font-bold">Click or drag file here</span>
-                       <span className="text-[10px] uppercase tracking-widest">PDF & TXT Supported</span>
+                       <span className="text-[10px] uppercase tracking-widest">PDF, DOCX & TXT Supported</span>
                      </div>
                    )}
                 </div>

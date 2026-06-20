@@ -6,11 +6,11 @@ exports.generateFromMaterial = async (fileBuffer, mimetype) => {
   try {
     let text = '';
     
-    if (mimetype === 'application/pdf') {
+    if (mimetype.includes('pdf')) {
       const data = await pdf(fileBuffer);
       text = data.text;
-    } else if (mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimetype === 'application/msword') {
-      const result = await mammoth.extractRawText({ buffer: fileBuffer });
+    } else if (mimetype.includes('wordprocessingml') || mimetype.includes('msword')) {
+      const result = await mammoth.convertToHtml({ buffer: fileBuffer });
       text = result.value;
     } else {
       text = fileBuffer.toString('utf8');
@@ -30,19 +30,22 @@ exports.generateFromMaterial = async (fileBuffer, mimetype) => {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     
     const prompt = `
-      You are an elite academic tutor. I will provide you with the text of a lecture or syllabus.
+      You are an elite academic tutor. I will provide you with the text/HTML of a lecture or syllabus.
       I need you to extract the core concepts and return a structured JSON object containing exactly two things:
       1. "note": A beautifully formatted markdown string summarizing the material. It should use headers, bullet points, and bold text for emphasis.
       2. "flashcards": An array of objects, each containing a "front" (Question) and "back" (Answer). Keep the answers concise and focused on high-yield testable information. Generate 5 flashcards.
       
+      CRITICAL: The text provided may contain OCR errors or symbol-font transcription errors (like 'g' being used instead of the Greek letter 'gamma').
+      If the context is clearly mathematical or scientific and you see strange substitutions, YOU MUST correct them to their proper Unicode symbols (e.g. use 'γ' instead of 'g'). DO NOT use LaTeX rendering for symbols. Use raw Unicode characters instead because the frontend displays plain text.
+      
       Respond ONLY with valid JSON. Do not include markdown code block syntax like \`\`\`json.
       
-      Material Text (first 10000 chars):
-      ${text.substring(0, 10000)}
+      Material Text (first 15000 chars):
+      ${text.substring(0, 15000)}
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
     });
 
