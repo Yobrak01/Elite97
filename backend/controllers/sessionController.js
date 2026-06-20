@@ -64,13 +64,13 @@ exports.createSession = async (req, res, next) => {
     await req.user.save();
 
     // Recalculate and update Analytics object for the day
-    const burnoutResult = burnoutDetector.detectBurnout({
+    const burnoutResult = await burnoutDetector.detectBurnout({
       studyHours,
       focusScore: calculatedFocusScore,
       completionPercentage
     });
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, calculatedFocusScore);
-    const productivityScore = analyticsEngine.calculateProductivityScore(calculatedFocusScore, completionPercentage, newStreak);
+    const productivityScore = await analyticsEngine.calculateProductivityScore(calculatedFocusScore, completionPercentage, newStreak);
     
     const recommendations = aiPlanner.generateRecommendations(
       { focusScore: calculatedFocusScore, completionPercentage, studyHours },

@@ -142,9 +142,9 @@ exports.getDashboard = async (req, res, next) => {
     
     context.focusScore = focusScore;
 
-    const burnoutResult = burnoutDetector.detectBurnout(context);
+    const burnoutResult = await burnoutDetector.detectBurnout(context);
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
-    const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
+    const productivityScore = await analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
     
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
     const overdueTasksCount = tasks.filter(t => t.deadline && new Date(t.deadline) <= todayEnd).length;
@@ -284,7 +284,7 @@ exports.getBurnoutAssessment = async (req, res, next) => {
     const session = await StudySession.findOne({ user: req.user._id, date: today });
     context.focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
 
-    const burnout = burnoutDetector.detectBurnout(context);
+    const burnout = await burnoutDetector.detectBurnout(context);
     res.status(200).json({ success: true, data: burnout });
   } catch (error) {
     next(error);
@@ -319,8 +319,8 @@ exports.recalculateAnalytics = async (req, res, next) => {
     const focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
     context.focusScore = focusScore;
 
-    const productivityScore = analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
-    const burnoutResult = burnoutDetector.detectBurnout(context);
+    const productivityScore = await analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
+    const burnoutResult = await burnoutDetector.detectBurnout(context);
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
     const overdueTasksCount = tasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) <= todayEnd).length;
 

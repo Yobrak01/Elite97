@@ -85,7 +85,9 @@ function calculateCompletionPercentage(tasksCompleted, totalTasks) {
   return Math.round((tasksCompleted / totalTasks) * 100);
 }
 
-function calculateProductivityScore(focusScore, completionPercentage, streak, circadianStatus = 'pending') {
+const { GoogleGenAI } = require('@google/genai');
+
+function calculateProductivityScoreSync(focusScore, completionPercentage, streak, circadianStatus = 'pending') {
   const streakBonus = Math.min(20, streak * 2);
   let score = (focusScore * 0.4) + (completionPercentage * 0.4) + streakBonus;
   
@@ -95,7 +97,47 @@ function calculateProductivityScore(focusScore, completionPercentage, streak, ci
     score *= 0.8;
   }
 
-  return Math.min(100, Math.round(score));
+  return Math.min(100, Math.max(0, Math.round(score)));
+}
+
+async function calculateProductivityScore(focusScore, completionPercentage, streak, circadianStatus = 'pending') {
+  const baseScore = calculateProductivityScoreSync(focusScore, completionPercentage, streak, circadianStatus);
+
+  if (!process.env.GEMINI_API_KEY) {
+    return baseScore;
+  }
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const prompt = `You are the Elite97 AI Productivity Engine. Evaluate the student's daily metrics:
+Focus Score: ${focusScore}/100
+Task Completion: ${completionPercentage}%
+Active Streak: ${streak} days
+Circadian Protocol Status: ${circadianStatus}
+
+Mathematical Baseline Score: ${baseScore}/100
+
+Adjust the score if necessary based on these dynamics, and provide a single, ruthless sentence analyzing their productivity today.
+
+Return ONLY a JSON object with this exact structure:
+{
+  "productivityScore": <number between 0 and 100>,
+  "analysis": "<One brutal, concise sentence of feedback>"
+}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.0-flash',
+      contents: prompt,
+    });
+
+    let text = response.text;
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const data = JSON.parse(text);
+    return data.productivityScore;
+  } catch (error) {
+    console.error("Gemini Productivity Engine Failed:", error);
+    return baseScore;
+  }
 }
 
 function calculateStreak(lastStudyDate, currentStreak, timezone) {
