@@ -60,7 +60,7 @@ exports.sendVerificationEmail = async (email, otp) => {
 
   try {
     const mailOptions = {
-      from: '"Elite97 Registry" <noreply@elite97.com>',
+      from: `"Elite97 Registry" <${process.env.SMTP_USER || 'noreply@elite97.com'}>`,
       to: email,
       subject: 'Elite97 - Verify Your Account',
       html: `
