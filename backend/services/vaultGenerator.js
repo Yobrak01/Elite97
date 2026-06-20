@@ -1,4 +1,5 @@
 const pdf = require('pdf-parse');
+const mammoth = require('mammoth');
 const { GoogleGenAI } = require('@google/genai');
 
 exports.generateFromMaterial = async (fileBuffer, mimetype) => {
@@ -8,6 +9,9 @@ exports.generateFromMaterial = async (fileBuffer, mimetype) => {
     if (mimetype === 'application/pdf') {
       const data = await pdf(fileBuffer);
       text = data.text;
+    } else if (mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || mimetype === 'application/msword') {
+      const result = await mammoth.extractRawText({ buffer: fileBuffer });
+      text = result.value;
     } else {
       text = fileBuffer.toString('utf8');
     }

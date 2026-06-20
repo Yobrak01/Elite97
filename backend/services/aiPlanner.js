@@ -285,7 +285,8 @@ async function generateGeminiCatPlan(tasks, courseUnits, settings = { dailyGoalH
   const dateString = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
   // 1. Identify units with upcoming CATs
-  const catUnits = courseUnits.filter(cu => cu.upcomingCatDate && new Date(cu.upcomingCatDate) > now);
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const catUnits = courseUnits.filter(cu => cu.upcomingCatDate && new Date(cu.upcomingCatDate).getTime() >= startOfToday);
   
   if (catUnits.length === 0 || !process.env.GEMINI_API_KEY) {
     // Graceful fallback: violently sort CAT tasks or just use normal plan if no CATs
@@ -329,7 +330,7 @@ async function generateGeminiCatPlan(tasks, courseUnits, settings = { dailyGoalH
   };
   const startTimeStr = formatTimeStr(startMinute);
 
-  const prompt = `You are the Elite97 AI Planner. The user is in "CAT Prep Mode".
+const prompt = `You are the Elite97 AI Planner. The user is in "CAT Prep Mode".
 They have upcoming Continuous Assessment Tests (CATs):
 ${catDetails}
 
@@ -337,7 +338,10 @@ Their active tasks are:
 ${activeTasks || "No specific tasks logged."}
 
 They want to study for up to ${settings.dailyGoalHours} hours today. They start now at ${startTimeStr}.
-Generate a highly targeted daily schedule. Prioritize the units with upcoming CATs IMMEDIATELY. Ignore low-priority non-CAT tasks.
+Generate a highly targeted daily schedule. 
+
+CRITICAL INSTRUCTION: You MUST prioritize the units with upcoming CATs IMMEDIATELY. 
+If the user's active tasks do NOT contain anything related to the upcoming CATs, you MUST explicitly invent study blocks titled "Deep Review: [CAT Unit Name]" and assign them to the schedule. Do not let them study non-CAT units if a CAT is approaching within 7 days.
 
 Return ONLY a JSON array of blocks. Each block must have this exact format:
 [

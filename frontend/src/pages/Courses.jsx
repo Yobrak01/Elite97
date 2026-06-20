@@ -185,8 +185,8 @@ export const Courses = () => {
     const file = e.target.files[0];
     if (!file || !targetCourseId) return;
 
-    if (file.type !== 'application/pdf') {
-      alert('Please upload a valid PDF file.');
+    if (file.type !== 'application/pdf' && !file.type.includes('word') && !file.name.endsWith('.docx') && !file.name.endsWith('.doc')) {
+      alert('Please upload a valid PDF or Word Document.');
       return;
     }
 
@@ -262,7 +262,7 @@ export const Courses = () => {
 
       <input 
         type="file" 
-        accept="application/pdf" 
+        accept="application/pdf,.doc,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword" 
         ref={fileInputRef} 
         onChange={handleFileChange} 
         className="hidden" 
