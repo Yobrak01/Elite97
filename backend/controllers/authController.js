@@ -45,37 +45,26 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ message: 'User already exists with this email.' });
     }
 
-    // Generate OTP
-    const otp = generateOtp();
+    const { getTimezoneFromCountry } = require('../utils/dateUtils');
 
-    // Check if there's already a pending registration, if so update it, else create
-    await PendingUser.findOneAndDelete({ email }); // Delete old if exists
-
-    await PendingUser.create({
+    // Create the user directly (bypassing verification for now)
+    const user = await User.create({
       name,
       email,
-      password,
+      password, // User schema pre-save hook will hash this
       country,
+      timezone: getTimezoneFromCountry(country),
       university,
       major,
       yearOfStudy,
-      currentSemester,
-      otp
+      currentSemester
     });
 
-    // Send Email (non-blocking — registration succeeds even if email fails)
-    let emailSent = true;
-    try {
-      await emailService.sendVerificationEmail(email, otp);
-    } catch (emailErr) {
-      console.error('Email sending failed during registration:', emailErr.message);
-      emailSent = false;
-    }
+    const token = signToken(user._id);
 
-    res.status(200).json({
-      message: emailSent ? 'Verification code sent to email' : 'Account created. Check server logs for verification code.',
-      status: 'pending_verification',
-      email
+    res.status(201).json({
+      token,
+      user: formatUserResponse(user)
     });
   } catch (error) {
     next(error);

@@ -55,8 +55,11 @@ export const AuthProvider = ({ children }) => {
     setLoading(true);
     try {
       const res = await api.auth.register(name, email, password, country, university, major, yearOfStudy, currentSemester);
-      // Registration now returns { status: 'pending_verification', email }
-      return res;
+      // Registration now bypasses OTP and directly returns token and user
+      localStorage.setItem('elite97_token', res.token);
+      setToken(res.token);
+      setUser(res.user);
+      return res.user;
     } catch (err) {
       throw err;
     } finally {

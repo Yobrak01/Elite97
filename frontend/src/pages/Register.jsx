@@ -149,14 +149,8 @@ export const Register = () => {
 
     setSubmitting(true);
     try {
-      const res = await register(name, email, password, country, finalUniversity, finalMajor, Number(yearOfStudy) || undefined, Number(currentSemester) || undefined);
-      if (res && res.status === 'pending_verification') {
-        setStep(3);
-        setSuccess('Verification code sent to your email.');
-      } else {
-        // Fallback if the backend still logs in immediately
-        navigate('/', { replace: true });
-      }
+      await register(name, email, password, country, finalUniversity, finalMajor, Number(yearOfStudy) || undefined, Number(currentSemester) || undefined);
+      navigate('/', { replace: true });
     } catch (err) {
       console.error(err);
       setError(err.message || 'Registration failed. Try again.');
