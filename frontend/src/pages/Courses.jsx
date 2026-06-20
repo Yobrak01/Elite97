@@ -14,6 +14,7 @@ export const Courses = () => {
   const [year, setYear] = useState('1');
   const [credits, setCredits] = useState('3');
   const [difficulty, setDifficulty] = useState('0');
+  const [upcomingCatDate, setUpcomingCatDate] = useState('');
   
   // Assessment Structure State
   const [assessmentStructure, setAssessmentStructure] = useState([]);
@@ -79,6 +80,7 @@ export const Courses = () => {
     setYear('1');
     setCredits('0'); 
     setDifficulty('0'); 
+    setUpcomingCatDate('');
     setAssessmentStructure([]);
     setEditingId(null);
     setModalOpen(true);
@@ -91,6 +93,7 @@ export const Courses = () => {
     setYear(course.year.toString());
     setCredits(course.credits.toString());
     setDifficulty(course.difficulty.toString());
+    setUpcomingCatDate(course.upcomingCatDate ? course.upcomingCatDate.substring(0, 10) : '');
     
     // Map assessment structure, replacing null achievedScore with empty string for inputs
     setAssessmentStructure((course.assessmentStructure || []).map(a => ({
@@ -140,6 +143,7 @@ export const Courses = () => {
       year: Number(year),
       credits: Number(credits),
       difficulty: Number(difficulty),
+      upcomingCatDate: upcomingCatDate ? new Date(upcomingCatDate).toISOString() : null,
       assessmentStructure: cleanedStructure
     };
 
@@ -283,6 +287,12 @@ export const Courses = () => {
                       {(course.aiSuggestedTier || 'unranked').replace('_', ' ')}
                     </div>
                   </div>
+                  {course.upcomingCatDate && (
+                    <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-purple-500/20 text-purple-400 border border-purple-500/30 text-[10px] font-black uppercase tracking-wider">
+                      <Target className="w-3 h-3" />
+                      UPCOMING CAT: {new Date(course.upcomingCatDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </div>
+                  )}
                   <p className="text-sm font-semibold text-slate-300">{course.unitName}</p>
                 </div>
                 
@@ -382,6 +392,17 @@ export const Courses = () => {
                   <option value="2">2 - Easy</option>
                   <option value="1">1 - Trivial</option>
                 </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-wider text-purple-400">Upcoming CAT Date</label>
+                <input 
+                  type="date" 
+                  value={upcomingCatDate} 
+                  onChange={e => setUpcomingCatDate(e.target.value)} 
+                  className="w-full rounded-xl bg-purple-900/20 border border-purple-500/20 py-2 px-4 text-sm text-purple-200 focus:outline-none" 
+                />
+                <p className="text-[9px] text-slate-500 mt-1">If set, CAT Prep Mode will violently prioritize this unit.</p>
               </div>
 
               {/* Assessment Structure Builder */}

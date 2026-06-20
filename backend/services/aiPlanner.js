@@ -278,9 +278,96 @@ async function generateWeeklyIntelligenceBriefing(data, user) {
   };
 }
 
+const { GoogleGenAI } = require('@google/genai');
+
+async function generateGeminiCatPlan(tasks, courseUnits, settings = { dailyGoalHours: 6, breakInterval: 25 }, timetable = []) {
+  const now = new Date();
+  const dateString = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  // 1. Identify units with upcoming CATs
+  const catUnits = courseUnits.filter(cu => cu.upcomingCatDate && new Date(cu.upcomingCatDate) > now);
+  
+  if (catUnits.length === 0 || !process.env.GEMINI_API_KEY) {
+    // Graceful fallback: violently sort CAT tasks or just use normal plan if no CATs
+    console.warn("No upcoming CATs or no GEMINI_API_KEY. Falling back to normal CAT prep plan.");
+    
+    // Boost priority of tasks related to units that HAVE a upcomingCatDate, just in case
+    const boostedTasks = tasks.map(t => {
+      const isCatRelated = catUnits.some(cu => t.courseUnit && t.courseUnit.toString() === cu._id.toString());
+      if (isCatRelated) t.priority = 10; // MAX PRIORITY
+      return t;
+    });
+    
+    return generateDailyPlan(boostedTasks, 'cat_prep', settings, 'cat_prep', timetable);
+  }
+
+  // 2. We have CATs and Gemini. Prepare data for the prompt.
+  const catDetails = catUnits.map(cu => {
+    const daysRemaining = Math.ceil((new Date(cu.upcomingCatDate) - now) / (1000 * 60 * 60 * 24));
+    return `- ${cu.unitCode} (${cu.unitName}): CAT in ${daysRemaining} days`;
+  }).join('\n');
+
+  const activeTasks = tasks.filter(t => t.status !== 'completed').map(t => {
+    const cu = courseUnits.find(c => c._id.toString() === t.courseUnit?.toString());
+    return `- [${cu ? cu.unitCode : 'General'}] ${t.title} (${t.estimatedHours}h)`;
+  }).join('\n');
+
+  const parseTimeStr = (timeStr, defaultMinutes) => {
+    if (!timeStr) return defaultMinutes;
+    const [h, m] = timeStr.split(':').map(Number);
+    return isNaN(h) || isNaN(m) ? defaultMinutes : h * 60 + m;
+  };
+
+  const wakeTimeMinutes = parseTimeStr(settings.wakeTime, 8 * 60);
+  let currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
+  const startMinute = Math.max(wakeTimeMinutes, currentTotalMinutes);
+  
+  const formatTimeStr = (min) => {
+    const h = Math.floor(min / 60).toString().padStart(2, '0');
+    const m = (min % 60).toString().padStart(2, '0');
+    return `${h}:${m}`;
+  };
+  const startTimeStr = formatTimeStr(startMinute);
+
+  const prompt = `You are the Elite97 AI Planner. The user is in "CAT Prep Mode".
+They have upcoming Continuous Assessment Tests (CATs):
+${catDetails}
+
+Their active tasks are:
+${activeTasks || "No specific tasks logged."}
+
+They want to study for up to ${settings.dailyGoalHours} hours today. They start now at ${startTimeStr}.
+Generate a highly targeted daily schedule. Prioritize the units with upcoming CATs IMMEDIATELY. Ignore low-priority non-CAT tasks.
+
+Return ONLY a JSON array of blocks. Each block must have this exact format:
+[
+  { "startTime": "HH:MM", "endTime": "HH:MM", "activity": "Specific Activity string", "category": "study" | "break" | "lecture", "duration": Number(minutes) }
+]
+Do not use markdown. Do not include \`\`\`json.`;
+
+  try {
+    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash',
+      contents: prompt,
+    });
+
+    let text = response.text;
+    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const blocks = JSON.parse(text);
+
+    return { blocks, dateString };
+  } catch (error) {
+    console.error("Gemini CAT Plan Generation Failed:", error);
+    // Fallback to normal if JSON parsing or API fails
+    return generateDailyPlan(tasks, 'cat_prep', settings, 'cat_prep', timetable);
+  }
+}
+
 module.exports = {
   determineMode,
   generateDailyPlan,
   generateRecommendations,
-  generateWeeklyIntelligenceBriefing
+  generateWeeklyIntelligenceBriefing,
+  generateGeminiCatPlan
 };

@@ -54,6 +54,10 @@ const CourseUnitSchema = new mongoose.Schema({
     enum: ['tier1_critical', 'tier2_high', 'tier3_standard', 'tier4_low', 'tier5_minimal'],
     default: 'tier3_standard'
   },
+  upcomingCatDate: {
+    type: Date,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now
