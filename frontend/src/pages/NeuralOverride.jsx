@@ -9,7 +9,7 @@ const NeuralOverride = () => {
   const [isActive, setIsActive] = useState(false);
   const [targetDurationSeconds, setTargetDurationSeconds] = useState(60 * 60); // Default 60 mins
   const [timeRemaining, setTimeRemaining] = useState(0);
-  const [audioEnabled, setAudioEnabled] = useState(false);
+  const [audioMode, setAudioMode] = useState('OFF');
   const [activeLogId, setActiveLogId] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [abortConfirm, setAbortConfirm] = useState(false);
@@ -173,17 +173,20 @@ const NeuralOverride = () => {
     }
   };
 
-  const toggleAudio = () => {
-    if (audioEnabled) {
-      stopAudio();
-      setAudioEnabled(false);
-    } else {
+  const toggleAudioMode = () => {
+    if (audioMode === 'OFF') {
+      setAudioMode('LOFI');
+    } else if (audioMode === 'LOFI') {
+      setAudioMode('FREQUENCIES');
       initAudio();
-      setAudioEnabled(true);
+    } else {
+      setAudioMode('OFF');
+      stopAudio();
     }
   };
 
   const startOverride = async () => {
+    if (targetDurationSeconds <= 0) return;
     try {
       // Start backend timer
       const res = await api.tracker.startTimer({ 
@@ -198,8 +201,7 @@ const NeuralOverride = () => {
       setAbortConfirm(false);
       
       // Auto-start audio
-      initAudio();
-      setAudioEnabled(true);
+      setAudioMode('LOFI');
 
       timerIntervalRef.current = setInterval(() => {
         setTimeRemaining(prev => {
@@ -284,21 +286,38 @@ const NeuralOverride = () => {
         </span>
       </div>
 
-      <div className="absolute top-8 right-8">
+      <div className="absolute top-8 right-8 flex flex-col items-end gap-4">
         {isActive && !isCompleted && (
-          <button 
-            onClick={toggleAudio}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
-              audioEnabled 
-                ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
-                : 'bg-transparent border-white/10 text-slate-500 hover:text-white'
-            }`}
-          >
-            {audioEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-            <span className="text-[10px] font-black uppercase tracking-widest">
-              {audioEnabled ? 'Abyssal Frequencies : ON' : 'Abyssal Frequencies : OFF'}
-            </span>
-          </button>
+          <>
+            <button 
+              onClick={toggleAudioMode}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all ${
+                audioMode !== 'OFF' 
+                  ? 'bg-cyan-500/20 border-cyan-500/50 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
+                  : 'bg-transparent border-white/10 text-slate-500 hover:text-white'
+              }`}
+            >
+              {audioMode !== 'OFF' ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+              <span className="text-[10px] font-black uppercase tracking-widest">
+                {audioMode === 'LOFI' ? 'Lofi Radio : ON' : audioMode === 'FREQUENCIES' ? 'Abyssal Frequencies : ON' : 'Audio : OFF'}
+              </span>
+            </button>
+            
+            {/* YouTube Audio Player (Hidden visually, but active for audio) */}
+            {audioMode === 'LOFI' && (
+              <div className="w-64 h-24 overflow-hidden rounded-xl border border-cyan-500/30 opacity-50 hover:opacity-100 transition-opacity">
+                <iframe 
+                  width="100%" 
+                  height="100%" 
+                  src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&controls=0&disablekb=1&fs=0&modestbranding=1" 
+                  title="Lofi Radio" 
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                ></iframe>
+              </div>
+            )}
+          </>
         )}
       </div>
 
