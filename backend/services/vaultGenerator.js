@@ -63,10 +63,23 @@ exports.generateFromMaterial = async (fileBuffer, mimetype = '', originalname = 
       contents.push(prompt + "\n\n=== SOURCE MATERIAL ===\n" + text);
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: contents,
-    });
+    let response;
+    try {
+      response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: contents,
+      });
+    } catch (apiError) {
+      if (apiError.status === 429 || apiError.message?.includes('429') || apiError.message?.includes('quota')) {
+        console.warn('Gemini 2.0 Flash quota exceeded. Falling back to gemini-1.5-flash...');
+        response = await ai.models.generateContent({
+          model: 'gemini-1.5-flash',
+          contents: contents,
+        });
+      } else {
+        throw apiError;
+      }
+    }
 
     let resultText = response.text;
     
