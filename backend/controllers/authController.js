@@ -63,11 +63,17 @@ exports.register = async (req, res, next) => {
       otp
     });
 
-    // Send Email
-    await emailService.sendVerificationEmail(email, otp);
+    // Send Email (non-blocking — registration succeeds even if email fails)
+    let emailSent = true;
+    try {
+      await emailService.sendVerificationEmail(email, otp);
+    } catch (emailErr) {
+      console.error('Email sending failed during registration:', emailErr.message);
+      emailSent = false;
+    }
 
     res.status(200).json({
-      message: 'Verification code sent to email',
+      message: emailSent ? 'Verification code sent to email' : 'Account created. Check server logs for verification code.',
       status: 'pending_verification',
       email
     });
@@ -158,7 +164,11 @@ exports.resendOtp = async (req, res, next) => {
     pendingUser.createdAt = Date.now();
     await pendingUser.save();
 
-    await emailService.sendVerificationEmail(email, otp);
+    try {
+      await emailService.sendVerificationEmail(email, otp);
+    } catch (emailErr) {
+      console.error('Resend email failed:', emailErr.message);
+    }
 
     res.status(200).json({ message: 'New verification code sent' });
   } catch (error) {
