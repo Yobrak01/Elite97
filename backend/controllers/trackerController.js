@@ -137,6 +137,17 @@ exports.deleteLog = async (req, res, next) => {
     const timeLog = await TimeLog.findOneAndDelete({ _id: req.params.id, user: req.user._id });
     if (!timeLog) return res.status(404).json({ success: false, message: 'TimeLog not found.' });
     
+    const logDate = getStartOfDay(req.user.timezone, new Date(timeLog.date));
+    const remainingLogs = await TimeLog.find({ user: req.user._id, date: logDate });
+    const studyHours = remainingLogs
+      .filter(l => l.activityType === 'personal_study' || l.activityType === 'lecture' || l.activityType === 'group_discussion' || l.activityType === 'project')
+      .reduce((s, l) => s + ((l.durationMinutes || 0) / 60), 0);
+
+    await Analytics.findOneAndUpdate(
+      { user: req.user._id, date: logDate },
+      { $set: { studyHours } }
+    );
+    
     res.status(200).json({ success: true, message: 'Log deleted successfully' });
   } catch (error) {
     next(error);

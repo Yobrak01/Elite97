@@ -28,7 +28,7 @@ export const Settings = () => {
   const [major, setMajor] = useState(user?.major || '');
 
   const [timetable, setTimetable] = useState(user?.timetable || []);
-  const [newTimetableRow, setNewTimetableRow] = useState({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '' });
+  const [newTimetableRow, setNewTimetableRow] = useState({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '', activityType: 'lecture', eventName: '' });
 
   const [pastResults, setPastResults] = useState(user?.pastResults || []);
   const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', type: 'semester', mark: '' });
@@ -60,9 +60,9 @@ export const Settings = () => {
   };
 
   const handleAddTimetableRow = () => {
-    if (newTimetableRow.startTime && newTimetableRow.endTime && newTimetableRow.unitName) {
+    if (newTimetableRow.startTime && newTimetableRow.endTime && (newTimetableRow.unitName || newTimetableRow.eventName)) {
       setTimetable([...timetable, newTimetableRow]);
-      setNewTimetableRow({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '' });
+      setNewTimetableRow({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '', activityType: 'lecture', eventName: '' });
     }
   };
 
@@ -72,7 +72,7 @@ export const Settings = () => {
 
   const handleEditTimetableRow = (index) => {
     const row = timetable[index];
-    setNewTimetableRow({ dayOfWeek: row.dayOfWeek || row.day, startTime: row.startTime, endTime: row.endTime, unitName: row.unitName });
+    setNewTimetableRow({ dayOfWeek: row.dayOfWeek || row.day, startTime: row.startTime, endTime: row.endTime, unitName: row.unitName, activityType: row.activityType || 'lecture', eventName: row.eventName || '' });
     handleRemoveTimetableRow(index);
   };
 
@@ -101,7 +101,8 @@ export const Settings = () => {
           wakeTime,
           sleepTime,
           circadianAnchorTime,
-          circadianAnchorGraceMinutes: Number(circadianAnchorGraceMinutes)
+          circadianAnchorGraceMinutes: Number(circadianAnchorGraceMinutes),
+          circadianEnabled
         }
       });
       updateUser(res.user);
@@ -429,40 +430,65 @@ export const Settings = () => {
 
             <div className="space-y-4">
               {/* Add new row form */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                <select
-                  value={newTimetableRow.dayOfWeek}
-                  onChange={(e) => setNewTimetableRow({...newTimetableRow, dayOfWeek: e.target.value})}
-                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
-                >
-                  {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
-                <input
-                  type="time"
-                  value={newTimetableRow.startTime}
-                  onChange={(e) => setNewTimetableRow({...newTimetableRow, startTime: e.target.value})}
-                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
-                />
-                <input
-                  type="time"
-                  value={newTimetableRow.endTime}
-                  onChange={(e) => setNewTimetableRow({...newTimetableRow, endTime: e.target.value})}
-                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
-                />
-                <select
-                  value={newTimetableRow.unitName}
-                  onChange={(e) => setNewTimetableRow({...newTimetableRow, unitName: e.target.value})}
-                  className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
-                >
-                  <option value="">Select Unit...</option>
-                  {courses.map(c => (
-                    <option key={c._id} value={c.unitCode}>{c.unitCode}</option>
-                  ))}
-                  <option value="Personal Study">Personal Study</option>
-                  <option value="Other">Other</option>
-                </select>
+              <div className="flex flex-col gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <select
+                    value={newTimetableRow.dayOfWeek}
+                    onChange={(e) => setNewTimetableRow({...newTimetableRow, dayOfWeek: e.target.value})}
+                    className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                  >
+                    {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="time"
+                    value={newTimetableRow.startTime}
+                    onChange={(e) => setNewTimetableRow({...newTimetableRow, startTime: e.target.value})}
+                    className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                  />
+                  <input
+                    type="time"
+                    value={newTimetableRow.endTime}
+                    onChange={(e) => setNewTimetableRow({...newTimetableRow, endTime: e.target.value})}
+                    className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                  />
+                  <select
+                    value={newTimetableRow.activityType || 'lecture'}
+                    onChange={(e) => setNewTimetableRow({...newTimetableRow, activityType: e.target.value, unitName: e.target.value === 'lecture' ? '' : 'Other'})}
+                    className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                  >
+                    <option value="lecture">Lecture / Class</option>
+                    <option value="personal_study">Personal Study</option>
+                    <option value="gym">Gym / Workout</option>
+                    <option value="group_discussion">Group Meeting</option>
+                    <option value="project">Project Work</option>
+                    <option value="chore">Chore / Task</option>
+                    <option value="rest">Rest / Sleep</option>
+                  </select>
+                </div>
+                <div className="grid grid-cols-1 gap-2">
+                  {newTimetableRow.activityType === 'lecture' || !newTimetableRow.activityType ? (
+                    <select
+                      value={newTimetableRow.unitName}
+                      onChange={(e) => setNewTimetableRow({...newTimetableRow, unitName: e.target.value})}
+                      className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                    >
+                      <option value="">Select Unit...</option>
+                      {courses.map(c => (
+                        <option key={c._id} value={c.unitCode}>{c.unitCode}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      placeholder="Event Name (e.g. Chest Day, CompSci Assignment)"
+                      value={newTimetableRow.eventName || ''}
+                      onChange={(e) => setNewTimetableRow({...newTimetableRow, eventName: e.target.value})}
+                      className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                    />
+                  )}
+                </div>
               </div>
               <button
                 type="button"
@@ -482,7 +508,7 @@ export const Settings = () => {
                       <div className="flex items-center gap-3">
                         <span className="text-[10px] font-black uppercase text-purple-400 w-16">{(row.dayOfWeek || row.day || '').substring(0,3)}</span>
                         <span className="text-xs text-slate-300">{row.startTime} - {row.endTime}</span>
-                        <span className="text-xs font-bold text-white truncate max-w-[100px]">{row.unitName}</span>
+                        <span className="text-xs font-bold text-white truncate max-w-[100px]">{row.eventName || row.unitName}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button onClick={() => handleEditTimetableRow(idx)} className="text-blue-400/50 hover:text-blue-400 transition-colors">

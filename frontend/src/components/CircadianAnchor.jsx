@@ -92,6 +92,27 @@ const CircadianAnchor = ({ onAnchorUpdate }) => {
     );
   }
 
+  if (status === 'paused') {
+    return (
+      <div className="glass-panel rounded-2xl border border-slate-500/50 bg-slate-900/20 p-6 flex flex-col md:flex-row items-center justify-between shadow-[0_0_30px_rgba(100,116,139,0.15)] relative overflow-hidden group">
+        <div className="absolute inset-0 bg-slate-500/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-slate-500/20 rounded-xl">
+            <Clock className="h-8 w-8 text-slate-400" />
+          </div>
+          <div>
+            <h2 className="text-xl font-black text-slate-400 tracking-widest uppercase">Protocol Disabled</h2>
+            <p className="text-xs text-slate-100/70 font-bold uppercase tracking-wider mt-1">Circadian rhythm tracking is paused in settings.</p>
+          </div>
+        </div>
+        <div className="mt-4 md:mt-0 text-right">
+          <div className="text-[10px] font-black uppercase tracking-widest text-slate-500">Protocol Status</div>
+          <div className="text-lg font-black text-white tracking-widest">PAUSED</div>
+        </div>
+      </div>
+    );
+  }
+
   const anchorTimeStr = user?.settings?.circadianAnchorTime || '05:30';
   const anchorGrace = user?.settings?.circadianAnchorGraceMinutes || 30;
 

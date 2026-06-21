@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, CheckCircle2, RefreshCw, BarChart2, Plus, Sparkles, Award, AlertTriangle } from 'lucide-react';
+import { BookOpen, Clock, CheckCircle2, RefreshCw, BarChart2, Plus, Sparkles, Award, AlertTriangle, X } from 'lucide-react';
 import AuthContext from '../context/AuthContext';
 import useAnalytics from '../hooks/useAnalytics';
 import useTasks from '../hooks/useTasks';
@@ -21,6 +21,43 @@ export const Dashboard = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  const [showLogModal, setShowLogModal] = useState(false);
+  const [studyHours, setStudyHours] = useState('');
+  const [focusScore, setFocusScore] = useState(70);
+  const [breaks, setBreaks] = useState(1);
+  const [subjects, setSubjects] = useState('');
+  const [notes, setNotes] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const openLogModal = () => {
+    setStudyHours(dashboardData?.studyHours ? Number(dashboardData.studyHours).toFixed(1) : '');
+    setFocusScore(70);
+    setBreaks(1);
+    setSubjects('');
+    setNotes('');
+    setShowLogModal(true);
+  };
+
+  const handleLogSession = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      await api.sessions.create({
+        studyHours: Number(studyHours),
+        focusScore: Number(focusScore),
+        breaks: Number(breaks),
+        subjects: subjects.split(',').map(s => s.trim()),
+        notes
+      });
+      setShowLogModal(false);
+      refresh();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const todayStart = new Date();
   todayStart.setHours(0,0,0,0);
   const todayEnd = new Date();
@@ -31,41 +68,6 @@ export const Dashboard = () => {
   const totalTasksToday = dueTodayOrOverdue.length + completedToday.length;
   const todayCompletionPct = totalTasksToday > 0 ? Math.round((completedToday.length / totalTasksToday) * 100) : 0;
 
-  const [modalOpen, setModalOpen] = useState(false);
-  const [studyHours, setStudyHours] = useState('');
-  const [focusScoreInput, setFocusScoreInput] = useState('');
-  const [breaks, setBreaks] = useState('');
-  const [subjects, setSubjects] = useState('');
-  const [notes, setNotes] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleLogSession = async (e) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const subjectArray = subjects.split(',').map(s => s.trim()).filter(Boolean);
-      await api.sessions.create({
-        studyHours: Number(studyHours),
-        focusScore: focusScoreInput ? Number(focusScoreInput) : undefined,
-        breaks: Number(breaks) || 0,
-        subjects: subjectArray,
-        notes
-      });
-      setModalOpen(false);
-      setStudyHours('');
-      setFocusScoreInput('');
-      setBreaks('');
-      setSubjects('');
-      setNotes('');
-      refresh();
-    } catch (err) {
-      console.error(err);
-      alert(err.message || 'Error occurred logging study session.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const handleSyncAnalytics = async () => {
     try {
       await api.analytics.calculate();
@@ -74,6 +76,14 @@ export const Dashboard = () => {
       console.error(err);
     }
   };
+
+  useEffect(() => {
+    const handleTimeLogged = () => {
+      handleSyncAnalytics();
+    };
+    window.addEventListener('time-logged', handleTimeLogged);
+    return () => window.removeEventListener('time-logged', handleTimeLogged);
+  }, []);
 
   if (loading) {
     return (
@@ -125,10 +135,9 @@ export const Dashboard = () => {
           >
             <Sparkles className="h-4 w-4" />
             Neural Override
-          </button>
           <button
-            onClick={() => setModalOpen(true)}
-            className="flex items-center gap-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-cyan transition-all cursor-pointer"
+            onClick={openLogModal}
+            className="flex items-center gap-1.5 rounded-xl bg-accent-gold/20 hover:bg-accent-gold/30 border border-accent-gold/50 text-accent-gold px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer"
           >
             <Plus className="h-4 w-4" />
             Log Session
@@ -137,7 +146,9 @@ export const Dashboard = () => {
       </div>
 
       {/* 5AM Circadian Protocol Widget */}
-      <CircadianAnchor onAnchorUpdate={handleSyncAnalytics} />
+      {user?.settings?.circadianEnabled && (
+        <CircadianAnchor onAnchorUpdate={handleSyncAnalytics} />
+      )}
 
       {/* Ruthless AI Overseer */}
       {dashboardData?.ruthlessCritique && (
@@ -217,88 +228,101 @@ export const Dashboard = () => {
         </div>
       </div>
 
-      {/* Modal dialog box overlay for logging study session */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl relative">
-            <h3 className="text-2xl font-display font-black tracking-widest text-cyan-400 mb-4 uppercase text-glow-gold">Log Study Session</h3>
+      {/* Log Session Modal */}
+      {showLogModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-3xl bg-navy-900 border border-white/10 p-6 shadow-2xl relative overflow-hidden">
+            {/* Modal background glow */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-accent-gold/10 blur-[50px] rounded-full pointer-events-none"></div>
             
-            <form onSubmit={handleLogSession} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Study Duration (Hours)</label>
-                <input
-                  type="number"
-                  step="0.5"
-                  required
-                  value={studyHours}
-                  onChange={(e) => setStudyHours(e.target.value)}
-                  placeholder="e.g. 4"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-                />
+            <div className="flex items-center justify-between mb-6 relative z-10">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-accent-gold/20 rounded-xl border border-accent-gold/30">
+                  <BookOpen className="h-5 w-5 text-accent-gold" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black uppercase tracking-wider text-white">Daily Reflection</h2>
+                  <p className="text-xs text-slate-400 font-semibold">Commit to the Grid</p>
+                </div>
               </div>
+              <button 
+                onClick={() => setShowLogModal(false)}
+                className="p-2 bg-white/5 hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+              >
+                <X className="h-4 w-4 text-slate-400" />
+              </button>
+            </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Focus Score (Optional, %)</label>
+            <form onSubmit={handleLogSession} className="space-y-4 relative z-10">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Total Hours</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    required
+                    value={studyHours}
+                    onChange={(e) => setStudyHours(e.target.value)}
+                    placeholder="e.g. 4.5"
+                    className="w-full rounded-xl bg-black/50 border border-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-gold/50 transition-colors"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Focus Score (0-100)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    required
+                    value={focusScore}
+                    onChange={(e) => setFocusScore(e.target.value)}
+                    className="w-full rounded-xl bg-black/50 border border-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-gold/50 transition-colors"
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Number of Breaks</label>
                 <input
                   type="number"
                   min="0"
-                  max="100"
-                  value={focusScoreInput}
-                  onChange={(e) => setFocusScoreInput(e.target.value)}
-                  placeholder="e.g. 85"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Pomodoro Breaks (# of cycles)</label>
-                <input
-                  type="number"
+                  required
                   value={breaks}
                   onChange={(e) => setBreaks(e.target.value)}
-                  placeholder="e.g. 3"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  className="w-full rounded-xl bg-black/50 border border-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-gold/50 transition-colors"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Subjects / Topics (Comma separated)</label>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Subjects Studied (comma separated)</label>
                 <input
                   type="text"
+                  required
                   value={subjects}
                   onChange={(e) => setSubjects(e.target.value)}
-                  placeholder="Engineering Math, Electromagnetics"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
+                  placeholder="e.g. Math, Physics, Coding"
+                  className="w-full rounded-xl bg-black/50 border border-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-gold/50 transition-colors"
                 />
               </div>
 
-              <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Reflections / Journal notes</label>
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Daily Reflection / Active Recall Notes</label>
                 <textarea
+                  rows="3"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Today went well. Fast derivation of Maxwell equations."
-                  rows="3"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500"
-                />
+                  placeholder="What did you achieve today? What needs work tomorrow?"
+                  className="w-full rounded-xl bg-black/50 border border-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-gold/50 transition-colors resize-none"
+                ></textarea>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setModalOpen(false)}
-                  className="rounded-xl border border-white/5 hover:bg-white/5 text-slate-400 hover:text-white text-xs font-bold px-4 py-2"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
-                >
-                  Commit Log
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full py-3 mt-4 rounded-xl bg-accent-gold/20 hover:bg-accent-gold/30 border border-accent-gold/50 text-accent-gold text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer disabled:opacity-50"
+              >
+                {submitting ? 'Committing...' : 'Commit to Global Matrix'}
+              </button>
             </form>
           </div>
         </div>
@@ -307,5 +331,3 @@ export const Dashboard = () => {
   );
 };
 export default Dashboard;
-
-

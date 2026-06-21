@@ -385,15 +385,55 @@ exports.getTodayRoutine = async (req, res, next) => {
     const lectureRoutines = lectures.map(lec => {
       const startMins = parseTime(lec.startTime);
       const endMins = parseTime(lec.endTime);
+      
+      let label = `Lecture: ${lec.unitName}`;
+      let icon = 'GraduationCap';
+      let color = 'text-cyan-400';
+      let bg = 'bg-cyan-500/20';
+      
+      if (lec.activityType === 'personal_study') {
+        label = `Study: ${lec.eventName || lec.unitName}`;
+        icon = 'BookOpen';
+        color = 'text-yellow-400';
+        bg = 'bg-yellow-500/20';
+      } else if (lec.activityType === 'gym') {
+        label = `Gym: ${lec.eventName || lec.unitName}`;
+        icon = 'Dumbbell';
+        color = 'text-green-400';
+        bg = 'bg-green-500/20';
+      } else if (lec.activityType === 'group_discussion') {
+        label = `Group: ${lec.eventName || lec.unitName}`;
+        icon = 'Users';
+        color = 'text-blue-400';
+        bg = 'bg-blue-500/20';
+      } else if (lec.activityType === 'project') {
+        label = `Project: ${lec.eventName || lec.unitName}`;
+        icon = 'Briefcase';
+        color = 'text-indigo-400';
+        bg = 'bg-indigo-600/20';
+      } else if (lec.activityType === 'chore') {
+        label = `Chore: ${lec.eventName || lec.unitName}`;
+        icon = 'Brush';
+        color = 'text-yellow-400';
+        bg = 'bg-yellow-500/20';
+      } else if (lec.activityType === 'rest') {
+        label = `Rest: ${lec.eventName || lec.unitName}`;
+        icon = 'Moon';
+        color = 'text-slate-400';
+        bg = 'bg-slate-500/20';
+      } else if (lec.activityType && lec.activityType !== 'lecture') {
+        label = lec.eventName || lec.unitName;
+      }
+
       return {
         time: lec.startTime,
         minutes: startMins,
         endMinutes: endMins,
-        label: `Lecture: ${lec.unitName}`,
-        icon: 'GraduationCap',
-        color: 'text-cyan-400',
-        bg: 'bg-cyan-500/20',
-        description: `University lecture. Ends at ${lec.endTime}.`,
+        label,
+        icon,
+        color,
+        bg,
+        description: `${lec.activityType || 'Lecture'}. Ends at ${lec.endTime}.`,
         isLecture: true
       };
     });
@@ -429,6 +469,10 @@ exports.establishAnchor = async (req, res, next) => {
     const todayStr = new Date().toISOString().split('T')[0];
     const user = await User.findById(req.user._id);
     
+    if (!user.settings?.circadianEnabled) {
+      return res.status(400).json({ success: false, message: 'Circadian protocol is currently disabled.' });
+    }
+
     // Check if already logged today
     const existingLog = user.circadianLogs.find(log => log.date === todayStr);
     if (existingLog && existingLog.status !== 'pending') {
@@ -482,6 +526,10 @@ exports.getCircadianStatus = async (req, res, next) => {
     const todayStr = new Date().toISOString().split('T')[0];
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    if (!user.settings?.circadianEnabled) {
+      return res.status(200).json({ success: true, data: { date: todayStr, status: 'paused' } });
+    }
 
     let log = user.circadianLogs.find(log => log.date === todayStr);
     if (log) {

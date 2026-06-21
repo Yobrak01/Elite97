@@ -38,6 +38,7 @@ const UserSchema = new mongoose.Schema({
     type: Date
   },
   settings: {
+    circadianEnabled: { type: Boolean, default: false },
     dailyGoalHours: { type: Number, default: 6 },
     breakInterval: { type: Number, default: 25 },
     breakDuration: { type: Number, default: 5 },
@@ -115,7 +116,9 @@ const UserSchema = new mongoose.Schema({
       dayOfWeek: String,
       startTime: String,
       endTime: String,
-      unitName: { type: String, required: true }
+      unitName: { type: String, required: true },
+      activityType: { type: String, default: 'lecture' },
+      eventName: { type: String }
     }],
     default: []
   },

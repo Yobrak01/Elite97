@@ -29,6 +29,17 @@ const formatMinutes = (mins) => {
 export const LiveTimer = () => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
+  const [position, setPosition] = useState(() => {
+    const saved = localStorage.getItem('elite97_timer_pos');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return { right: 24, bottom: 24 };
+  });
+  const positionRef = useRef(position);
+  const [isDragging, setIsDragging] = useState(false);
+  const [hasMoved, setHasMoved] = useState(false);
+  const offsetRef = useRef({ x: 0, y: 0 });
   const [isPaused, setIsPaused] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [activeLogId, setActiveLogId] = useState(null);
@@ -65,6 +76,48 @@ export const LiveTimer = () => {
     fetchTodayLogs();
     fetchCourses();
   }, [fetchTodayLogs, fetchCourses]);
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (!isDragging) return;
+      e.preventDefault(); // prevent selection while dragging
+      setHasMoved(true);
+      const newRight = offsetRef.current.x - e.clientX;
+      const newBottom = offsetRef.current.y - e.clientY;
+      const newPos = { right: newRight, bottom: newBottom };
+      setPosition(newPos);
+      positionRef.current = newPos;
+    };
+
+    const handleMouseUp = () => {
+      if (isDragging) {
+        setIsDragging(false);
+        localStorage.setItem('elite97_timer_pos', JSON.stringify(positionRef.current));
+      }
+    };
+
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener('mouseleave', handleMouseUp);
+    }
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+      window.removeEventListener('mouseleave', handleMouseUp);
+    };
+  }, [isDragging]);
+
+  const handleMouseDown = (e) => {
+    if (e.button !== 0) return; // Only left click
+    e.preventDefault(); // Prevent native drag
+    setIsDragging(true);
+    setHasMoved(false);
+    offsetRef.current = {
+      x: e.clientX + positionRef.current.right,
+      y: e.clientY + positionRef.current.bottom
+    };
+  };
 
   // Restore running timer if one exists in today's logs
   useEffect(() => {
@@ -228,7 +281,10 @@ export const LiveTimer = () => {
   const totalTodayMinutes = todaySummary.reduce((sum, a) => sum + a.totalMinutes, 0);
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div 
+      className="fixed z-50 flex flex-col items-end gap-3"
+      style={{ right: `${position.right}px`, bottom: `${position.bottom}px` }}
+    >
       {/* Expanded Panel */}
       {isExpanded && (
         <div className="glass-panel w-80 rounded-2xl border border-white/10 p-5 space-y-4 animate-fade-in shadow-2xl shadow-black/40">
@@ -416,8 +472,11 @@ export const LiveTimer = () => {
 
       {/* Floating Action Button */}
       <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className={`group relative flex h-14 w-14 items-center justify-center rounded-2xl border transition-all duration-300 shadow-2xl ${
+        onMouseDown={handleMouseDown}
+        onClick={() => {
+          if (!hasMoved) setIsExpanded(!isExpanded);
+        }}
+        className={`group relative flex h-14 w-14 items-center justify-center rounded-2xl border transition-all duration-300 shadow-2xl cursor-move ${
           isRunning
             ? `${activeActivity.bg} ${activeActivity.border} ${activeActivity.color} shadow-lg ${activeActivity.glow}`
             : 'glass-panel border-white/10 text-cyan-400 hover:border-cyan-500/30 hover:shadow-lg hover:shadow-accent-gold/20'
