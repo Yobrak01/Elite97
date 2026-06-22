@@ -4,7 +4,7 @@ function determineMode(burnoutRisk, focusScore) {
   return 'balanced';
 }
 
-function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal', timetable = []) {
+function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal', timetable = [], workout = null, mealPlan = null) {
   const now = new Date();
   let targetDate = new Date(now);
   const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
@@ -76,7 +76,26 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     unitName: e.title,
     activityType: 'event',
     isEvent: true
-  }))).sort((a, b) => a.start - b.start);
+  })));
+
+  // Inject Lifestyle Blocks (Workout and Meals) as pseudo-lectures so the AI routes around them
+  if (mealPlan) {
+    const bfastTime = settings.mealTimes?.breakfast || '08:00';
+    const lunchTime = settings.mealTimes?.lunch || '13:00';
+    const dinnerTime = settings.mealTimes?.dinner || '19:30';
+
+    lectures.push({ start: parseTime(bfastTime), end: parseTime(bfastTime) + 30, unitName: `Breakfast: ${mealPlan.breakfast?.name || 'Fuel'}`, activityType: 'rest', isEvent: true });
+    lectures.push({ start: parseTime(lunchTime), end: parseTime(lunchTime) + 45, unitName: `Lunch: ${mealPlan.lunch?.name || 'Fuel'}`, activityType: 'rest', isEvent: true });
+    lectures.push({ start: parseTime(dinnerTime), end: parseTime(dinnerTime) + 45, unitName: `Dinner: ${mealPlan.dinner?.name || 'Fuel'}`, activityType: 'rest', isEvent: true });
+  }
+
+  if (workout && workout.splitType !== 'rest') {
+    const gymTime = settings.gymTime || '17:00';
+    lectures.push({ start: parseTime(gymTime), end: parseTime(gymTime) + 90, unitName: `Gym: ${workout.splitType.toUpperCase()} Split`, activityType: 'gym', isEvent: true });
+  }
+
+  // Final sort to place all lectures, events, and lifestyle blocks in chronological order
+  lectures.sort((a, b) => a.start - b.start);
 
   const activeTasks = tasks.filter(t => t.status !== 'completed')
     .sort((a, b) => (b.priority - a.priority) || (new Date(a.deadline) - new Date(b.deadline)));
@@ -316,7 +335,7 @@ async function generateWeeklyIntelligenceBriefing(data, user) {
 
 const { GoogleGenAI } = require('@google/genai');
 
-async function generateGeminiCatPlan(tasks, courseUnits, settings = { dailyGoalHours: 6, breakInterval: 25 }, timetable = []) {
+async function generateGeminiCatPlan(tasks, courseUnits, settings = { dailyGoalHours: 6, breakInterval: 25 }, timetable = [], workout = null, mealPlan = null) {
   const now = new Date();
   const dateString = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
@@ -335,7 +354,7 @@ async function generateGeminiCatPlan(tasks, courseUnits, settings = { dailyGoalH
       return t;
     });
     
-    return generateDailyPlan(boostedTasks, 'cat_prep', settings, 'cat_prep', timetable);
+    return generateDailyPlan(boostedTasks, 'cat_prep', settings, 'cat_prep', timetable, workout, mealPlan);
   }
 
   // 2. We have CATs and Gemini. Prepare data for the prompt.
@@ -400,7 +419,7 @@ Do not use markdown. Do not include \`\`\`json.`;
   } catch (error) {
     console.error("Gemini CAT Plan Generation Failed:", error);
     // Fallback to normal if JSON parsing or API fails
-    return generateDailyPlan(tasks, 'cat_prep', settings, 'cat_prep', timetable);
+    return generateDailyPlan(tasks, 'cat_prep', settings, 'cat_prep', timetable, workout, mealPlan);
   }
 }
 

@@ -1,6 +1,8 @@
 const Task = require('../models/Task');
 const Analytics = require('../models/Analytics');
 const StudySession = require('../models/StudySession');
+const Workout = require('../models/Workout');
+const MealPlan = require('../models/MealPlan');
 const aiPlanner = require('../services/aiPlanner');
 const modeManager = require('../services/modeManager');
 const { computeAiTier } = require('../services/tierEngine');
@@ -106,12 +108,14 @@ exports.getDailyPlan = async (req, res, next) => {
 
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
     const courseUnits = await CourseUnit.find({ user: req.user._id });
+    const workout = await Workout.findOne({ user: req.user._id, date: today });
+    const mealPlan = await MealPlan.findOne({ user: req.user._id, date: today });
     
     let planData;
     if (req.user.studyMode === 'cat_prep') {
-      planData = await aiPlanner.generateGeminiCatPlan(tasks, courseUnits, req.user.settings, req.user.timetable);
+      planData = await aiPlanner.generateGeminiCatPlan(tasks, courseUnits, req.user.settings, req.user.timetable, workout, mealPlan);
     } else {
-      planData = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
+      planData = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable, workout, mealPlan);
     }
 
     res.status(200).json({
@@ -138,12 +142,14 @@ exports.generatePlan = async (req, res, next) => {
 
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
     const courseUnits = await CourseUnit.find({ user: req.user._id });
+    const workout = await Workout.findOne({ user: req.user._id, date: today });
+    const mealPlan = await MealPlan.findOne({ user: req.user._id, date: today });
     
     let planData;
     if (req.user.studyMode === 'cat_prep') {
-      planData = await aiPlanner.generateGeminiCatPlan(tasks, courseUnits, req.user.settings, req.user.timetable);
+      planData = await aiPlanner.generateGeminiCatPlan(tasks, courseUnits, req.user.settings, req.user.timetable, workout, mealPlan);
     } else {
-      planData = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable);
+      planData = aiPlanner.generateDailyPlan(tasks, currentMode, req.user.settings, req.user.studyMode, req.user.timetable, workout, mealPlan);
     }
 
     res.status(200).json({

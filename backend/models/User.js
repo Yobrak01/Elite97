@@ -48,7 +48,13 @@ const UserSchema = new mongoose.Schema({
     wakeTime: { type: String, default: '06:00' },
     sleepTime: { type: String, default: '22:30' },
     circadianAnchorTime: { type: String, default: '05:30' },
-    circadianAnchorGraceMinutes: { type: Number, default: 30 }
+    circadianAnchorGraceMinutes: { type: Number, default: 30 },
+    mealTimes: {
+      breakfast: { type: String, default: '08:00' },
+      lunch: { type: String, default: '13:00' },
+      dinner: { type: String, default: '19:30' }
+    },
+    gymTime: { type: String, default: '17:00' }
   },
   pastResults: [{
     year: Number,
