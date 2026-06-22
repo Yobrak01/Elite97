@@ -78,13 +78,14 @@ export const LiveTimer = () => {
   }, [fetchTodayLogs, fetchCourses]);
 
   const dragStartRef = useRef({ pointerX: 0, pointerY: 0, initialRight: 0, initialBottom: 0 });
+  const WIDGET_SIZE = 56; // ~h-14 w-14 in px
 
   const handlePointerDown = (e) => {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    // Use currentTarget (the button), not target (could be child SVG icon)
+    e.currentTarget.setPointerCapture(e.pointerId);
     setIsDragging(true);
     setHasMoved(false);
-    e.target.setPointerCapture(e.pointerId);
-    
     dragStartRef.current = {
       pointerX: e.clientX,
       pointerY: e.clientY,
@@ -95,14 +96,16 @@ export const LiveTimer = () => {
 
   const handlePointerMove = (e) => {
     if (!isDragging) return;
+    e.preventDefault();
     setHasMoved(true);
-    
     const deltaX = dragStartRef.current.pointerX - e.clientX;
     const deltaY = dragStartRef.current.pointerY - e.clientY;
-    
-    const newPos = { 
-      right: dragStartRef.current.initialRight + deltaX, 
-      bottom: dragStartRef.current.initialBottom + deltaY 
+    // Clamp so widget stays within the viewport
+    const maxRight = window.innerWidth - WIDGET_SIZE;
+    const maxBottom = window.innerHeight - WIDGET_SIZE;
+    const newPos = {
+      right: Math.min(Math.max(dragStartRef.current.initialRight + deltaX, 0), maxRight),
+      bottom: Math.min(Math.max(dragStartRef.current.initialBottom + deltaY, 0), maxBottom)
     };
     setPosition(newPos);
     positionRef.current = newPos;
@@ -111,7 +114,7 @@ export const LiveTimer = () => {
   const handlePointerUp = (e) => {
     if (isDragging) {
       setIsDragging(false);
-      e.target.releasePointerCapture(e.pointerId);
+      e.currentTarget.releasePointerCapture(e.pointerId);
       localStorage.setItem('elite97_timer_pos', JSON.stringify(positionRef.current));
     }
   };
@@ -476,6 +479,7 @@ export const LiveTimer = () => {
         onClick={() => {
           if (!hasMoved) setIsExpanded(!isExpanded);
         }}
+        style={{ touchAction: 'none', userSelect: 'none' }}
         className={`group relative flex h-14 w-14 items-center justify-center rounded-2xl border transition-all duration-300 shadow-2xl cursor-move ${
           isRunning
             ? `${activeActivity.bg} ${activeActivity.border} ${activeActivity.color} shadow-lg ${activeActivity.glow}`
