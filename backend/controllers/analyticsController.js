@@ -15,6 +15,7 @@ const cohortFeed = require('../services/cohortFeed');
 const oracleEngine = require('../services/oracleEngine');
 
 const User = require('../models/User');
+const { getStartOfDay, getEndOfDay } = require('../utils/dateUtils');
 
 // Helper function to build comprehensive context
 async function buildContext(userId, today, streak) {
@@ -147,8 +148,7 @@ async function buildContext(userId, today, streak) {
 
 exports.getDashboard = async (req, res, next) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
 
     const context = await buildContext(req.user._id, today, req.user.streak || 0);
     
@@ -163,6 +163,7 @@ exports.getDashboard = async (req, res, next) => {
     const productivityScore = await analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
     
     const tasks = await Task.find({ user: req.user._id, status: { $ne: 'completed' } });
+    const todayEnd = getEndOfDay(req.user.timezone);
     const overdueTasksCount = tasks.filter(t => t.deadline && new Date(t.deadline) <= todayEnd).length;
     
     const recommendations = aiPlanner.generateRecommendations(
@@ -293,8 +294,7 @@ exports.getTimeAverages = async (req, res, next) => {
 
 exports.getBurnoutAssessment = async (req, res, next) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
 
     const context = await buildContext(req.user._id, today, req.user.streak || 0);
     const session = await StudySession.findOne({ user: req.user._id, date: today });
@@ -325,8 +325,7 @@ exports.getTrends = async (req, res, next) => {
 
 exports.recalculateAnalytics = async (req, res, next) => {
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = getStartOfDay(req.user.timezone);
 
     const context = await buildContext(req.user._id, today, req.user.streak || 0);
     const session = await StudySession.findOne({ user: req.user._id, date: today });
@@ -338,6 +337,7 @@ exports.recalculateAnalytics = async (req, res, next) => {
     const productivityScore = await analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
     const burnoutResult = await burnoutDetector.detectBurnout(context);
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
+    const todayEnd = getEndOfDay(req.user.timezone);
     const overdueTasksCount = tasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) <= todayEnd).length;
 
     const recommendations = aiPlanner.generateRecommendations(
