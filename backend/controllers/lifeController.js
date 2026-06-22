@@ -420,15 +420,15 @@ exports.getTodayRoutine = async (req, res, next) => {
         label = `Rest: ${lec.eventName || lec.unitName}`;
         icon = 'Moon';
         color = 'text-slate-400';
-        bg = 'bg-slate-500/20';
-      } else if (lec.activityType && lec.activityType !== 'lecture') {
-        label = lec.eventName || lec.unitName;
-      }
-
-      return {
-        time: lec.startTime,
-        minutes: startMins,
-        endMinutes: endMins,
+        const personalStudyTimeLogs = logsToday
+    .filter(l => l.activityType === 'personal_study' || l.activityType === 'lecture' || l.activityType === 'group_discussion' || l.activityType === 'project')
+    .reduce((s, l) => s + (l.durationMinutes / 60), 0);
+    
+  // Use the sum of all logged time (not max). Session studyHours is the manual commit override;
+  // if a session was manually committed today, respect it; otherwise use the live time logs.
+  const studyHours = (session && session.studyHours > 0)
+    ? (session.studyHours + personalStudyTimeLogs)
+    : personalStudyTimeLogs;
         label,
         icon,
         color,
@@ -541,27 +541,33 @@ exports.getCircadianStatus = async (req, res, next) => {
       return res.status(200).json({ success: true, data: log });
     }
 
-    // Evaluate if they have already breached it without logging (past 5:30 AM)
-    const { h, m } = req.query;
+    // Evaluate if they have already breached it without logging (past anchor + grace)
     const now = new Date();
-    const hours = h !== undefined ? parseInt(h, 10) : now.getHours();
-    const minutes = m !== undefined ? parseInt(m, 10) : now.getMinutes();
+    const anchorTimeStr = user.settings?.circadianAnchorTime || '05:30';
+    const anchorGrace = user.settings?.circadianAnchorGraceMinutes || 30;
+    const [anchorHour, anchorMinute] = anchorTimeStr.split(':').map(Number);
     
-    if (hours > 5 || (hours === 5 && minutes > 30)) {
-      // Auto-breach
+    const windowEnd = new Date(now);
+    windowEnd.setHours(anchorHour, anchorMinute, 0, 0);
+    windowEnd.setMinutes(windowEnd.getMinutes() + anchorGrace);
+
+    const windowStart = new Date(now);
+    windowStart.setHours(anchorHour, anchorMinute, 0, 0);
+    windowStart.setMinutes(windowStart.getMinutes() - 5); // 5-min early buffer
+
+    if (now > windowEnd) {
+      // Past the grace window — auto-breach
       user.circadianLogs.push({ date: todayStr, status: 'breached' });
       await user.save();
       return res.status(200).json({ success: true, data: { date: todayStr, status: 'breached' } });
     }
 
-    if ((hours === 4 && minutes >= 30) || (hours === 5 && minutes <= 30)) {
-      // Auto-success (They logged in during the window)
-      user.circadianLogs.push({ date: todayStr, status: 'success' });
-      await user.save();
-      return res.status(200).json({ success: true, data: { date: todayStr, status: 'success' } });
+    if (now >= windowStart && now <= windowEnd) {
+      // Within window but hasn't clicked yet — keep as pending so they can establish it
+      return res.status(200).json({ success: true, data: { date: todayStr, status: 'pending' } });
     }
 
-    // Within window or before window
+    // Before the window entirely
     return res.status(200).json({ success: true, data: { date: todayStr, status: 'pending' } });
   } catch (error) {
     next(error);

@@ -29,8 +29,30 @@ export const Dashboard = () => {
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
-  const openLogModal = () => {
-    setStudyHours(dashboardData?.studyHours ? Number(dashboardData.studyHours).toFixed(1) : '');
+  // Auto-populate modal with personal study time ONLY (not lecture/gym/etc)
+  const openLogModal = async () => {
+    let autoStudyHours = '';
+    try {
+      const res = await api.tracker.getTodayLogs();
+      const logs = res.data || [];
+      const personalStudyMinutes = logs
+        .filter(l => l.activityType === 'personal_study')
+        .reduce((sum, l) => {
+          // Include live running timer elapsed if not yet stopped
+          if (!l.endTime && l.startTime && !l.isPaused) {
+            const resumeTime = l.lastResumeTime ? new Date(l.lastResumeTime) : new Date(l.startTime);
+            const liveSeconds = (l.accumulatedSeconds || 0) + Math.max(0, (Date.now() - resumeTime.getTime()) / 1000);
+            return sum + (liveSeconds / 60);
+          } else if (!l.endTime && l.isPaused) {
+            return sum + ((l.accumulatedSeconds || 0) / 60);
+          }
+          return sum + (l.durationMinutes || 0);
+        }, 0);
+      autoStudyHours = personalStudyMinutes > 0 ? (personalStudyMinutes / 60).toFixed(2) : '';
+    } catch (err) {
+      console.error('Failed to fetch today logs for modal:', err);
+    }
+    setStudyHours(autoStudyHours);
     setFocusScore(70);
     setBreaks(1);
     setSubjects('');
@@ -59,9 +81,9 @@ export const Dashboard = () => {
   };
 
   const todayStart = new Date();
-  todayStart.setHours(0,0,0,0);
+  todayStart.setHours(0, 0, 0, 0);
   const todayEnd = new Date();
-  todayEnd.setHours(23,59,59,999);
+  todayEnd.setHours(23, 59, 59, 999);
 
   const dueTodayOrOverdue = tasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) <= todayEnd);
   const completedToday = tasks.filter(t => t.status === 'completed' && t.completedAt && new Date(t.completedAt) >= todayStart);
@@ -135,6 +157,7 @@ export const Dashboard = () => {
           >
             <Sparkles className="h-4 w-4" />
             Neural Override
+          </button>
           <button
             onClick={openLogModal}
             className="flex items-center gap-1.5 rounded-xl bg-accent-gold/20 hover:bg-accent-gold/30 border border-accent-gold/50 text-accent-gold px-3.5 py-2 text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer"
@@ -256,14 +279,16 @@ export const Dashboard = () => {
             <form onSubmit={handleLogSession} className="space-y-4 relative z-10">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Total Hours</label>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">
+                    Study Hours <span className="text-accent-gold">(Personal Study Only)</span>
+                  </label>
                   <input
                     type="number"
-                    step="0.1"
+                    step="0.01"
                     required
                     value={studyHours}
                     onChange={(e) => setStudyHours(e.target.value)}
-                    placeholder="e.g. 4.5"
+                    placeholder="Auto-filled from tracker"
                     className="w-full rounded-xl bg-black/50 border border-white/5 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-accent-gold/50 transition-colors"
                   />
                 </div>
@@ -330,4 +355,5 @@ export const Dashboard = () => {
     </div>
   );
 };
+
 export default Dashboard;

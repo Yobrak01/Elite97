@@ -67,12 +67,14 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
   const lectures = targetLectures.map(l => ({
     start: parseTime(l.startTime),
     end: parseTime(l.endTime),
-    unitName: l.unitName,
+    unitName: (l.activityType && l.activityType !== 'lecture') ? (l.eventName || l.unitName) : l.unitName,
+    activityType: l.activityType || 'lecture',
     isEvent: false
   })).concat(targetEvents.map(e => ({
     start: parseTime(e.fixedStartTime),
     end: parseTime(e.fixedEndTime),
     unitName: e.title,
+    activityType: 'event',
     isEvent: true
   }))).sort((a, b) => a.start - b.start);
 
@@ -117,11 +119,45 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
       const lec = lectures[lectureIndex];
       // Fast forward or create lecture block if we are within the lecture duration
       if (currentMinute < lec.end) {
+        let activityTitle = '';
+        let category = 'lecture';
+        
+        if (lec.isEvent) {
+          activityTitle = `Event: ${lec.unitName}`;
+          category = 'event';
+        } else {
+          if (lec.activityType === 'gym') {
+            activityTitle = `Gym: ${lec.unitName}`;
+            category = 'gym';
+          } else if (lec.activityType === 'personal_study') {
+            activityTitle = `Study: ${lec.unitName}`;
+            category = 'study';
+          } else if (lec.activityType === 'lecture') {
+            activityTitle = `Lecture: ${lec.unitName}`;
+            category = 'lecture';
+          } else if (lec.activityType === 'group_discussion') {
+            activityTitle = `Group: ${lec.unitName}`;
+            category = 'group_discussion';
+          } else if (lec.activityType === 'project') {
+            activityTitle = `Project: ${lec.unitName}`;
+            category = 'project';
+          } else if (lec.activityType === 'chore') {
+            activityTitle = `Chore: ${lec.unitName}`;
+            category = 'chore';
+          } else if (lec.activityType === 'rest') {
+            activityTitle = `Rest: ${lec.unitName}`;
+            category = 'rest';
+          } else {
+            activityTitle = lec.unitName;
+            category = lec.activityType;
+          }
+        }
+
         blocks.push({
           startTime: formatTimeStr(currentMinute),
           endTime: formatTimeStr(lec.end),
-          activity: lec.isEvent ? `Event: ${lec.unitName}` : `Lecture: ${lec.unitName}`,
-          category: lec.isEvent ? 'event' : 'lecture',
+          activity: activityTitle,
+          category: category,
           duration: lec.end - currentMinute
         });
         currentMinute = lec.end;

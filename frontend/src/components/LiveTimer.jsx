@@ -77,46 +77,43 @@ export const LiveTimer = () => {
     fetchCourses();
   }, [fetchTodayLogs, fetchCourses]);
 
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (!isDragging) return;
-      e.preventDefault(); // prevent selection while dragging
-      setHasMoved(true);
-      const newRight = offsetRef.current.x - e.clientX;
-      const newBottom = offsetRef.current.y - e.clientY;
-      const newPos = { right: newRight, bottom: newBottom };
-      setPosition(newPos);
-      positionRef.current = newPos;
-    };
+  const dragStartRef = useRef({ pointerX: 0, pointerY: 0, initialRight: 0, initialBottom: 0 });
 
-    const handleMouseUp = () => {
-      if (isDragging) {
-        setIsDragging(false);
-        localStorage.setItem('elite97_timer_pos', JSON.stringify(positionRef.current));
-      }
-    };
-
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-      window.addEventListener('mouseleave', handleMouseUp);
-    }
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('mouseleave', handleMouseUp);
-    };
-  }, [isDragging]);
-
-  const handleMouseDown = (e) => {
-    if (e.button !== 0) return; // Only left click
-    e.preventDefault(); // Prevent native drag
+  const handlePointerDown = (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
     setIsDragging(true);
     setHasMoved(false);
-    offsetRef.current = {
-      x: e.clientX + positionRef.current.right,
-      y: e.clientY + positionRef.current.bottom
+    e.target.setPointerCapture(e.pointerId);
+    
+    dragStartRef.current = {
+      pointerX: e.clientX,
+      pointerY: e.clientY,
+      initialRight: positionRef.current.right,
+      initialBottom: positionRef.current.bottom
     };
+  };
+
+  const handlePointerMove = (e) => {
+    if (!isDragging) return;
+    setHasMoved(true);
+    
+    const deltaX = dragStartRef.current.pointerX - e.clientX;
+    const deltaY = dragStartRef.current.pointerY - e.clientY;
+    
+    const newPos = { 
+      right: dragStartRef.current.initialRight + deltaX, 
+      bottom: dragStartRef.current.initialBottom + deltaY 
+    };
+    setPosition(newPos);
+    positionRef.current = newPos;
+  };
+
+  const handlePointerUp = (e) => {
+    if (isDragging) {
+      setIsDragging(false);
+      e.target.releasePointerCapture(e.pointerId);
+      localStorage.setItem('elite97_timer_pos', JSON.stringify(positionRef.current));
+    }
   };
 
   // Restore running timer if one exists in today's logs
@@ -472,7 +469,10 @@ export const LiveTimer = () => {
 
       {/* Floating Action Button */}
       <button
-        onMouseDown={handleMouseDown}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
         onClick={() => {
           if (!hasMoved) setIsExpanded(!isExpanded);
         }}

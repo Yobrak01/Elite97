@@ -66,11 +66,27 @@ async function buildContext(userId, today, streak) {
   // TimeLogs for today
   const logsToday = await TimeLog.find({ user: userId, date: today });
   
+  // Sum completed time logs
   const personalStudyTimeLogs = logsToday
     .filter(l => l.activityType === 'personal_study' || l.activityType === 'lecture' || l.activityType === 'group_discussion' || l.activityType === 'project')
-    .reduce((s, l) => s + (l.durationMinutes / 60), 0);
+    .reduce((s, l) => {
+      // If this log is still running (no endTime), calculate live elapsed seconds
+      if (!l.endTime && l.startTime && !l.isPaused) {
+        const resumeTime = l.lastResumeTime ? new Date(l.lastResumeTime) : new Date(l.startTime);
+        const liveSeconds = (l.accumulatedSeconds || 0) + Math.max(0, (Date.now() - resumeTime.getTime()) / 1000);
+        return s + (liveSeconds / 3600);
+      } else if (!l.endTime && l.isPaused) {
+        // Paused — use accumulated seconds
+        return s + ((l.accumulatedSeconds || 0) / 3600);
+      }
+      return s + (l.durationMinutes / 60);
+    }, 0);
     
-  const studyHours = Math.max(session ? session.studyHours : 0, personalStudyTimeLogs);
+  // If a manual daily session commit exists, use whichever is higher (prevents double-count).
+  // Otherwise rely purely on the live time log sum.
+  const studyHours = (session && session.studyHours > 0)
+    ? Math.max(session.studyHours, personalStudyTimeLogs)
+    : personalStudyTimeLogs;
   
   const tasksCompleted = completedTasksToday;
   const totalTasks = totalTasksToday;
