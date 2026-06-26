@@ -230,10 +230,30 @@ exports.manualLog = async (req, res, next) => {
 exports.deleteLog = async (req, res, next) => {
   try {
     const log = await TimeLog.findOneAndDelete({ _id: req.params.id, user: req.user._id });
-    
+
     if (!log) {
       return res.status(404).json({ success: false, message: 'Time log not found or unauthorized' });
     }
+
+    // Recalculate studyHours in Analytics for the affected day after deletion
+    const logDate = getStartOfDay(req.user.timezone, new Date(log.date));
+    const remainingLogs = await TimeLog.find({ user: req.user._id, date: logDate });
+    const studyHours = remainingLogs
+      .filter(l => ['personal_study', 'lecture', 'group_discussion', 'project'].includes(l.activityType))
+      .reduce((s, l) => {
+        if (!l.endTime && l.startTime && !l.isPaused) {
+          const resumeTime = l.lastResumeTime ? new Date(l.lastResumeTime) : new Date(l.startTime);
+          return s + ((l.accumulatedSeconds || 0) + Math.max(0, (Date.now() - resumeTime.getTime()) / 1000)) / 3600;
+        } else if (!l.endTime && l.isPaused) {
+          return s + ((l.accumulatedSeconds || 0) / 3600);
+        }
+        return s + ((l.durationMinutes || 0) / 60);
+      }, 0);
+
+    await Analytics.findOneAndUpdate(
+      { user: req.user._id, date: logDate },
+      { $set: { studyHours: Number(studyHours.toFixed(2)) } }
+    );
 
     res.status(200).json({ success: true, message: 'Time log deleted successfully' });
   } catch (error) {

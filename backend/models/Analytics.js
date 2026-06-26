@@ -54,7 +54,7 @@ const AnalyticsSchema = new mongoose.Schema({
   },
   critiqueSeverity: {
     type: String,
-    enum: ['approval', 'neutral', 'warning', 'punitive'],
+    enum: ['approval', 'neutral', 'warning', 'punitive', 'elite'],
     default: 'neutral'
   },
   createdAt: {

@@ -43,9 +43,9 @@ export const useTasks = (filters = {}) => {
     }
   };
 
-  const completeTask = async (id) => {
+  const completeTask = async (id, data = {}) => {
     try {
-      const res = await api.tasks.complete(id);
+      const res = await api.tasks.complete(id, data);
       setTasks(prev => prev.map(t => t._id === id ? res.data : t));
       const statsRes = await api.tasks.getStats();
       setStats(statsRes.stats);

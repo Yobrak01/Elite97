@@ -28,6 +28,7 @@ export const Dashboard = () => {
   const [subjects, setSubjects] = useState('');
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   // Auto-populate modal with personal study time ONLY (not lecture/gym/etc)
   const openLogModal = async () => {
@@ -63,6 +64,7 @@ export const Dashboard = () => {
   const handleLogSession = async (e) => {
     e.preventDefault();
     setSubmitting(true);
+    setSubmitError('');
     try {
       await api.sessions.create({
         studyHours: Number(studyHours),
@@ -75,6 +77,7 @@ export const Dashboard = () => {
       refresh();
     } catch (err) {
       console.error(err);
+      setSubmitError(err.message || 'Failed to commit session. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -341,6 +344,11 @@ export const Dashboard = () => {
                 ></textarea>
               </div>
 
+              {submitError && (
+                <p className="text-xs font-bold text-red-400 text-center bg-red-500/10 rounded-xl px-4 py-2 border border-red-500/20">
+                  {submitError}
+                </p>
+              )}
               <button
                 type="submit"
                 disabled={submitting}

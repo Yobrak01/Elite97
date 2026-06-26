@@ -111,10 +111,11 @@ export const api = {
       });
       return handleResponse(res);
     },
-    complete: async (id) => {
+    complete: async (id, data = {}) => {
       const res = await fetch(`${API_URL}/tasks/${id}/complete`, {
         method: 'PATCH',
-        headers: getHeaders()
+        headers: getHeaders(),
+        body: JSON.stringify(data)
       });
       return handleResponse(res);
     },

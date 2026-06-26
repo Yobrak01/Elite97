@@ -38,24 +38,26 @@ exports.createSession = async (req, res, next) => {
     });
 
     const completionPercentage = analyticsEngine.calculateCompletionPercentage(completedTasks, totalTasks);
-    const calculatedFocusScore = focusScore || analyticsEngine.calculateFocusScore({
+    const calculatedFocusScore = (focusScore !== undefined && focusScore !== null) ? focusScore : analyticsEngine.calculateFocusScore({
       studyHours,
       completionPercentage,
       breaks: breaks || 0
     });
 
-    // Create session
-    const session = await StudySession.create({
-      user: req.user._id,
-      date: sessionDate,
-      studyHours,
-      focusScore: calculatedFocusScore,
-      tasksCompleted: completedTasks,
-      totalTasks,
-      breaks,
-      notes,
-      subjects
-    });
+    // Create or update session
+    const session = await StudySession.findOneAndUpdate(
+      { user: req.user._id, date: sessionDate },
+      {
+        studyHours,
+        focusScore: calculatedFocusScore,
+        tasksCompleted: completedTasks,
+        totalTasks,
+        breaks,
+        notes,
+        subjects
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
     // Update streak
     const newStreak = analyticsEngine.calculateStreak(req.user.lastStudyDate, req.user.streak, req.user.timezone);

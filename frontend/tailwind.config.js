@@ -37,6 +37,7 @@ export default {
         'glow-cyan': '0 0 20px var(--color-glow-cyan)',
         'glow-cyan-intense': '0 0 35px var(--color-glow-cyan)',
         'glow-amber': '0 0 15px var(--color-glow-amber)',
+        'glow-gold': '0 0 15px var(--color-glow-cyan)', // Alias for accent-gold glow
         'glow-red': '0 0 15px var(--color-glow-red)',
       },
       animation: {

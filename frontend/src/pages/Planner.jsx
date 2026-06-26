@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, Cpu, Sparkles, AlertTriangle, Play, RefreshCw, Landmark } from 'lucide-react';
+import { Calendar, Cpu, Sparkles, CheckCircle2, X } from 'lucide-react';
 import api from '../services/api';
 import ScheduleBlock from '../components/ScheduleBlock';
 import ModeSelector from '../components/ModeSelector';
@@ -9,6 +9,12 @@ export const Planner = () => {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [toast, setToast] = useState(null); // { message, type: 'success' | 'error' }
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const fetchPlanData = async () => {
     try {
@@ -34,8 +40,10 @@ export const Planner = () => {
     try {
       await api.planner.generate();
       await fetchPlanData();
+      showToast('Daily plan generated successfully.', 'success');
     } catch (err) {
       console.error(err);
+      showToast(err.message || 'Failed to generate plan.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -44,10 +52,12 @@ export const Planner = () => {
   const handleCompleteTask = async (taskId) => {
     setActionLoading(true);
     try {
-      await api.tasks.complete(taskId);
-      await fetchPlanData(); // Refetch the plan which will update tasks
+      await api.tasks.complete(taskId, {});
+      await fetchPlanData();
+      showToast('Task marked complete.', 'success');
     } catch (err) {
       console.error(err);
+      showToast(err.message || 'Failed to complete task.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -74,10 +84,10 @@ export const Planner = () => {
         description: block.activity
       });
       window.dispatchEvent(new CustomEvent('time-logged'));
-      alert(`Lecture attendance for ${block.duration} mins logged successfully.`);
+      showToast(`Lecture attendance logged: ${block.duration} mins.`, 'success');
     } catch (err) {
       console.error(err);
-      alert(err.message || 'Error logging lecture attendance.');
+      showToast(err.message || 'Error logging lecture attendance.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -108,6 +118,24 @@ export const Planner = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* In-UI Toast Notification */}
+      {toast && (
+        <div className={`fixed top-6 right-6 z-[100] flex items-center gap-3 rounded-2xl border px-5 py-3.5 shadow-2xl animate-fade-in backdrop-blur-md ${
+          toast.type === 'success'
+            ? 'bg-green-500/10 border-green-500/30 text-green-300'
+            : 'bg-red-500/10 border-red-500/30 text-red-300'
+        }`}>
+          {toast.type === 'success'
+            ? <CheckCircle2 className="h-5 w-5 shrink-0" />
+            : <X className="h-5 w-5 shrink-0" />
+          }
+          <span className="text-xs font-bold">{toast.message}</span>
+          <button onClick={() => setToast(null)} className="ml-2 opacity-60 hover:opacity-100 cursor-pointer">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">AI PRODUCTIVITY PLANNER</h1>
@@ -203,12 +231,14 @@ export const Planner = () => {
             </div>
             
             <ul className="space-y-3.5 text-xs text-slate-300">
-              {recommendations.map((rec, index) => (
+              {recommendations.length > 0 ? recommendations.map((rec, index) => (
                 <li key={index} className="flex items-start gap-2.5 leading-relaxed">
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
                   <span className="font-semibold">{rec}</span>
                 </li>
-              ))}
+              )) : (
+                <li className="text-slate-500 font-semibold">Generate a plan to see AI recommendations.</li>
+              )}
             </ul>
           </div>
         </div>
@@ -217,5 +247,3 @@ export const Planner = () => {
   );
 };
 export default Planner;
-
-

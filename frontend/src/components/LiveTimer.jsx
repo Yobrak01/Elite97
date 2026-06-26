@@ -273,8 +273,18 @@ export const LiveTimer = () => {
 
   const todaySummary = ACTIVITIES.map(act => {
     const totalMinutes = todayLogs
-      .filter(log => log.activityType === act.key && log.durationMinutes)
-      .reduce((sum, log) => sum + (log.durationMinutes || 0), 0);
+      .filter(log => log.activityType === act.key)
+      .reduce((sum, log) => {
+        // Include live elapsed time for the currently running session
+        if (!log.endTime && log.startTime && !log.isPaused) {
+          const resumeTime = log.lastResumeTime ? new Date(log.lastResumeTime) : new Date(log.startTime);
+          const liveSeconds = (log.accumulatedSeconds || 0) + Math.max(0, (Date.now() - resumeTime.getTime()) / 1000);
+          return sum + Math.round(liveSeconds / 60);
+        } else if (!log.endTime && log.isPaused) {
+          return sum + Math.round((log.accumulatedSeconds || 0) / 60);
+        }
+        return sum + (log.durationMinutes || 0);
+      }, 0);
     return { ...act, totalMinutes };
   }).filter(a => a.totalMinutes > 0);
 

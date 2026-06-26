@@ -125,16 +125,16 @@ input:-webkit-autofill:active {
 }
 
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: var(--color-bg-950);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #17223b;
+  background: var(--color-bg-700);
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #D4AF37;
+  background: var(--color-accent-gold);
 }
 
 /* Premium glassmorphic cards utility - Smoked Glass */
@@ -160,6 +160,18 @@ input:-webkit-autofill:active {
 
 .text-glow-amber {
   text-shadow: 0 0 15px var(--color-accent-amber);
+}
+
+.text-glow-cyan {
+  text-shadow: 0 0 18px var(--color-glow-cyan), 0 0 6px var(--color-glow-cyan);
+}
+
+.text-glow-blue {
+  text-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+}
+
+.text-glow-red {
+  text-shadow: 0 0 15px var(--color-glow-red);
 }
 
 /* Elite Watermark Background */

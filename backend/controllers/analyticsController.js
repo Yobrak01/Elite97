@@ -28,12 +28,6 @@ async function buildContext(userId, today, streak) {
   if (user && user.circadianLogs) {
     let log = user.circadianLogs.find(l => l.date === todayStr);
     if (log) {
-      // TEMPORARY PATCH: Force fix today's timezone bug breach
-      if (log.status === 'breached' && todayStr === '2026-06-08') {
-        log.status = 'success';
-        user.markModified('circadianLogs');
-        await user.save();
-      }
       circadianStatus = log.status;
     } else {
       const now = new Date();
@@ -56,7 +50,7 @@ async function buildContext(userId, today, streak) {
   
   const totalTasksToday = await Task.countDocuments({
     user: userId,
-    createdAt: { $lte: new Date(today.getTime() + 86400000) }
+    createdAt: { $gte: today, $lte: new Date(today.getTime() + 86400000) }
   });
   const completedTasksToday = await Task.countDocuments({
     user: userId,
@@ -80,7 +74,7 @@ async function buildContext(userId, today, streak) {
         // Paused — use accumulated seconds
         return s + ((l.accumulatedSeconds || 0) / 3600);
       }
-      return s + (l.durationMinutes / 60);
+      return s + ((l.durationMinutes || 0) / 60);
     }, 0);
     
   // If a manual daily session commit exists, use whichever is higher (prevents double-count).
@@ -128,6 +122,22 @@ async function buildContext(userId, today, streak) {
   const completionPercentage = analyticsEngine.calculateCompletionPercentage(tasksCompleted, totalTasks);
   const finalRestHours = restHours > 0 ? restHours : Math.max(4, 9 - (studyHours * 0.4) - (breaks * 0.1));
 
+  const completedTasksData = await Task.find({
+    user: userId,
+    status: 'completed',
+    completedAt: { $gte: today, $lte: new Date(today.getTime() + 86400000) }
+  });
+  
+  let totalTaskFocus = 0;
+  let taskFocusCount = 0;
+  completedTasksData.forEach(t => {
+    if (t.focusScore !== undefined && t.focusScore !== null) {
+      totalTaskFocus += t.focusScore;
+      taskFocusCount++;
+    }
+  });
+  const taskFocusScore = taskFocusCount > 0 ? totalTaskFocus / taskFocusCount : undefined;
+
   return {
     studyHours,
     completionPercentage,
@@ -142,7 +152,8 @@ async function buildContext(userId, today, streak) {
     consecutiveHighDays,
     trendWorsening,
     session,
-    circadianStatus
+    circadianStatus,
+    taskFocusScore
   };
 }
 
@@ -154,7 +165,9 @@ exports.getDashboard = async (req, res, next) => {
     
     // Check if session has overridden focusScore
     const session = context.session;
-    const focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
+    const focusScore = session && session.focusScore !== undefined 
+      ? session.focusScore 
+      : (context.taskFocusScore !== undefined ? context.taskFocusScore : analyticsEngine.calculateFocusScore(context));
     
     context.focusScore = focusScore;
 
@@ -210,12 +223,12 @@ exports.getWeekly = async (req, res, next) => {
     const lastWeek = new Date();
     lastWeek.setDate(lastWeek.getDate() - 7);
 
-    const sessions = await StudySession.find({
+    const analyticsRecords = await Analytics.find({
       user: req.user._id,
       date: { $gte: lastWeek }
     });
 
-    const weeklyData = analyticsEngine.generateWeeklyAnalytics(sessions, req.user.timezone);
+    const weeklyData = analyticsEngine.generateWeeklyAnalytics(analyticsRecords, req.user.timezone);
     res.status(200).json({ success: true, data: weeklyData });
   } catch (error) {
     next(error);
@@ -298,7 +311,11 @@ exports.getBurnoutAssessment = async (req, res, next) => {
 
     const context = await buildContext(req.user._id, today, req.user.streak || 0);
     const session = await StudySession.findOne({ user: req.user._id, date: today });
-    context.focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
+    if (!context.focusScore) {
+      context.focusScore = session && session.focusScore !== undefined 
+        ? session.focusScore 
+        : (context.taskFocusScore !== undefined ? context.taskFocusScore : analyticsEngine.calculateFocusScore(context));
+    }
 
     const burnout = await burnoutDetector.detectBurnout(context);
     res.status(200).json({ success: true, data: burnout });
@@ -331,7 +348,9 @@ exports.recalculateAnalytics = async (req, res, next) => {
     const session = await StudySession.findOne({ user: req.user._id, date: today });
     const tasks = await Task.find({ user: req.user._id });
     
-    const focusScore = session && session.focusScore ? session.focusScore : analyticsEngine.calculateFocusScore(context);
+    const focusScore = session && session.focusScore !== undefined 
+      ? session.focusScore 
+      : (context.taskFocusScore !== undefined ? context.taskFocusScore : analyticsEngine.calculateFocusScore(context));
     context.focusScore = focusScore;
 
     const productivityScore = await analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);

@@ -149,9 +149,15 @@ exports.deleteTask = async (req, res, next) => {
 
 exports.completeTask = async (req, res, next) => {
   try {
+    const { focusScore } = req.body;
+    const updateData = { status: 'completed', completedAt: new Date() };
+    if (focusScore !== undefined && focusScore !== null) {
+      updateData.focusScore = Number(focusScore);
+    }
+
     const task = await Task.findOneAndUpdate(
       { _id: req.params.id, user: req.user._id, status: { $ne: 'completed' } },
-      { $set: { status: 'completed', completedAt: new Date() } },
+      { $set: updateData },
       { new: true }
     );
 

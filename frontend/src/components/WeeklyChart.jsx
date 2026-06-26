@@ -4,11 +4,13 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianG
 export const WeeklyChart = ({ data = [], targetHours = 6 }) => {
   const customTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
+      const hoursEntry = payload.find(p => p.dataKey === 'studyHours');
+      const focusEntry = payload.find(p => p.dataKey === 'focusScore');
       return (
         <div className="glass-panel rounded-xl p-3 border border-white/10 text-xs shadow-glow-cyan/20">
           <p className="font-bold text-white mb-1">{payload[0].payload.dayName || 'Date'}</p>
-          <p className="text-cyan-400 font-semibold">Hours: {payload[0].value} hrs</p>
-          {payload[1] && <p className="text-blue-400 font-semibold">Focus: {payload[1].value}%</p>}
+          {hoursEntry && <p className="text-cyan-400 font-semibold">Study: {hoursEntry.value} hrs</p>}
+          {focusEntry && <p className="text-blue-400 font-semibold">Focus: {focusEntry.value}%</p>}
         </div>
       );
     }
@@ -49,14 +51,25 @@ export const WeeklyChart = ({ data = [], targetHours = 6 }) => {
                 axisLine={false}
               />
               <YAxis
+                yAxisId="left"
                 stroke="#64748b"
                 fontSize={10}
                 tickLine={false}
                 axisLine={false}
               />
+              <YAxis
+                yAxisId="right"
+                orientation="right"
+                domain={[0, 100]}
+                stroke="#06b6d4"
+                fontSize={10}
+                tickLine={false}
+                axisLine={false}
+              />
               <Tooltip content={customTooltip} />
-              <ReferenceLine y={targetHours} stroke="#fbbf24" strokeDasharray="3 3" strokeOpacity={0.8} />
+              <ReferenceLine yAxisId="left" y={targetHours} stroke="#fbbf24" strokeDasharray="3 3" strokeOpacity={0.8} />
               <Area
+                yAxisId="left"
                 type="monotone"
                 dataKey="studyHours"
                 stroke="#3b82f6"
@@ -65,6 +78,7 @@ export const WeeklyChart = ({ data = [], targetHours = 6 }) => {
                 fill="url(#colorHours)"
               />
               <Area
+                yAxisId="right"
                 type="monotone"
                 dataKey="focusScore"
                 stroke="#06b6d4"

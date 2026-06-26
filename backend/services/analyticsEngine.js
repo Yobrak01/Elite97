@@ -163,7 +163,7 @@ function generateWeeklyAnalytics(sessions, timezone) {
   const last7Days = [];
   for (let i = 6; i >= 0; i--) {
     const d = getStartOfDay(timezone);
-    d.setUTCDate(d.getUTCDate() - i);
+    d.setDate(d.getDate() - i); // Use local date arithmetic to avoid UTC off-by-one in non-UTC timezones
     last7Days.push(d);
   }
 
@@ -173,19 +173,20 @@ function generateWeeklyAnalytics(sessions, timezone) {
       return sDate.getTime() === date.getTime();
     });
 
-    const studyHours = daySessions.reduce((sum, s) => sum + s.studyHours, 0);
-    const focusScore = daySessions.length > 0 ? Math.round(daySessions.reduce((sum, s) => sum + s.focusScore, 0) / daySessions.length) : 0;
-    const tasksCompleted = daySessions.reduce((sum, s) => sum + s.tasksCompleted, 0);
-    const totalTasks = daySessions.reduce((sum, s) => sum + s.totalTasks, 0);
+    const studyHours = daySessions.reduce((sum, s) => sum + (s.studyHours || 0), 0);
+    const focusScore = daySessions.length > 0 ? Math.round(daySessions.reduce((sum, s) => sum + (s.focusScore || 0), 0) / daySessions.length) : 0;
+    
+    // Analytics only stores completionPercentage natively
+    const completionPercentage = daySessions.length > 0 ? Math.round(daySessions.reduce((sum, s) => sum + (s.completionPercentage || 0), 0) / daySessions.length) : 0;
 
     return {
       date,
       dayName: date.toLocaleDateString('en-US', { weekday: 'short' }),
-      studyHours,
+      studyHours: Number(studyHours.toFixed(1)),
       focusScore,
-      tasksCompleted,
-      totalTasks,
-      completionPercentage: calculateCompletionPercentage(tasksCompleted, totalTasks)
+      tasksCompleted: 0, // Fallbacks
+      totalTasks: 0,
+      completionPercentage
     };
   });
 }

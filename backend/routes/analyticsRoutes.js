@@ -5,17 +5,17 @@ const authMiddleware = require('../middleware/auth');
 
 router.use(authMiddleware);
 
-router.get('/dashboard', authMiddleware, analyticsController.getDashboard);
-router.get('/weekly', authMiddleware, analyticsController.getWeekly);
-router.get('/burnout', authMiddleware, analyticsController.getBurnoutAssessment);
-router.get('/trends', authMiddleware, analyticsController.getTrends);
-router.get('/weekly-review', authMiddleware, analyticsController.getWeeklyReview);
-router.get('/time-averages', authMiddleware, analyticsController.getTimeAverages);
-router.post('/recalculate', authMiddleware, analyticsController.recalculateAnalytics);
-router.get('/gpa', authMiddleware, analyticsController.getGpaPrediction);
-router.get('/mit-ranking', authMiddleware, analyticsController.getMitRanking);
-router.get('/hierarchy', authMiddleware, analyticsController.getHierarchyMatrix);
-router.get('/feed', authMiddleware, analyticsController.getGlobalFeed);
-router.get('/oracle', authMiddleware, analyticsController.getOracleProjections);
+router.get('/dashboard', analyticsController.getDashboard);
+router.get('/weekly', analyticsController.getWeekly);
+router.get('/burnout', analyticsController.getBurnoutAssessment);
+router.get('/trends', analyticsController.getTrends);
+router.get('/weekly-review', analyticsController.getWeeklyReview);
+router.get('/time-averages', analyticsController.getTimeAverages);
+router.post('/recalculate', analyticsController.recalculateAnalytics);
+router.get('/gpa', analyticsController.getGpaPrediction);
+router.get('/mit-ranking', analyticsController.getMitRanking);
+router.get('/hierarchy', analyticsController.getHierarchyMatrix);
+router.get('/feed', analyticsController.getGlobalFeed);
+router.get('/oracle', analyticsController.getOracleProjections);
 
 module.exports = router;

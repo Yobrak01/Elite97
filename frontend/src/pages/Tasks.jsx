@@ -15,6 +15,9 @@ export const Tasks = () => {
   if (filterPriority) activeFilters.priority = filterPriority;
   if (filterStatus) activeFilters.status = filterStatus;
 
+  const [completingTaskId, setCompletingTaskId] = useState(null);
+  const [taskFocusScore, setTaskFocusScore] = useState(70);
+
   const { tasks, stats, loading, createTask, updateTask, completeTask, startTask, deleteTask } = useTasks(activeFilters);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -118,6 +121,20 @@ export const Tasks = () => {
       alert(err.message || 'Error occurred saving task.');
     } finally {
       setSubmitting(false);
+    }
+  const handleCompleteClick = (id) => {
+    setCompletingTaskId(id);
+    setTaskFocusScore(70);
+  };
+
+  const submitCompleteTask = async () => {
+    if (!completingTaskId) return;
+    try {
+      await completeTask(completingTaskId, { focusScore: Number(taskFocusScore) });
+      setCompletingTaskId(null);
+    } catch (err) {
+      console.error(err);
+      alert('Error completing task');
     }
   };
 
@@ -245,7 +262,7 @@ export const Tasks = () => {
             <TaskCard
               key={task._id}
               task={task}
-              onComplete={completeTask}
+              onComplete={handleCompleteClick}
               onStart={startTask}
               onEdit={openEditModal}
               onDelete={deleteTask}
@@ -413,6 +430,44 @@ export const Tasks = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Complete Task Modal */}
+      {completingTaskId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setCompletingTaskId(null)} />
+          <div className="relative w-full max-w-sm rounded-3xl bg-navy-800 border border-white/10 p-6 shadow-2xl animate-fade-in">
+            <h3 className="text-lg font-bold text-white mb-2">Complete Task</h3>
+            <p className="text-xs text-slate-400 mb-4">Log your focus score for this task. It will be factored into your analytics.</p>
+            
+            <div className="space-y-3 mb-6">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Task Focus Score (0-100)</label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={taskFocusScore}
+                onChange={(e) => setTaskFocusScore(e.target.value)}
+                className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
+              />
+            </div>
+
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setCompletingTaskId(null)}
+                className="rounded-xl border border-white/5 hover:bg-white/5 text-slate-400 hover:text-white text-xs font-bold px-4 py-2"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitCompleteTask}
+                className="rounded-xl bg-cyan-500 hover:bg-cyan-500/90 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer"
+              >
+                Complete
+              </button>
+            </div>
           </div>
         </div>
       )}
