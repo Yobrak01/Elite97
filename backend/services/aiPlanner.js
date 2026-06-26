@@ -365,7 +365,7 @@ async function generateGeminiCatPlan(tasks, courseUnits, settings = { dailyGoalH
 
   const activeTasks = tasks.filter(t => t.status !== 'completed').map(t => {
     const cu = courseUnits.find(c => c._id.toString() === t.courseUnit?.toString());
-    return `- [${cu ? cu.unitCode : 'General'}] ${t.title} (${t.estimatedHours}h)`;
+    return `- [${cu ? cu.unitCode : 'General'}] ${t.title} (ID: ${t._id}) (${t.estimatedHours}h)`;
   }).join('\n');
 
   const parseTimeStr = (timeStr, defaultMinutes) => {
@@ -396,18 +396,19 @@ They want to study for up to ${settings.dailyGoalHours} hours today. They start 
 Generate a highly targeted daily schedule. 
 
 CRITICAL INSTRUCTION: You MUST prioritize the units with upcoming CATs IMMEDIATELY. 
-If the user's active tasks do NOT contain anything related to the upcoming CATs, you MUST explicitly invent study blocks titled "Deep Review: [CAT Unit Name]" and assign them to the schedule. Do not let them study non-CAT units if a CAT is approaching within 7 days.
+If you assign a block to one of the user's active tasks, you MUST include its ID exactly as provided in the "taskId" field.
+If the user's active tasks do NOT contain anything related to the upcoming CATs, you MUST explicitly invent study blocks titled "Deep Review: [CAT Unit Name]" and assign them to the schedule (leave taskId empty). Do not let them study non-CAT units if a CAT is approaching within 7 days.
 
 Return ONLY a JSON array of blocks. Each block must have this exact format:
 [
-  { "startTime": "HH:MM", "endTime": "HH:MM", "activity": "Specific Activity string", "category": "study" | "break" | "lecture", "duration": Number(minutes) }
+  { "startTime": "HH:MM", "endTime": "HH:MM", "activity": "Specific Activity string", "category": "study" | "break" | "lecture", "duration": Number(minutes), "taskId": "string ID if applicable" }
 ]
 Do not use markdown. Do not include \`\`\`json.`;
 
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
     });
 

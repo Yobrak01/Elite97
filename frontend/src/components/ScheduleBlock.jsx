@@ -1,7 +1,7 @@
 import React from 'react';
 import { BookOpen, Coffee, Dumbbell, Award, Landmark, User, CheckSquare, Play } from 'lucide-react';
 
-export const ScheduleBlock = ({ block, onComplete, onStart, onAttend }) => {
+export const ScheduleBlock = ({ block, onComplete, onStart, onAttend, onLogStudy }) => {
   const getCategoryTheme = (cat) => {
     switch (cat) {
       case 'study':
@@ -61,6 +61,16 @@ export const ScheduleBlock = ({ block, onComplete, onStart, onAttend }) => {
             >
               <CheckSquare className="h-3.5 w-3.5" />
               <span>Complete</span>
+            </button>
+          )}
+          {!block.taskId && block.category === 'study' && onLogStudy && (
+            <button
+              onClick={() => onLogStudy(block)}
+              title="Log Study Session"
+              className="flex items-center gap-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all"
+            >
+              <CheckSquare className="h-3.5 w-3.5" />
+              <span>Log Study</span>
             </button>
           )}
           {block.category === 'lecture' && onAttend && (

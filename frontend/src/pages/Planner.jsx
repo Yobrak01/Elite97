@@ -93,6 +93,24 @@ export const Planner = () => {
     }
   };
 
+  const handleLogStudy = async (block) => {
+    setActionLoading(true);
+    try {
+      await api.tracker.manualLog({
+        activityType: 'personal_study',
+        durationMinutes: block.duration,
+        description: block.activity
+      });
+      window.dispatchEvent(new CustomEvent('time-logged'));
+      showToast(`Study session logged: ${block.duration} mins.`, 'success');
+    } catch (err) {
+      console.error(err);
+      showToast(err.message || 'Error logging study session.', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleModeChange = async (mode) => {
     setLoading(true);
     try {
@@ -174,7 +192,7 @@ export const Planner = () => {
             <div className="space-y-4 pt-2">
               {plan?.blocks && plan.blocks.length > 0 ? (
                 plan.blocks.map((block, idx) => (
-                  <ScheduleBlock key={idx} block={block} onComplete={handleCompleteTask} onStart={handleStartTask} onAttend={handleAttendLecture} />
+                  <ScheduleBlock key={idx} block={block} onComplete={handleCompleteTask} onStart={handleStartTask} onAttend={handleAttendLecture} onLogStudy={handleLogStudy} />
                 ))
               ) : (
                 <div className="text-center py-12 text-xs text-slate-500 font-semibold">
