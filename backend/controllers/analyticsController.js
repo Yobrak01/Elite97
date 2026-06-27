@@ -59,7 +59,12 @@ async function buildContext(userId, today, streak) {
   });
 
   // TimeLogs for today
-  const logsToday = await TimeLog.find({ user: userId, date: today });
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const logsToday = await TimeLog.find({ 
+    user: userId, 
+    date: { $gte: today, $lt: tomorrow } 
+  });
   
   // Sum completed time logs
   const personalStudyTimeLogs = logsToday

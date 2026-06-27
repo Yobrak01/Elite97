@@ -274,7 +274,7 @@ export const LiveTimer = () => {
     setLoadingAction(true);
     const finalDesc = customDescription || (selectedCourse ? `[Unit: ${selectedCourse}]` : undefined);
     try {
-      await api.tracker.manualLog({
+      const res = await api.tracker.manualLog({
         activityType,
         durationMinutes: Number(manualDuration),
         description: finalDesc,
@@ -282,7 +282,16 @@ export const LiveTimer = () => {
       });
       setManualDuration('');
       fetchTodayLogs();
-      window.dispatchEvent(new CustomEvent('time-logged'));
+      
+      const newLogId = res.data?._id || res.data?.id;
+      if (newLogId && ['personal_study', 'lecture', 'group_discussion', 'project'].includes(activityType)) {
+        // Show focus rating panel for study-related activities
+        setPendingFocusLogId(newLogId);
+        setPostStopFocus(75);
+      } else {
+        // Non-study activities don't need focus rating, dispatch immediately
+        window.dispatchEvent(new CustomEvent('time-logged'));
+      }
     } catch (err) {
       console.error('Failed to log manually:', err);
       alert(err.message || 'Failed to log time. Please try again.');
@@ -290,6 +299,7 @@ export const LiveTimer = () => {
       setLoadingAction(false);
     }
   };
+
 
   const activeActivity = ACTIVITIES.find(a => a.key === activityType) || ACTIVITIES[0];
   const ActiveIcon = activeActivity.icon;

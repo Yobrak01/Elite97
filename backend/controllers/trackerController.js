@@ -81,7 +81,13 @@ exports.stopTimer = async (req, res, next) => {
 
     // Immediately sync Analytics.studyHours so dashboard reflects the stopped session
     const logDate = getStartOfDay(req.user.timezone, new Date(timeLog.date));
-    const allLogsToday = await TimeLog.find({ user: req.user._id, date: logDate });
+    const logTomorrow = new Date(logDate);
+    logTomorrow.setDate(logTomorrow.getDate() + 1);
+
+    const allLogsToday = await TimeLog.find({ 
+      user: req.user._id, 
+      date: { $gte: logDate, $lt: logTomorrow } 
+    });
     const studyHours = allLogsToday
       .filter(l => ['personal_study', 'lecture', 'group_discussion', 'project'].includes(l.activityType))
       .reduce((s, l) => s + ((l.durationMinutes || 0) / 60), 0);
@@ -142,30 +148,6 @@ exports.resumeTimer = async (req, res, next) => {
   }
 };
 
-// @desc    Delete a log entry
-// @route   DELETE /api/tracker/:id
-// @access  Private
-exports.deleteLog = async (req, res, next) => {
-  try {
-    const timeLog = await TimeLog.findOneAndDelete({ _id: req.params.id, user: req.user._id });
-    if (!timeLog) return res.status(404).json({ success: false, message: 'TimeLog not found.' });
-    
-    const logDate = getStartOfDay(req.user.timezone, new Date(timeLog.date));
-    const remainingLogs = await TimeLog.find({ user: req.user._id, date: logDate });
-    const studyHours = remainingLogs
-      .filter(l => l.activityType === 'personal_study' || l.activityType === 'lecture' || l.activityType === 'group_discussion' || l.activityType === 'project')
-      .reduce((s, l) => s + ((l.durationMinutes || 0) / 60), 0);
-
-    await Analytics.findOneAndUpdate(
-      { user: req.user._id, date: logDate },
-      { $set: { studyHours } }
-    );
-    
-    res.status(200).json({ success: true, message: 'Log deleted successfully' });
-  } catch (error) {
-    next(error);
-  }
-};
 
 // @desc    Log focus score for a specific completed TimeLog
 // @route   PATCH /api/tracker/:id/focus
@@ -276,7 +258,13 @@ exports.manualLog = async (req, res, next) => {
 
     // Immediately sync Analytics.studyHours so the dashboard shows updated time
     const logDate = getStartOfDay(req.user.timezone, targetDate);
-    const allLogsToday = await TimeLog.find({ user: req.user._id, date: logDate });
+    const logTomorrow = new Date(logDate);
+    logTomorrow.setDate(logTomorrow.getDate() + 1);
+    
+    const allLogsToday = await TimeLog.find({ 
+      user: req.user._id, 
+      date: { $gte: logDate, $lt: logTomorrow } 
+    });
     const studyHours = allLogsToday
       .filter(l => ['personal_study', 'lecture', 'group_discussion', 'project'].includes(l.activityType))
       .reduce((s, l) => s + ((l.durationMinutes || 0) / 60), 0);
@@ -307,7 +295,13 @@ exports.deleteLog = async (req, res, next) => {
 
     // Recalculate studyHours in Analytics for the affected day after deletion
     const logDate = getStartOfDay(req.user.timezone, new Date(log.date));
-    const remainingLogs = await TimeLog.find({ user: req.user._id, date: logDate });
+    const logTomorrow = new Date(logDate);
+    logTomorrow.setDate(logTomorrow.getDate() + 1);
+    
+    const remainingLogs = await TimeLog.find({ 
+      user: req.user._id, 
+      date: { $gte: logDate, $lt: logTomorrow } 
+    });
     const studyHours = remainingLogs
       .filter(l => ['personal_study', 'lecture', 'group_discussion', 'project'].includes(l.activityType))
       .reduce((s, l) => {
