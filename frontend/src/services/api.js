@@ -4,10 +4,7 @@ const getHeaders = () => {
   const token = localStorage.getItem('elite97_token');
   return {
     'Content-Type': 'application/json',
-    'Authorization': token ? `Bearer ${token}` : '',
-    'Cache-Control': 'no-cache, no-store, must-revalidate',
-    'Pragma': 'no-cache',
-    'Expires': '0'
+    'Authorization': token ? `Bearer ${token}` : ''
   };
 };
 
@@ -212,19 +209,19 @@ export const api = {
   },
   analytics: {
     getDashboard: async () => {
-      const res = await fetch(`${API_URL}/analytics/dashboard`, {
+      const res = await fetch(`${API_URL}/analytics/dashboard?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
     },
     getWeekly: async () => {
-      const res = await fetch(`${API_URL}/analytics/weekly`, {
+      const res = await fetch(`${API_URL}/analytics/weekly?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
     },
     getBurnout: async () => {
-      const res = await fetch(`${API_URL}/analytics/burnout`, {
+      const res = await fetch(`${API_URL}/analytics/burnout?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
@@ -419,13 +416,13 @@ export const api = {
       return handleResponse(res);
     },
     getTodayLogs: async () => {
-      const res = await fetch(`${API_URL}/tracker/today`, {
+      const res = await fetch(`${API_URL}/tracker/today?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
     },
     getWeeklySummary: async () => {
-      const res = await fetch(`${API_URL}/tracker/weekly`, {
+      const res = await fetch(`${API_URL}/tracker/weekly?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
