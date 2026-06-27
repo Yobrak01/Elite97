@@ -281,6 +281,7 @@ export const LiveTimer = () => {
         allowOverlap: true // Fix: allow overlapping manual logs so long sleep/rest doesn't get silently rejected
       });
       setManualDuration('');
+      fetchTodayLogs();
       const newLogId = res.data?._id || res.data?.id;
       if (newLogId && ['personal_study', 'lecture', 'group_discussion', 'project'].includes(activityType)) {
         // Show focus rating panel for study-related activities

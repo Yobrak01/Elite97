@@ -169,9 +169,12 @@ exports.logFocus = async (req, res, next) => {
 
     // Propagate to Analytics so dashboard focus score updates
     const logDate = getStartOfDay(req.user.timezone, new Date(timeLog.date));
+    const logTomorrow = new Date(logDate);
+    logTomorrow.setDate(logTomorrow.getDate() + 1);
+
     const studyLogs = await TimeLog.find({
       user: req.user._id,
-      date: logDate,
+      date: { $gte: logDate, $lt: logTomorrow },
       activityType: { $in: ['personal_study', 'lecture', 'group_discussion', 'project'] }
     });
     // Average focus scores from all study logs that have one

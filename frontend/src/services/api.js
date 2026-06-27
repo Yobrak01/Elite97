@@ -4,7 +4,10 @@ const getHeaders = () => {
   const token = localStorage.getItem('elite97_token');
   return {
     'Content-Type': 'application/json',
-    'Authorization': token ? `Bearer ${token}` : ''
+    'Authorization': token ? `Bearer ${token}` : '',
+    'Cache-Control': 'no-cache, no-store, must-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
   };
 };
 
