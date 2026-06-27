@@ -20,16 +20,14 @@ exports.createSession = async (req, res, next) => {
   try {
     const { studyHours, focusScore, breaks, notes, subjects, date } = req.body;
     
-    // Ensure date defaults to today
     const sessionDate = date ? getStartOfDay(req.user.timezone, new Date(date)) : getStartOfDay(req.user.timezone);
-
-    // Get count of completed tasks today
     const startOfDay = new Date(sessionDate);
     const endOfDay = date ? getEndOfDay(req.user.timezone, new Date(date)) : getEndOfDay(req.user.timezone);
 
+    // Fixed: scope totalTasks to TODAY only (not all-time)
     const totalTasks = await Task.countDocuments({
       user: req.user._id,
-      createdAt: { $lte: endOfDay }
+      createdAt: { $gte: startOfDay, $lte: endOfDay }
     });
     const completedTasks = await Task.countDocuments({
       user: req.user._id,
@@ -43,6 +41,48 @@ exports.createSession = async (req, res, next) => {
       completionPercentage,
       breaks: breaks || 0
     });
+
+    // Build proper context for the 12-factor burnout model
+    const TimeLog = require('../models/TimeLog');
+    const logsToday = await TimeLog.find({ user: req.user._id, date: sessionDate });
+    const hasLateNight = logsToday.some(l => {
+      const h = new Date(l.startTime || l.createdAt).getHours();
+      return h >= 22 || h < 4;
+    });
+    const hasGym = logsToday.some(l => l.activityType === 'gym');
+    const restHours = logsToday
+      .filter(l => l.activityType === 'rest')
+      .reduce((s, l) => s + (l.durationMinutes / 60), 0);
+
+    const last7Days = new Date(sessionDate);
+    last7Days.setDate(last7Days.getDate() - 7);
+    const recentSessions = await StudySession.find({ user: req.user._id, date: { $gte: last7Days } }).sort({ date: -1 });
+    let consecutiveHighDays = 0;
+    for (const s of recentSessions) {
+      if (s.studyHours > 8) consecutiveHighDays++;
+      else break;
+    }
+
+    const Analytics = require('../models/Analytics');
+    const recentAnalytics = await Analytics.find({ user: req.user._id, date: { $gte: last7Days } }).sort({ date: -1 }).limit(2);
+    let trendWorsening = false;
+    if (recentAnalytics.length === 2) {
+      trendWorsening = recentAnalytics[0].burnoutRisk > recentAnalytics[1].burnoutRisk;
+    }
+
+    const burnoutContext = {
+      studyHours,
+      breaks: breaks || 0,
+      hasLateNight,
+      subjectsCount: subjects && subjects.length > 0 ? subjects.length : 1,
+      streak: req.user.streak || 0,
+      restHours: restHours > 0 ? restHours : Math.max(4, 9 - (studyHours * 0.4)),
+      hasGym,
+      consecutiveHighDays,
+      trendWorsening,
+      focusScore: calculatedFocusScore,
+      completionPercentage
+    };
 
     // Create or update session
     const session = await StudySession.findOneAndUpdate(
@@ -65,12 +105,7 @@ exports.createSession = async (req, res, next) => {
     req.user.lastStudyDate = new Date();
     await req.user.save();
 
-    // Recalculate and update Analytics object for the day
-    const burnoutResult = await burnoutDetector.detectBurnout({
-      studyHours,
-      focusScore: calculatedFocusScore,
-      completionPercentage
-    });
+    const burnoutResult = await burnoutDetector.detectBurnout(burnoutContext);
     const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, calculatedFocusScore);
     const productivityScore = await analyticsEngine.calculateProductivityScore(calculatedFocusScore, completionPercentage, newStreak);
     
@@ -101,6 +136,7 @@ exports.createSession = async (req, res, next) => {
     next(error);
   }
 };
+
 
 exports.getTodaySession = async (req, res, next) => {
   try {

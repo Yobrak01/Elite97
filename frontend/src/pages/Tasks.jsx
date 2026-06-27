@@ -33,6 +33,7 @@ export const Tasks = () => {
   const [selectedCourse, setSelectedCourse] = useState('');
   const [courses, setCourses] = useState([]);
   const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
     api.courses.getAll().then(res => setCourses(res.data)).catch(console.error);
@@ -52,6 +53,7 @@ export const Tasks = () => {
     setFixedEndTime(task.fixedEndTime || '');
     setSelectedCourse(task.courseUnit?._id || task.courseUnit || '');
     setEditingId(task._id);
+    setSubmitError('');
     setModalOpen(true);
   };
 
@@ -67,20 +69,19 @@ export const Tasks = () => {
     setFixedEndTime('');
     setSelectedCourse('');
     setEditingId(null);
+    setSubmitError('');
     setModalOpen(true);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    
-    let finalDesc = description;
-
+    setSubmitError('');
     try {
       if (editingId) {
         await updateTask(editingId, {
           title,
-          description: finalDesc,
+          description,
           priority: Number(priority),
           estimatedHours: Number(estimatedHours),
           type,
@@ -93,7 +94,7 @@ export const Tasks = () => {
       } else {
         await createTask({
           title,
-          description: finalDesc,
+          description,
           priority: Number(priority),
           estimatedHours: Number(estimatedHours),
           type,
@@ -118,27 +119,33 @@ export const Tasks = () => {
       setEditingId(null);
     } catch (err) {
       console.error(err);
-      alert(err.message || 'Error occurred saving task.');
+      setSubmitError(err.message || 'Error saving task. Please try again.');
     } finally {
       setSubmitting(false);
     }
+  };
+
+  // Opens the focus-score modal before marking a task complete
   const handleCompleteClick = (id) => {
     setCompletingTaskId(id);
     setTaskFocusScore(70);
   };
 
+  // Actually completes the task with the user-entered focus score
   const submitCompleteTask = async () => {
     if (!completingTaskId) return;
     try {
       await completeTask(completingTaskId, { focusScore: Number(taskFocusScore) });
       setCompletingTaskId(null);
+      // Propagate to dashboard so analytics refresh immediately
+      window.dispatchEvent(new CustomEvent('time-logged'));
     } catch (err) {
       console.error(err);
-      alert('Error completing task');
+      alert('Error completing task. Please try again.');
     }
   };
 
-  const filteredTasks = tasks.filter(t => 
+  const filteredTasks = tasks.filter(t =>
     t.title.toLowerCase().includes(search.toLowerCase()) ||
     (t.description && t.description.toLowerCase().includes(search.toLowerCase()))
   );
@@ -271,12 +278,12 @@ export const Tasks = () => {
         </div>
       )}
 
-      {/* Create Task Modal Overlay */}
+      {/* Create / Edit Task Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-          <div className="glass-panel w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl relative">
+          <div className="glass-panel w-full max-w-md rounded-3xl p-6 border border-white/10 shadow-2xl relative overflow-y-auto max-h-[90vh]">
             <h3 className="text-lg font-black tracking-wide text-white mb-4 uppercase">{editingId ? 'Edit Task' : 'Create New Task'}</h3>
-            
+
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Task Title</label>
@@ -286,7 +293,7 @@ export const Tasks = () => {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Derive Electromagnetics Wave Vector"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/30"
                 />
               </div>
 
@@ -297,7 +304,7 @@ export const Tasks = () => {
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Review lecture proofs page 34-40 before solver cycle."
                   rows="3"
-                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none"
+                  className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/30"
                 />
               </div>
 
@@ -318,10 +325,11 @@ export const Tasks = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Estimated Duration</label>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Est. Hours</label>
                   <input
                     type="number"
                     step="0.5"
+                    min="0.5"
                     required
                     value={estimatedHours}
                     onChange={(e) => setEstimatedHours(e.target.value)}
@@ -351,13 +359,13 @@ export const Tasks = () => {
 
                 {type !== 'event' && (
                   <div className="space-y-1">
-                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Course Unit (Optional)</label>
+                    <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Course Unit</label>
                     <select
                       value={selectedCourse}
                       onChange={(e) => setSelectedCourse(e.target.value)}
                       className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
                     >
-                      <option value="">-- No specific unit --</option>
+                      <option value="">-- None --</option>
                       {courses.map(c => (
                         <option key={c._id} value={c._id}>{c.unitCode} - {c.unitName}</option>
                       ))}
@@ -413,6 +421,12 @@ export const Tasks = () => {
                 </div>
               )}
 
+              {submitError && (
+                <p className="text-xs font-bold text-red-400 text-center bg-red-500/10 rounded-xl px-4 py-2 border border-red-500/20">
+                  {submitError}
+                </p>
+              )}
+
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
@@ -426,7 +440,7 @@ export const Tasks = () => {
                   disabled={submitting}
                   className="rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer disabled:opacity-50"
                 >
-                  {editingId ? 'Update Task' : 'Confirm Task'}
+                  {submitting ? 'Saving...' : editingId ? 'Update Task' : 'Confirm Task'}
                 </button>
               </div>
             </form>
@@ -434,24 +448,32 @@ export const Tasks = () => {
         </div>
       )}
 
-      {/* Complete Task Modal */}
+      {/* Complete Task — Focus Score Modal */}
       {completingTaskId && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setCompletingTaskId(null)} />
           <div className="relative w-full max-w-sm rounded-3xl bg-navy-800 border border-white/10 p-6 shadow-2xl animate-fade-in">
-            <h3 className="text-lg font-bold text-white mb-2">Complete Task</h3>
-            <p className="text-xs text-slate-400 mb-4">Log your focus score for this task. It will be factored into your analytics.</p>
-            
-            <div className="space-y-3 mb-6">
-              <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Task Focus Score (0-100)</label>
+            <h3 className="text-lg font-black text-white mb-1 tracking-wide uppercase">Mission Complete</h3>
+            <p className="text-xs text-slate-400 mb-5">Rate your focus for this session. This directly feeds the AI analytics engine.</p>
+
+            <div className="space-y-4 mb-6">
+              <div className="flex items-center justify-between">
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Focus Score</label>
+                <span className="text-2xl font-black text-cyan-400">{taskFocusScore}</span>
+              </div>
               <input
-                type="number"
+                type="range"
                 min="0"
                 max="100"
                 value={taskFocusScore}
                 onChange={(e) => setTaskFocusScore(e.target.value)}
-                className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-sm text-white focus:outline-none"
+                className="w-full accent-cyan-400"
               />
+              <div className="flex justify-between text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                <span>Distracted</span>
+                <span>Moderate</span>
+                <span>Flow State</span>
+              </div>
             </div>
 
             <div className="flex justify-end gap-2">
@@ -465,7 +487,7 @@ export const Tasks = () => {
                 onClick={submitCompleteTask}
                 className="rounded-xl bg-cyan-500 hover:bg-cyan-500/90 text-white text-xs font-black uppercase tracking-widest px-4 py-2 cursor-pointer"
               >
-                Complete
+                Complete Task
               </button>
             </div>
           </div>
@@ -475,5 +497,3 @@ export const Tasks = () => {
   );
 };
 export default Tasks;
-
-

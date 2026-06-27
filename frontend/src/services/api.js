@@ -438,6 +438,14 @@ export const api = {
         headers: getHeaders()
       });
       return handleResponse(res);
+    },
+    logFocus: async (id, focusScore) => {
+      const res = await fetch(`${API_URL}/tracker/${id}/focus`, {
+        method: 'PATCH',
+        headers: getHeaders(),
+        body: JSON.stringify({ focusScore })
+      });
+      return handleResponse(res);
     }
   },
   streaks: {

@@ -51,6 +51,8 @@ export const LiveTimer = () => {
   const [selectedCourse, setSelectedCourse] = useState('');
   const [customDescription, setCustomDescription] = useState('');
   const [loadingAction, setLoadingAction] = useState(false);
+  const [pendingFocusLogId, setPendingFocusLogId] = useState(null); // log awaiting focus rating
+  const [postStopFocus, setPostStopFocus] = useState(75);
   const intervalRef = useRef(null);
 
   // Fetch today's logs
@@ -196,15 +198,36 @@ export const LiveTimer = () => {
       await api.tracker.stopTimer(activeLogId);
       setIsRunning(false);
       setIsPaused(false);
+      // Show focus rating panel instead of immediately resetting
+      setPendingFocusLogId(activeLogId);
+      setPostStopFocus(75);
       setActiveLogId(null);
       setElapsedSeconds(0);
       fetchTodayLogs();
-      window.dispatchEvent(new CustomEvent('time-logged'));
     } catch (err) {
       console.error('Failed to stop timer:', err);
     } finally {
       setLoadingAction(false);
     }
+  };
+
+  const handleSaveFocus = async () => {
+    if (!pendingFocusLogId) return;
+    setLoadingAction(true);
+    try {
+      await api.tracker.logFocus(pendingFocusLogId, postStopFocus);
+    } catch (err) {
+      console.error('Failed to save focus score:', err);
+    } finally {
+      setPendingFocusLogId(null);
+      window.dispatchEvent(new CustomEvent('time-logged'));
+      setLoadingAction(false);
+    }
+  };
+
+  const handleSkipFocus = () => {
+    setPendingFocusLogId(null);
+    window.dispatchEvent(new CustomEvent('time-logged'));
   };
 
   const handlePause = async () => {
@@ -453,6 +476,42 @@ export const LiveTimer = () => {
               </>
             )}
           </div>
+
+          {/* Post-Stop Focus Rating Panel */}
+          {pendingFocusLogId && (
+            <div className="space-y-3 border border-cyan-500/20 bg-cyan-500/5 rounded-2xl p-4 animate-fade-in">
+              <div className="flex items-center justify-between">
+                <p className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Rate Your Focus</p>
+                <span className="text-xl font-black text-cyan-400">{postStopFocus}</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={postStopFocus}
+                onChange={(e) => setPostStopFocus(Number(e.target.value))}
+                className="w-full accent-cyan-400"
+              />
+              <div className="flex justify-between text-[9px] text-slate-600 font-bold uppercase tracking-widest">
+                <span>Distracted</span><span>Moderate</span><span>Flow State</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSkipFocus}
+                  className="flex-1 py-2 rounded-xl border border-white/10 text-slate-400 hover:text-white text-[10px] font-black uppercase tracking-widest transition-colors"
+                >
+                  Skip
+                </button>
+                <button
+                  onClick={handleSaveFocus}
+                  disabled={loadingAction}
+                  className="flex-1 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
+                >
+                  {loadingAction ? 'Saving...' : 'Save Focus'}
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Today's Summary */}
           {todaySummary.length > 0 && (

@@ -79,7 +79,20 @@ exports.stopTimer = async (req, res, next) => {
 
     await timeLog.save();
 
+    // Immediately sync Analytics.studyHours so dashboard reflects the stopped session
+    const logDate = getStartOfDay(req.user.timezone, new Date(timeLog.date));
+    const allLogsToday = await TimeLog.find({ user: req.user._id, date: logDate });
+    const studyHours = allLogsToday
+      .filter(l => ['personal_study', 'lecture', 'group_discussion', 'project'].includes(l.activityType))
+      .reduce((s, l) => s + ((l.durationMinutes || 0) / 60), 0);
+    await Analytics.findOneAndUpdate(
+      { user: req.user._id, date: logDate },
+      { $set: { studyHours } },
+      { upsert: true }
+    );
+
     res.status(200).json({ success: true, data: timeLog });
+
   } catch (error) {
     next(error);
   }
@@ -154,6 +167,51 @@ exports.deleteLog = async (req, res, next) => {
   }
 };
 
+// @desc    Log focus score for a specific completed TimeLog
+// @route   PATCH /api/tracker/:id/focus
+// @access  Private
+exports.logFocus = async (req, res, next) => {
+  try {
+    const { focusScore } = req.body;
+    if (focusScore === undefined || focusScore === null) {
+      return res.status(400).json({ success: false, message: 'focusScore is required.' });
+    }
+    const score = Math.max(0, Math.min(100, Number(focusScore)));
+
+    const timeLog = await TimeLog.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
+      { $set: { focusScore: score } },
+      { new: true }
+    );
+    if (!timeLog) return res.status(404).json({ success: false, message: 'TimeLog not found.' });
+
+    // Propagate to Analytics so dashboard focus score updates
+    const logDate = getStartOfDay(req.user.timezone, new Date(timeLog.date));
+    const studyLogs = await TimeLog.find({
+      user: req.user._id,
+      date: logDate,
+      activityType: { $in: ['personal_study', 'lecture', 'group_discussion', 'project'] }
+    });
+    // Average focus scores from all study logs that have one
+    const scored = studyLogs.filter(l => l.focusScore !== undefined && l.focusScore !== null);
+    const avgFocus = scored.length > 0
+      ? Math.round(scored.reduce((s, l) => s + l.focusScore, 0) / scored.length)
+      : null;
+
+    if (avgFocus !== null) {
+      await Analytics.findOneAndUpdate(
+        { user: req.user._id, date: logDate },
+        { $set: { focusScore: avgFocus } },
+        { upsert: true }
+      );
+    }
+
+    res.status(200).json({ success: true, data: timeLog });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Manually log completed time (creates a finished TimeLog)
 // @route   POST /api/tracker/manual
 // @access  Private
@@ -213,12 +271,24 @@ exports.manualLog = async (req, res, next) => {
       description: description || 'Manual entry',
       startTime: startTime,
       endTime: endTime,
-      // If allowing overlap, we still record the log for attendance, but we might want to log 0 duration if we don't want to double count.
-      // But for simplicity, we just save the duration. The user can manage their logs if they double counted.
       durationMinutes: Number(durationMinutes)
     });
 
+    // Immediately sync Analytics.studyHours so the dashboard shows updated time
+    const logDate = getStartOfDay(req.user.timezone, targetDate);
+    const allLogsToday = await TimeLog.find({ user: req.user._id, date: logDate });
+    const studyHours = allLogsToday
+      .filter(l => ['personal_study', 'lecture', 'group_discussion', 'project'].includes(l.activityType))
+      .reduce((s, l) => s + ((l.durationMinutes || 0) / 60), 0);
+
+    await Analytics.findOneAndUpdate(
+      { user: req.user._id, date: logDate },
+      { $set: { studyHours } },
+      { upsert: true }
+    );
+
     res.status(201).json({ success: true, data: timeLog });
+
   } catch (error) {
     next(error);
   }

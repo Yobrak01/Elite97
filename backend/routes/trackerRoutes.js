@@ -9,6 +9,7 @@ router.post('/start', trackerController.startTimer);
 router.patch('/:id/stop', trackerController.stopTimer);
 router.patch('/:id/pause', trackerController.pauseTimer);
 router.patch('/:id/resume', trackerController.resumeTimer);
+router.patch('/:id/focus', trackerController.logFocus);
 router.delete('/:id', trackerController.deleteLog);
 router.patch('/:id/breach', trackerController.breachOverride);
 router.patch('/:id/complete', trackerController.completeOverride);

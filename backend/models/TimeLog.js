@@ -41,10 +41,16 @@ const TimeLogSchema = new mongoose.Schema({
   lastResumeTime: {
     type: Date
   },
+  focusScore: {
+    type: Number,
+    min: 0,
+    max: 100
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
+
 });
 
 TimeLogSchema.index({ user: 1, date: 1, activityType: 1 });
