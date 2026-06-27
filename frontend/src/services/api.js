@@ -58,7 +58,7 @@ export const api = {
       return handleResponse(res);
     },
     getMe: async () => {
-      const res = await fetch(`${API_URL}/auth/me`, {
+      const res = await fetch(`${API_URL}/auth/me?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
@@ -74,8 +74,8 @@ export const api = {
   },
   tasks: {
     getAll: async (filters = {}) => {
-      const queryParams = new URLSearchParams(filters).toString();
-      const res = await fetch(`${API_URL}/tasks?${queryParams}`, {
+      const query = new URLSearchParams({ ...filters, t: Date.now() }).toString();
+      const res = await fetch(`${API_URL}/tasks?${query}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
@@ -127,7 +127,7 @@ export const api = {
       return handleResponse(res);
     },
     getStats: async () => {
-      const res = await fetch(`${API_URL}/tasks/stats`, {
+      const res = await fetch(`${API_URL}/tasks/stats?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
@@ -135,7 +135,7 @@ export const api = {
   },
   sessions: {
     getAll: async () => {
-      const res = await fetch(`${API_URL}/sessions`, {
+      const res = await fetch(`${API_URL}/sessions?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
@@ -428,13 +428,13 @@ export const api = {
       return handleResponse(res);
     },
     getWeeklyLogs: async () => {
-      const res = await fetch(`${API_URL}/tracker/weekly-logs`, {
+      const res = await fetch(`${API_URL}/tracker/weekly-logs?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
     },
     getHistoricalWeeks: async () => {
-      const res = await fetch(`${API_URL}/tracker/historical-weeks`, {
+      const res = await fetch(`${API_URL}/tracker/historical-weeks?t=${Date.now()}`, {
         headers: getHeaders()
       });
       return handleResponse(res);
