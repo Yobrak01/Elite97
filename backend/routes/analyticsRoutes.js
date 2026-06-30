@@ -17,5 +17,6 @@ router.get('/mit-ranking', analyticsController.getMitRanking);
 router.get('/hierarchy', analyticsController.getHierarchyMatrix);
 router.get('/feed', analyticsController.getGlobalFeed);
 router.get('/oracle', analyticsController.getOracleProjections);
+router.get('/debug', analyticsController.debugAnalytics);
 
 module.exports = router;

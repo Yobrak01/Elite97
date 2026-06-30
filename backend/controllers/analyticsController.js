@@ -1026,3 +1026,83 @@ exports.getOracleProjections = async (req, res, next) => {
     next(error);
   }
 };
+
+// @desc    Diagnostic endpoint to debug studyHours=0 issue
+// @route   GET /api/analytics/debug
+// @access  Private
+exports.debugAnalytics = async (req, res, next) => {
+  try {
+    const timezone = req.user.timezone;
+    const today = getStartOfDay(timezone);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    // Raw TimeLog query by date field
+    const logsByDate = await TimeLog.find({
+      user: req.user._id,
+      date: { $gte: today, $lt: tomorrow }
+    });
+
+    // Raw TimeLog query by createdAt field
+    const logsByCreatedAt = await TimeLog.find({
+      user: req.user._id,
+      createdAt: { $gte: today, $lt: tomorrow }
+    });
+
+    // All logs for this user (last 3 days) to see what dates are stored
+    const threeDaysAgo = new Date(today);
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+    const recentLogs = await TimeLog.find({
+      user: req.user._id,
+      createdAt: { $gte: threeDaysAgo }
+    }).sort({ createdAt: -1 }).limit(20);
+
+    // Current analytics doc
+    const analyticsDoc = await Analytics.findOne({ user: req.user._id, date: today });
+
+    res.status(200).json({
+      success: true,
+      debug: {
+        userTimezone: timezone,
+        todayStartUTC: today.toISOString(),
+        tomorrowStartUTC: tomorrow.toISOString(),
+        nowUTC: new Date().toISOString(),
+        logsByDateCount: logsByDate.length,
+        logsByCreatedAtCount: logsByCreatedAt.length,
+        logsByDate: logsByDate.map(l => ({
+          id: l._id,
+          activityType: l.activityType,
+          dateField: l.date,
+          createdAt: l.createdAt,
+          durationMinutes: l.durationMinutes,
+          focusScore: l.focusScore,
+          startTime: l.startTime,
+          endTime: l.endTime,
+          accumulatedSeconds: l.accumulatedSeconds,
+          isPaused: l.isPaused
+        })),
+        logsByCreatedAt: logsByCreatedAt.map(l => ({
+          id: l._id,
+          activityType: l.activityType,
+          dateField: l.date,
+          createdAt: l.createdAt,
+          durationMinutes: l.durationMinutes
+        })),
+        recentLogs: recentLogs.map(l => ({
+          id: l._id,
+          activityType: l.activityType,
+          dateField: l.date ? l.date.toISOString() : null,
+          createdAt: l.createdAt ? l.createdAt.toISOString() : null,
+          durationMinutes: l.durationMinutes
+        })),
+        currentAnalytics: analyticsDoc ? {
+          studyHours: analyticsDoc.studyHours,
+          focusScore: analyticsDoc.focusScore,
+          date: analyticsDoc.date
+        } : null
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
