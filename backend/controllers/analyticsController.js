@@ -61,14 +61,35 @@ async function buildContext(userId, today, streak) {
   // TimeLogs for today
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // DEBUG: Log the date range being queried so we can trace 0.0 hrs issues
+  console.log('[buildContext] userId:', userId.toString(), 'today:', today.toISOString(), 'tomorrow:', tomorrow.toISOString());
+
   const logsToday = await TimeLog.find({ 
     user: userId, 
     date: { $gte: today, $lt: tomorrow } 
   });
+
+  console.log('[buildContext] logsToday count:', logsToday.length, 'types:', logsToday.map(l => `${l.activityType}:${l.durationMinutes}min`).join(', '));
+
+  // If no logs found with date range, also try matching by createdAt as fallback
+  // This handles cases where the date field was not set correctly
+  let effectiveLogs = logsToday;
+  if (logsToday.length === 0) {
+    const fallbackLogs = await TimeLog.find({
+      user: userId,
+      createdAt: { $gte: today, $lt: tomorrow }
+    });
+    if (fallbackLogs.length > 0) {
+      console.log('[buildContext] FALLBACK: Found', fallbackLogs.length, 'logs by createdAt that were missed by date field');
+      effectiveLogs = fallbackLogs;
+    }
+  }
   
-  // Sum completed time logs
-  const personalStudyTimeLogs = logsToday
-    .filter(l => l.activityType === 'personal_study' || l.activityType === 'lecture' || l.activityType === 'group_discussion' || l.activityType === 'project')
+  // Sum completed time logs for study-related activities
+  const studyActivityTypes = ['personal_study', 'lecture', 'group_discussion', 'project'];
+  const personalStudyTimeLogs = effectiveLogs
+    .filter(l => studyActivityTypes.includes(l.activityType))
     .reduce((s, l) => {
       // If this log is still running (no endTime), calculate live elapsed seconds
       if (!l.endTime && l.startTime && !l.isPaused) {
@@ -87,24 +108,26 @@ async function buildContext(userId, today, streak) {
   const studyHours = (session && session.studyHours > 0)
     ? Math.max(session.studyHours, personalStudyTimeLogs)
     : personalStudyTimeLogs;
+
+  console.log('[buildContext] studyHours:', studyHours, 'personalStudyTimeLogs:', personalStudyTimeLogs);
   
   const tasksCompleted = completedTasksToday;
   const totalTasks = totalTasksToday;
   const breaks = session ? session.breaks : 0;
   const subjectsCount = session && session.subjects && session.subjects.length > 0 ? session.subjects.length : 1;
 
-  const restHours = logsToday.filter(l => l.activityType === 'rest').reduce((s, l) => s + (l.durationMinutes / 60), 0);
-  const hasGym = logsToday.some(l => l.activityType === 'gym');
+  const restHours = effectiveLogs.filter(l => l.activityType === 'rest').reduce((s, l) => s + ((l.durationMinutes || 0) / 60), 0);
+  const hasGym = effectiveLogs.some(l => l.activityType === 'gym');
   
-  const hasMorning = logsToday.some(l => {
+  const hasMorning = effectiveLogs.some(l => {
     const h = new Date(l.startTime || l.createdAt).getHours();
     return h >= 5 && h < 12;
   });
-  const hasAfternoon = logsToday.some(l => {
+  const hasAfternoon = effectiveLogs.some(l => {
     const h = new Date(l.startTime || l.createdAt).getHours();
     return h >= 12 && h < 18;
   });
-  const hasLateNight = logsToday.some(l => {
+  const hasLateNight = effectiveLogs.some(l => {
     const h = new Date(l.startTime || l.createdAt).getHours();
     return h >= 22 || h < 4;
   });
@@ -143,6 +166,15 @@ async function buildContext(userId, today, streak) {
   });
   const taskFocusScore = taskFocusCount > 0 ? totalTaskFocus / taskFocusCount : undefined;
 
+  // Compute average focus score from TimeLog entries (user-set per-session focus)
+  const studyLogsWithFocus = effectiveLogs
+    .filter(l => studyActivityTypes.includes(l.activityType) && l.focusScore !== undefined && l.focusScore !== null);
+  const timeLogFocusScore = studyLogsWithFocus.length > 0
+    ? Math.round(studyLogsWithFocus.reduce((s, l) => s + l.focusScore, 0) / studyLogsWithFocus.length)
+    : undefined;
+
+  console.log('[buildContext] timeLogFocusScore:', timeLogFocusScore, 'taskFocusScore:', taskFocusScore, 'logsWithFocus:', studyLogsWithFocus.length);
+
   return {
     studyHours,
     completionPercentage,
@@ -158,7 +190,8 @@ async function buildContext(userId, today, streak) {
     trendWorsening,
     session,
     circadianStatus,
-    taskFocusScore
+    taskFocusScore,
+    timeLogFocusScore
   };
 }
 
@@ -168,11 +201,22 @@ exports.getDashboard = async (req, res, next) => {
 
     const context = await buildContext(req.user._id, today, req.user.streak || 0);
     
-    // Check if session has overridden focusScore
+    // Focus score priority chain:
+    // 1. User-set per-session focus scores from TimeLog entries (highest priority — user explicitly rated)
+    // 2. StudySession manual override
+    // 3. Task completion focus scores
+    // 4. Automatic formula calculation (lowest priority — fallback only)
     const session = context.session;
-    const focusScore = session && session.focusScore !== undefined 
-      ? session.focusScore 
-      : (context.taskFocusScore !== undefined ? context.taskFocusScore : analyticsEngine.calculateFocusScore(context));
+    let focusScore;
+    if (context.timeLogFocusScore !== undefined) {
+      focusScore = context.timeLogFocusScore;
+    } else if (session && session.focusScore !== undefined) {
+      focusScore = session.focusScore;
+    } else if (context.taskFocusScore !== undefined) {
+      focusScore = context.taskFocusScore;
+    } else {
+      focusScore = analyticsEngine.calculateFocusScore(context);
+    }
     
     context.focusScore = focusScore;
 
@@ -216,6 +260,8 @@ exports.getDashboard = async (req, res, next) => {
       },
       { upsert: true, new: true }
     );
+
+    console.log('[getDashboard] Final studyHours:', context.studyHours, 'focusScore:', focusScore, 'source:', context.timeLogFocusScore !== undefined ? 'TimeLog' : session?.focusScore !== undefined ? 'Session' : context.taskFocusScore !== undefined ? 'Task' : 'Formula');
 
     res.status(200).json({ success: true, data: analytics });
   } catch (error) {
@@ -350,12 +396,20 @@ exports.recalculateAnalytics = async (req, res, next) => {
     const today = getStartOfDay(req.user.timezone);
 
     const context = await buildContext(req.user._id, today, req.user.streak || 0);
-    const session = await StudySession.findOne({ user: req.user._id, date: today });
+    const session = context.session;
     const tasks = await Task.find({ user: req.user._id });
     
-    const focusScore = session && session.focusScore !== undefined 
-      ? session.focusScore 
-      : (context.taskFocusScore !== undefined ? context.taskFocusScore : analyticsEngine.calculateFocusScore(context));
+    // Same priority chain as getDashboard
+    let focusScore;
+    if (context.timeLogFocusScore !== undefined) {
+      focusScore = context.timeLogFocusScore;
+    } else if (session && session.focusScore !== undefined) {
+      focusScore = session.focusScore;
+    } else if (context.taskFocusScore !== undefined) {
+      focusScore = context.taskFocusScore;
+    } else {
+      focusScore = analyticsEngine.calculateFocusScore(context);
+    }
     context.focusScore = focusScore;
 
     const productivityScore = await analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
@@ -396,6 +450,8 @@ exports.recalculateAnalytics = async (req, res, next) => {
       },
       { upsert: true, new: true }
     );
+
+    console.log('[recalculate] Final studyHours:', context.studyHours, 'focusScore:', focusScore);
 
     res.status(200).json({ success: true, data: updated });
   } catch (error) {
