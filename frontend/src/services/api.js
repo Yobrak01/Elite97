@@ -214,12 +214,6 @@ export const api = {
       });
       return handleResponse(res);
     },
-    getDebug: async () => {
-      const res = await fetch(`${API_URL}/analytics/debug?t=${Date.now()}`, {
-        headers: getHeaders()
-      });
-      return handleResponse(res);
-    },
     getWeekly: async () => {
       const res = await fetch(`${API_URL}/analytics/weekly?t=${Date.now()}`, {
         headers: getHeaders()

@@ -30,25 +30,6 @@ export const Dashboard = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
-  const [debugData, setDebugData] = useState(null);
-  const [showDebug, setShowDebug] = useState(false);
-  const [loadingDebug, setLoadingDebug] = useState(false);
-  const [debugError, setDebugError] = useState(null);
-
-  const fetchDebugInfo = async () => {
-    setLoadingDebug(true);
-    setDebugError(null);
-    try {
-      const res = await api.analytics.getDebug();
-      setDebugData(res.debug);
-    } catch (err) {
-      console.error(err);
-      setDebugError(err.message || 'Failed to fetch debug info.');
-    } finally {
-      setLoadingDebug(false);
-    }
-  };
-
   // Auto-populate modal with personal study time ONLY (not lecture/gym/etc)
   const openLogModal = async () => {
     let autoStudyHours = '';
