@@ -30,6 +30,46 @@ export const Dashboard = () => {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
 
+  // ── Bulletproof client-side study hours & focus score ──────────
+  // Fetches the exact same getTodayLogs endpoint the clock widget uses.
+  // If the backend analytics calculation returns 0 due to date bugs,
+  // these live values will override.
+  const [liveStudyHours, setLiveStudyHours] = useState(0);
+  const [liveFocusScore, setLiveFocusScore] = useState(null);
+
+  useEffect(() => {
+    const computeLiveStats = async () => {
+      try {
+        const res = await api.tracker.getTodayLogs();
+        const logs = res.data || [];
+        const studyTypes = ['personal_study', 'lecture', 'group_discussion', 'project'];
+        const totalHrs = logs
+          .filter(l => studyTypes.includes(l.activityType))
+          .reduce((sum, l) => {
+            if (!l.endTime && l.startTime && !l.isPaused) {
+              const resumeTime = l.lastResumeTime ? new Date(l.lastResumeTime) : new Date(l.startTime);
+              const liveSec = (l.accumulatedSeconds || 0) + Math.max(0, (Date.now() - resumeTime.getTime()) / 1000);
+              return sum + (liveSec / 3600);
+            } else if (!l.endTime && l.isPaused) {
+              return sum + ((l.accumulatedSeconds || 0) / 3600);
+            }
+            return sum + ((l.durationMinutes || 0) / 60);
+          }, 0);
+        setLiveStudyHours(totalHrs);
+
+        // Compute average focus from study logs that have a focusScore
+        const scored = logs.filter(l => studyTypes.includes(l.activityType) && l.focusScore != null);
+        if (scored.length > 0) {
+          setLiveFocusScore(Math.round(scored.reduce((s, l) => s + l.focusScore, 0) / scored.length));
+        }
+      } catch (err) {
+        console.error('Dashboard live stats error:', err);
+      }
+    };
+    computeLiveStats();
+    // Re-compute when dashboardData changes (e.g., after recalculate)
+  }, [dashboardData]);
+
   // Auto-populate modal with personal study time ONLY (not lecture/gym/etc)
   const openLogModal = async () => {
     let autoStudyHours = '';
@@ -201,18 +241,24 @@ export const Dashboard = () => {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Daily Total Logs"
-          value={`${Number(dashboardData?.studyHours || 0).toFixed(1)} hrs`}
+          value={`${Math.max(Number(dashboardData?.studyHours || 0), liveStudyHours).toFixed(1)} hrs`}
           subtitle="Combined workload logged."
           icon={Clock}
           color="blue"
         />
-        <StatCard
-          title="Focus Score"
-          value={`${dashboardData?.focusScore || 0}%`}
-          subtitle="Cognitive performance index."
-          icon={Award}
-          color={dashboardData?.focusScore >= 80 ? 'green' : dashboardData?.focusScore >= 50 ? 'yellow' : 'red'}
-        />
+        {(() => {
+          // Use live focus score from TimeLog entries if available, otherwise fall back to backend
+          const displayFocus = liveFocusScore != null ? liveFocusScore : (dashboardData?.focusScore || 0);
+          return (
+            <StatCard
+              title="Focus Score"
+              value={`${displayFocus}%`}
+              subtitle="Cognitive performance index."
+              icon={Award}
+              color={displayFocus >= 80 ? 'green' : displayFocus >= 50 ? 'yellow' : 'red'}
+            />
+          );
+        })()}
         <StatCard
           title="Burnout Risk"
           value={`${dashboardData?.burnoutRisk || 0}%`}

@@ -83,6 +83,23 @@ async function buildContext(userId, today, streak) {
     if (fallbackLogs.length > 0) {
       console.log('[buildContext] FALLBACK: Found', fallbackLogs.length, 'logs by createdAt that were missed by date field');
       effectiveLogs = fallbackLogs;
+    } else {
+      // Third attempt: try UTC midnight boundaries (catches pre-timezone-fix logs)
+      const utcToday = new Date();
+      utcToday.setUTCHours(0, 0, 0, 0);
+      const utcTomorrow = new Date(utcToday);
+      utcTomorrow.setUTCDate(utcTomorrow.getUTCDate() + 1);
+      const utcFallbackLogs = await TimeLog.find({
+        user: userId,
+        $or: [
+          { date: { $gte: utcToday, $lt: utcTomorrow } },
+          { createdAt: { $gte: utcToday, $lt: utcTomorrow } }
+        ]
+      });
+      if (utcFallbackLogs.length > 0) {
+        console.log('[buildContext] UTC FALLBACK: Found', utcFallbackLogs.length, 'logs using UTC midnight boundaries');
+        effectiveLogs = utcFallbackLogs;
+      }
     }
   }
   
@@ -205,8 +222,10 @@ exports.getDashboard = async (req, res, next) => {
     // 1. User-set per-session focus scores from TimeLog entries (highest priority — user explicitly rated)
     // 2. StudySession manual override
     // 3. Task completion focus scores
-    // 4. Automatic formula calculation (lowest priority — fallback only)
+    // 4. Existing Analytics focus score (set by logFocus endpoint — preserve it)
+    // 5. Automatic formula calculation (lowest priority — fallback only)
     const session = context.session;
+    const existingAnalytics = await Analytics.findOne({ user: req.user._id, date: today });
     let focusScore;
     if (context.timeLogFocusScore !== undefined) {
       focusScore = context.timeLogFocusScore;
@@ -214,6 +233,9 @@ exports.getDashboard = async (req, res, next) => {
       focusScore = session.focusScore;
     } else if (context.taskFocusScore !== undefined) {
       focusScore = context.taskFocusScore;
+    } else if (existingAnalytics && existingAnalytics.focusScore != null && existingAnalytics.focusScore > 0) {
+      // Preserve focus score that was previously set by the logFocus endpoint
+      focusScore = existingAnalytics.focusScore;
     } else {
       focusScore = analyticsEngine.calculateFocusScore(context);
     }
@@ -399,7 +421,8 @@ exports.recalculateAnalytics = async (req, res, next) => {
     const session = context.session;
     const tasks = await Task.find({ user: req.user._id });
     
-    // Same priority chain as getDashboard
+    // Same priority chain as getDashboard (including preserving existing focus scores)
+    const existingAnalytics = await Analytics.findOne({ user: req.user._id, date: today });
     let focusScore;
     if (context.timeLogFocusScore !== undefined) {
       focusScore = context.timeLogFocusScore;
@@ -407,6 +430,8 @@ exports.recalculateAnalytics = async (req, res, next) => {
       focusScore = session.focusScore;
     } else if (context.taskFocusScore !== undefined) {
       focusScore = context.taskFocusScore;
+    } else if (existingAnalytics && existingAnalytics.focusScore != null && existingAnalytics.focusScore > 0) {
+      focusScore = existingAnalytics.focusScore;
     } else {
       focusScore = analyticsEngine.calculateFocusScore(context);
     }
