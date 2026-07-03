@@ -4,7 +4,7 @@ function determineMode(burnoutRisk, focusScore) {
   return 'balanced';
 }
 
-function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal', timetable = [], workout = null, mealPlan = null) {
+async function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal', timetable = [], workout = null, mealPlan = null) {
   const now = new Date();
   let targetDate = new Date(now);
   const currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
@@ -115,133 +115,82 @@ function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInt
     availableHours = Math.min(availableHours + 1, 12);
   }
 
-  const blocks = [];
+  const activeTasksList = activeTasks.map(t => {
+    return `- ${t.title} (ID: ${t._id}) (${t.estimatedHours}h estimated, Priority: ${t.priority}, Type: ${t.type})`;
+  }).join('\n');
 
-  let remainingStudyMinutes = availableHours * 60;
-  let taskIndex = 0;
-  let lectureIndex = 0;
+  const formattedLectures = lectures.map(l => {
+    return `- ${formatTimeStr(l.start)} to ${formatTimeStr(l.end)}: ${l.unitName} (Type: ${l.activityType})`;
+  }).join('\n');
 
-  const formatTimeStr = (min) => {
-    const h = Math.floor(min / 60).toString().padStart(2, '0');
-    const m = (min % 60).toString().padStart(2, '0');
-    return `${h}:${m}`;
-  };
+  let generatedBlocks = [];
 
-  // Handle sleep times past midnight
-  if (sleepTimeMinutes <= wakeTimeMinutes) {
-    sleepTimeMinutes += 24 * 60;
+  if (process.env.GEMINI_API_KEY && mode !== 'recovery') {
+    try {
+      const { GoogleGenAI } = require('@google/genai');
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const prompt = `You are the Elite97 AI Planner. The user is in "${mode}" mode with study mode "${studyMode}".
+Today's date is ${dateString}.
+
+Their active tasks are:
+${activeTasksList || "No specific tasks logged."}
+
+Their fixed schedule events (lectures, gym, meals) are:
+${formattedLectures || "No fixed events."}
+
+They want to study for up to ${availableHours} hours today. Their day starts at ${formatTimeStr(currentMinute)} and ends at ${formatTimeStr(sleepTimeMinutes)}.
+Generate a highly targeted daily schedule block-by-block. 
+
+CRITICAL INSTRUCTIONS:
+1. You MUST include ALL the fixed schedule events exactly at their specified times.
+2. Fill the remaining time with study blocks and short breaks. 
+3. If you assign a block to one of the user's active tasks, you MUST include its ID exactly as provided in the "taskId" field.
+4. If the user's active tasks run out or they don't have enough to fill the time, invent specific, highly intelligent study blocks (e.g. "Deep Review: Neural Networks", "Spaced Repetition: Chapter 4") and leave taskId empty.
+5. Do not exceed their sleep time.
+
+Return ONLY a JSON array of blocks. Each block must have this exact format:
+[
+  { "startTime": "HH:MM", "endTime": "HH:MM", "activity": "Specific Activity string", "category": "study" | "break" | "lecture" | "gym" | "event" | "rest", "duration": Number(minutes), "taskId": "string ID if applicable" }
+]
+Do not use markdown. Do not include \`\`\`json.`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: prompt,
+      });
+
+      let text = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+      generatedBlocks = JSON.parse(text);
+      return { blocks: generatedBlocks, dateString };
+    } catch (error) {
+      console.error("Gemini Daily Plan Generation Failed:", error);
+      // Fallback to basic block if AI fails
+    }
   }
 
-  while (remainingStudyMinutes > 0 && currentMinute < sleepTimeMinutes) {
-    // If we hit a lecture time
-    if (lectureIndex < lectures.length && currentMinute >= lectures[lectureIndex].start) {
-      const lec = lectures[lectureIndex];
-      // Fast forward or create lecture block if we are within the lecture duration
-      if (currentMinute < lec.end) {
-        let activityTitle = '';
-        let category = 'lecture';
-        
-        if (lec.isEvent) {
-          activityTitle = `Event: ${lec.unitName}`;
-          category = 'event';
-        } else {
-          if (lec.activityType === 'gym') {
-            activityTitle = `Gym: ${lec.unitName}`;
-            category = 'gym';
-          } else if (lec.activityType === 'personal_study') {
-            activityTitle = `Study: ${lec.unitName}`;
-            category = 'study';
-          } else if (lec.activityType === 'lecture') {
-            activityTitle = `Lecture: ${lec.unitName}`;
-            category = 'lecture';
-          } else if (lec.activityType === 'group_discussion') {
-            activityTitle = `Group: ${lec.unitName}`;
-            category = 'group_discussion';
-          } else if (lec.activityType === 'project') {
-            activityTitle = `Project: ${lec.unitName}`;
-            category = 'project';
-          } else if (lec.activityType === 'chore') {
-            activityTitle = `Chore: ${lec.unitName}`;
-            category = 'chore';
-          } else if (lec.activityType === 'rest') {
-            activityTitle = `Rest: ${lec.unitName}`;
-            category = 'rest';
-          } else {
-            activityTitle = lec.unitName;
-            category = lec.activityType;
-          }
-        }
-
-        blocks.push({
-          startTime: formatTimeStr(currentMinute),
-          endTime: formatTimeStr(lec.end),
-          activity: activityTitle,
-          category: category,
-          duration: lec.end - currentMinute
-        });
-        currentMinute = lec.end;
-      }
-      lectureIndex++;
-      continue; // re-evaluate next iteration
-    }
-
-    // Determine free time until next lecture or sleep
-    let maxFreeTime = sleepTimeMinutes - currentMinute;
-    if (lectureIndex < lectures.length && lectures[lectureIndex].start > currentMinute) {
-      maxFreeTime = Math.min(maxFreeTime, lectures[lectureIndex].start - currentMinute);
-    }
-
-    // If gap is too small, skip it
-    if (maxFreeTime < 10) {
-      currentMinute += maxFreeTime;
-      continue;
-    }
-
-    // Insert Break Block if needed
-    if (blocks.length > 0 && blocks[blocks.length - 1].category === 'study' && maxFreeTime >= breakDuration) {
-      blocks.push({
-        startTime: formatTimeStr(currentMinute),
-        endTime: formatTimeStr(currentMinute + breakDuration),
-        activity: 'Regen Break',
-        category: 'break',
-        duration: breakDuration
-      });
-      currentMinute += breakDuration;
-      maxFreeTime -= breakDuration;
-    }
-
-    if (maxFreeTime <= 0 || remainingStudyMinutes <= 0) continue;
-
-    // Insert Study Block
-    const currentInterval = Math.min(interval, remainingStudyMinutes, maxFreeTime);
-    let currentActivity = 'Deep Work Revision';
-    let currentTaskId = null;
-
-    if (activeTasks[taskIndex]) {
-      const activeTask = activeTasks[taskIndex];
-      currentActivity = `Work on: ${activeTask.title} (${activeTask.type})`;
-      currentTaskId = activeTask._id;
-      
-      let rem = taskHoursRemaining.get(activeTask._id.toString()) - (currentInterval / 60);
-      taskHoursRemaining.set(activeTask._id.toString(), rem);
-      if (rem <= 0) {
-        taskIndex++;
-      }
-    } else {
-      currentActivity = 'Formula / Core Concept Revision';
-    }
-
+  // Fallback if no Gemini key or API fails
+  if (generatedBlocks.length === 0) {
     blocks.push({
       startTime: formatTimeStr(currentMinute),
-      endTime: formatTimeStr(currentMinute + currentInterval),
-      activity: currentActivity,
+      endTime: formatTimeStr(currentMinute + 60),
+      activity: 'Fallback Study Session',
       category: 'study',
-      duration: currentInterval,
-      taskId: currentTaskId
+      duration: 60
     });
-
-    currentMinute += currentInterval;
-    remainingStudyMinutes -= currentInterval;
+    for (const lec of lectures) {
+      blocks.push({
+        startTime: formatTimeStr(lec.start),
+        endTime: formatTimeStr(lec.end),
+        activity: lec.unitName,
+        category: lec.activityType,
+        duration: lec.end - lec.start
+      });
+    }
+    blocks.sort((a, b) => {
+      const [ah, am] = a.startTime.split(':').map(Number);
+      const [bh, bm] = b.startTime.split(':').map(Number);
+      return (ah * 60 + am) - (bh * 60 + bm);
+    });
   }
 
   return { blocks, dateString };

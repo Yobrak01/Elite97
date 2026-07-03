@@ -44,7 +44,7 @@ exports.getWeeklyWorkout = async (req, res, next) => {
 
     // If no workouts exist for this week, generate them
     if (workouts.length === 0) {
-      const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable, req.user.timezone);
+      const weeklyPlan = await fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable, req.user.timezone);
 
       const ops = weeklyPlan.map(day => ({
         updateOne: {
@@ -102,7 +102,7 @@ exports.getTodayWorkout = async (req, res, next) => {
 
       // Generate the full week if it doesn't exist yet
       if (weekExists === 0) {
-        const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable, req.user.timezone);
+        const weeklyPlan = await fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable, req.user.timezone);
         
         const ops = weeklyPlan.map(day => ({
           updateOne: {
@@ -298,7 +298,7 @@ exports.regenerateWeeklyWorkout = async (req, res, next) => {
     });
 
     // Generate new workouts
-    const weeklyPlan = fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable, req.user.timezone);
+    const weeklyPlan = await fitnessEngine.generateWeeklyWorkoutPlan(mondayDate, req.user.timetable, req.user.timezone);
     
     const workoutDocs = weeklyPlan.map(day => ({
       user: req.user._id,
@@ -420,15 +420,15 @@ exports.getTodayRoutine = async (req, res, next) => {
         label = `Rest: ${lec.eventName || lec.unitName}`;
         icon = 'Moon';
         color = 'text-slate-400';
-        const personalStudyTimeLogs = logsToday
-    .filter(l => l.activityType === 'personal_study' || l.activityType === 'lecture' || l.activityType === 'group_discussion' || l.activityType === 'project')
-    .reduce((s, l) => s + (l.durationMinutes / 60), 0);
-    
-  // Use the sum of all logged time (not max). Session studyHours is the manual commit override;
-  // if a session was manually committed today, respect it; otherwise use the live time logs.
-  const studyHours = (session && session.studyHours > 0)
-    ? (session.studyHours + personalStudyTimeLogs)
-    : personalStudyTimeLogs;
+        bg = 'bg-slate-500/20';
+      }
+
+      return {
+        id: `lec_${index}`,
+        startTime: lec.startTime,
+        endTime: lec.endTime,
+        activity: lec.unitName,
+        category: 'lecture',
         label,
         icon,
         color,

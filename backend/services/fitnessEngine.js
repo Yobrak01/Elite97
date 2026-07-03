@@ -11,6 +11,18 @@
  * Day 6/7: Rest/Active Recovery
  */
 
+const { GoogleGenAI } = require('@google/genai');
+const { getStartOfDay } = require('../utils/dateUtils');
+
+const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+function calculateHours(startTime, endTime) {
+  const [sH, sM] = startTime.split(':').map(Number);
+  const [eH, eM] = endTime.split(':').map(Number);
+  return (eH + eM/60) - (sH + sM/60);
+}
+
+// Fallback DB if Gemini fails
 const EXERCISE_DB = {
   upper: [
     { name: 'Bench Press', targetMuscle: 'Chest', sets: 4, reps: '8-10' },
@@ -42,17 +54,7 @@ const EXERCISE_DB = {
   ]
 };
 
-const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-
-function calculateHours(startTime, endTime) {
-  const [sH, sM] = startTime.split(':').map(Number);
-  const [eH, eM] = endTime.split(':').map(Number);
-  return (eH + eM/60) - (sH + sM/60);
-}
-
-const { getStartOfDay } = require('../utils/dateUtils');
-
-function generateWeeklyWorkoutPlan(startDate, userTimetable = [], timezone = 'UTC') {
+async function generateWeeklyWorkoutPlan(startDate, userTimetable = [], timezone = 'UTC') {
   const plan = [];
   const start = getStartOfDay(timezone, new Date(startDate));
 
@@ -85,18 +87,57 @@ function generateWeeklyWorkoutPlan(startDate, userTimetable = [], timezone = 'UT
   const workouts = ['upper', 'lower', 'push', 'pull'];
   let workoutIdx = 0;
 
+  // Assign splits to days
+  const weekSplits = [];
   for (let i = 0; i < 7; i++) {
     const info = daysInfo[i];
     let split = 'rest';
-    
     if (workoutDaysList.includes(i) && workoutIdx < workouts.length) {
       split = workouts[workoutIdx++];
     }
+    weekSplits.push({ date: info.date, splitType: split });
+  }
 
+  // Use Gemini to generate exercises for this week's splits
+  let generatedExercises = {};
+  if (process.env.GEMINI_API_KEY) {
+    try {
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const prompt = `Generate a high-intensity gym workout plan for 4 distinct days: "upper", "lower", "push", and "pull".
+For each day, provide a list of exactly 4-5 exercises.
+Each exercise must have a name, targetMuscle, sets (number), and reps (string, e.g., "8-10" or "To failure").
+
+Return ONLY a JSON object exactly like this, nothing else:
+{
+  "upper": [ { "name": "Bench Press", "targetMuscle": "Chest", "sets": 4, "reps": "8-10" }, ... ],
+  "lower": [ ... ],
+  "push": [ ... ],
+  "pull": [ ... ]
+}`;
+      const response = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: prompt,
+      });
+      let text = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+      generatedExercises = JSON.parse(text);
+    } catch (error) {
+      console.error("Gemini Workout Generation Failed:", error);
+    }
+  }
+
+  // Assemble final plan
+  for (const day of weekSplits) {
+    let exercises = [];
+    if (day.splitType === 'rest') {
+      exercises = EXERCISE_DB['rest'].map(ex => ({ ...ex, completed: false }));
+    } else {
+      const sourceList = (generatedExercises && generatedExercises[day.splitType]) ? generatedExercises[day.splitType] : EXERCISE_DB[day.splitType];
+      exercises = sourceList.map(ex => ({ ...ex, completed: false }));
+    }
     plan.push({
-      date: info.date,
-      splitType: split,
-      exercises: EXERCISE_DB[split].map(ex => ({ ...ex, completed: false }))
+      date: day.date,
+      splitType: day.splitType,
+      exercises
     });
   }
 

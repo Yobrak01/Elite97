@@ -1024,14 +1024,14 @@ exports.getGlobalFeed = async (req, res, next) => {
 exports.getOracleProjections = async (req, res, next) => {
   try {
     const now = new Date();
-    const fourteenDaysAgo = new Date();
-    fourteenDaysAgo.setDate(fourteenDaysAgo.getDate() - 14);
-    fourteenDaysAgo.setHours(0, 0, 0, 0);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-    // Self-healing database repair: Recalculate/repair the last 14 days of analytics
+    // Self-healing database repair: Recalculate/repair the last 30 days of analytics
     // based on actual historical logs to fix corrupt records caused by past bugs.
     const timezone = req.user.timezone || 'Africa/Nairobi';
-    for (let i = 14; i >= 0; i--) {
+    for (let i = 30; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
       const dayStart = getStartOfDay(timezone, d);
@@ -1039,10 +1039,25 @@ exports.getOracleProjections = async (req, res, next) => {
       const tomorrow = new Date(dayStart);
       tomorrow.setDate(tomorrow.getDate() + 1);
       
-      const hasLogs = await TimeLog.exists({ user: req.user._id, date: { $gte: dayStart, $lt: tomorrow } });
+      const utcToday = new Date(d);
+      utcToday.setUTCHours(0, 0, 0, 0);
+      const utcTomorrow = new Date(utcToday);
+      utcTomorrow.setUTCDate(utcTomorrow.getUTCDate() + 1);
+
+      const hasLogs = await TimeLog.exists({
+        user: req.user._id,
+        $or: [
+          { date: { $gte: dayStart, $lt: tomorrow } },
+          { createdAt: { $gte: dayStart, $lt: tomorrow } },
+          { date: { $gte: utcToday, $lt: utcTomorrow } },
+          { createdAt: { $gte: utcToday, $lt: utcTomorrow } }
+        ]
+      });
+
       if (hasLogs) {
         const context = await buildContext(req.user._id, dayStart, req.user.streak || 0);
         
+        const existingAnalytics = await Analytics.findOne({ user: req.user._id, date: dayStart });
         let focusScore;
         if (context.timeLogFocusScore !== undefined) {
           focusScore = context.timeLogFocusScore;
@@ -1050,6 +1065,8 @@ exports.getOracleProjections = async (req, res, next) => {
           focusScore = context.session.focusScore;
         } else if (context.taskFocusScore !== undefined) {
           focusScore = context.taskFocusScore;
+        } else if (existingAnalytics && existingAnalytics.focusScore != null && existingAnalytics.focusScore > 0) {
+          focusScore = existingAnalytics.focusScore;
         } else {
           focusScore = analyticsEngine.calculateFocusScore(context);
         }
@@ -1098,7 +1115,7 @@ exports.getOracleProjections = async (req, res, next) => {
 
     const recentAnalytics = await Analytics.find({
       user: req.user._id,
-      date: { $gte: fourteenDaysAgo }
+      date: { $gte: thirtyDaysAgo }
     }).sort({ date: 1 });
 
     // Ensure we have some base GPA to pass to the engine
