@@ -62,8 +62,13 @@ async function buildContext(userId, today, streak) {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const utcToday = new Date(today);
-  utcToday.setUTCHours(0, 0, 0, 0);
+  // Compute UTC midnight boundaries for the same CALENDAR date.
+  // 'today' is EAT midnight (e.g., 2026-06-03T21:00:00Z for June 4 EAT).
+  // We need UTC midnight of June 4 for the fallback, not June 3.
+  // Use moment to get the correct local date string, then construct UTC boundaries.
+  const moment = require('moment-timezone');
+  const localDateStr = moment(today).add(3, 'hours').format('YYYY-MM-DD'); // Approximate EAT date
+  const utcToday = new Date(localDateStr + 'T00:00:00.000Z');
   const utcTomorrow = new Date(utcToday);
   utcTomorrow.setUTCDate(utcTomorrow.getUTCDate() + 1);
 
@@ -222,6 +227,12 @@ exports.getDashboard = async (req, res, next) => {
       focusScore = existingAnalytics.focusScore;
     } else {
       focusScore = analyticsEngine.calculateFocusScore(context);
+    }
+
+    // Study-hours floor: prevent absurdly low scores when metadata is sparse
+    if (context.studyHours >= 1) {
+      const floor = Math.min(60, Math.round(context.studyHours * 8));
+      focusScore = Math.max(focusScore, floor);
     }
     
     context.focusScore = focusScore;
@@ -418,6 +429,12 @@ exports.recalculateAnalytics = async (req, res, next) => {
       focusScore = existingAnalytics.focusScore;
     } else {
       focusScore = analyticsEngine.calculateFocusScore(context);
+    }
+
+    // Study-hours floor: prevent absurdly low scores when metadata is sparse
+    if (context.studyHours >= 1) {
+      const floor = Math.min(60, Math.round(context.studyHours * 8));
+      focusScore = Math.max(focusScore, floor);
     }
     context.focusScore = focusScore;
 
@@ -1015,6 +1032,7 @@ exports.getOracleProjections = async (req, res, next) => {
     // Self-healing database repair: Recalculate/repair the last 30 days of analytics
     // based on actual historical logs to fix corrupt records caused by past bugs.
     const timezone = req.user.timezone || 'Africa/Nairobi';
+    const moment = require('moment-timezone');
     for (let i = 30; i >= 0; i--) {
       const d = new Date();
       d.setDate(d.getDate() - i);
@@ -1023,8 +1041,9 @@ exports.getOracleProjections = async (req, res, next) => {
       const tomorrow = new Date(dayStart);
       tomorrow.setDate(tomorrow.getDate() + 1);
       
-      const utcToday = new Date(d);
-      utcToday.setUTCHours(0, 0, 0, 0);
+      // Compute correct UTC midnight for the same calendar date
+      const localDateStr = moment(d).tz(timezone).format('YYYY-MM-DD');
+      const utcToday = new Date(localDateStr + 'T00:00:00.000Z');
       const utcTomorrow = new Date(utcToday);
       utcTomorrow.setUTCDate(utcTomorrow.getUTCDate() + 1);
 
@@ -1053,6 +1072,14 @@ exports.getOracleProjections = async (req, res, next) => {
           focusScore = existingAnalytics.focusScore;
         } else {
           focusScore = analyticsEngine.calculateFocusScore(context);
+        }
+
+        // Study-hours floor: a student who logged significant hours should never
+        // get an absurdly low focus score just because metadata (breaks, sessions,
+        // subject variety) is sparse. Minimum = studyHours * 8, capped at 60.
+        if (context.studyHours >= 1) {
+          const floor = Math.min(60, Math.round(context.studyHours * 8));
+          focusScore = Math.max(focusScore, floor);
         }
         
         context.focusScore = focusScore;
