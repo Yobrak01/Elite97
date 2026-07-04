@@ -62,46 +62,20 @@ async function buildContext(userId, today, streak) {
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  // DEBUG: Log the date range being queried so we can trace 0.0 hrs issues
-  console.log('[buildContext] userId:', userId.toString(), 'today:', today.toISOString(), 'tomorrow:', tomorrow.toISOString());
+  const utcToday = new Date(today);
+  utcToday.setUTCHours(0, 0, 0, 0);
+  const utcTomorrow = new Date(utcToday);
+  utcTomorrow.setUTCDate(utcTomorrow.getUTCDate() + 1);
 
-  const logsToday = await TimeLog.find({ 
-    user: userId, 
-    date: { $gte: today, $lt: tomorrow } 
+  const effectiveLogs = await TimeLog.find({
+    user: userId,
+    $or: [
+      { date: { $gte: today, $lt: tomorrow } },
+      { createdAt: { $gte: today, $lt: tomorrow } },
+      { date: { $gte: utcToday, $lt: utcTomorrow } },
+      { createdAt: { $gte: utcToday, $lt: utcTomorrow } }
+    ]
   });
-
-  console.log('[buildContext] logsToday count:', logsToday.length, 'types:', logsToday.map(l => `${l.activityType}:${l.durationMinutes}min`).join(', '));
-
-  // If no logs found with date range, also try matching by createdAt as fallback
-  // This handles cases where the date field was not set correctly
-  let effectiveLogs = logsToday;
-  if (logsToday.length === 0) {
-    const fallbackLogs = await TimeLog.find({
-      user: userId,
-      createdAt: { $gte: today, $lt: tomorrow }
-    });
-    if (fallbackLogs.length > 0) {
-      console.log('[buildContext] FALLBACK: Found', fallbackLogs.length, 'logs by createdAt that were missed by date field');
-      effectiveLogs = fallbackLogs;
-    } else {
-      // Third attempt: try UTC midnight boundaries (catches pre-timezone-fix logs)
-      const utcToday = new Date();
-      utcToday.setUTCHours(0, 0, 0, 0);
-      const utcTomorrow = new Date(utcToday);
-      utcTomorrow.setUTCDate(utcTomorrow.getUTCDate() + 1);
-      const utcFallbackLogs = await TimeLog.find({
-        user: userId,
-        $or: [
-          { date: { $gte: utcToday, $lt: utcTomorrow } },
-          { createdAt: { $gte: utcToday, $lt: utcTomorrow } }
-        ]
-      });
-      if (utcFallbackLogs.length > 0) {
-        console.log('[buildContext] UTC FALLBACK: Found', utcFallbackLogs.length, 'logs using UTC midnight boundaries');
-        effectiveLogs = utcFallbackLogs;
-      }
-    }
-  }
   
   // Sum completed time logs for study-related activities
   const studyActivityTypes = ['personal_study', 'lecture', 'group_discussion', 'project'];
