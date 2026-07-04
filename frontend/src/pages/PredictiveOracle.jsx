@@ -84,7 +84,7 @@ export const PredictiveOracle = () => {
         <div className={`glass-panel p-4 rounded-2xl border flex flex-col items-end gap-1 shadow-lg transition-colors ${theme.border} ${
           isDeclining ? 'shadow-[0_0_30px_rgba(239,68,68,0.15)]' : isAccelerating ? 'shadow-[0_0_30px_rgba(6,182,212,0.15)]' : 'shadow-[0_0_30px_rgba(245,158,11,0.15)]'
         }`}>
-          <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Timeline Constraint</p>
+          <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Time Until Deadline</p>
           <div className="flex items-center gap-2">
             <Clock className="w-4 h-4 text-white" />
             <p className="text-xl font-black text-white">{timeline.timeRemainingStr}</p>
@@ -117,13 +117,13 @@ export const PredictiveOracle = () => {
           <p className={`text-4xl font-black ${theme.text}`}>
             {trajectoryVector > 0 ? '+' : ''}{trajectoryVector}
           </p>
-          <p className="text-xs text-slate-400 mt-2 font-semibold">Daily delta derived from historical matrices.</p>
+          <p className="text-xs text-slate-400 mt-2 font-semibold">Your daily focus momentum based on recent habits.</p>
         </div>
 
         {/* Global Matrix Consequence */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5 relative overflow-hidden">
           <div className="flex items-center justify-between mb-4 relative z-10">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Predicted Matrix Rank</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Predicted Class Standing</h3>
             <Globe className="w-4 h-4 text-white" />
           </div>
           <p className="text-4xl font-black text-white relative z-10">
@@ -146,7 +146,7 @@ export const PredictiveOracle = () => {
           <p className={`text-4xl font-black ${projections.burnoutHorizon && projections.burnoutHorizon.includes('Critical') ? 'text-red-500 animate-pulse' : 'text-white'}`}>
             {projections.burnoutHorizon}
           </p>
-          <p className="text-xs text-slate-400 mt-2 font-semibold">Estimated time until complete burnout.</p>
+          <p className="text-xs text-slate-400 mt-2 font-semibold">Estimated time before fatigue compromises performance.</p>
         </div>
       </div>
 
@@ -154,8 +154,8 @@ export const PredictiveOracle = () => {
       <div className="glass-panel rounded-3xl p-6 border border-white/5 mt-6 h-[400px]">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-sm font-black text-white uppercase tracking-widest">Focus Trajectory Simulation</h3>
-            <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">Past 14 Days vs Future 14 Days Extrapolation</p>
+            <h3 className="text-sm font-black text-white uppercase tracking-widest">Focus Trend Analysis</h3>
+            <p className="text-[10px] text-slate-500 uppercase tracking-wider mt-1">Reviewing your past 2 weeks to guide the next 2 weeks</p>
           </div>
         </div>
 
