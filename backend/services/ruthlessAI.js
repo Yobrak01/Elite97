@@ -1,31 +1,5 @@
 // ruthlessAI.js
 
-const PUNITIVE_CRITIQUES = [
-  "You call this effort? Phantom-9 outworked you while you were sleeping. Pathetic.",
-  "Circadian breach detected. Are you even trying to compete?",
-  "Your focus score is abysmal. The global matrix leaves the weak behind.",
-  "Streak broken. Discipline shattered. You are sliding into mediocrity.",
-  "Another day of sub-optimal performance. Your MIT counterparts are laughing.",
-  "Overdue tasks detected. Stop making excuses and execute.",
-  "You are currently operating at a fraction of your capacity. Wake up.",
-  "This is why you are dropping in the ranks. Unacceptable work ethic today."
-];
-
-const WARNING_CRITIQUES = [
-  "You are hovering on the edge of failure. Correct your trajectory immediately.",
-  "Your performance is barely adequate. Step it up or face the punitive penalty.",
-  "Focus is drifting. Re-establish the anchor before you lose the day.",
-  "I'm seeing a drop in task completion. Do not let this become a habit."
-];
-
-const APPROVAL_CRITIQUES = [
-  "Alpha Overdrive maintained. You are dominating the matrix today.",
-  "Circadian anchor locked. Focus parameters optimal. Excellent discipline.",
-  "The elite cohort is taking notice. Keep pushing the boundaries.",
-  "Zero overdue tasks. High focus. This is what peak performance looks like.",
-  "Adequate execution today. Do not falter tomorrow."
-];
-
 function generateCritique(context) {
   const {
     circadianStatus,
@@ -36,32 +10,32 @@ function generateCritique(context) {
     overdueTasksCount = 0
   } = context;
 
-  // 1. Check for critical failures (Punitive)
+  // 1. Check for critical failures (Action Required)
   if (circadianStatus === 'breached') {
     return {
       severity: 'punitive',
-      text: "Circadian breach logged. You slept in. Phantom-9 outworked you by 4 hours today. Pathetic."
+      text: "Circadian rhythm off-balance today. Rest is important, but let's reset the anchor tomorrow and get back on track."
     };
   }
 
   if (streak === 0) {
     return {
       severity: 'punitive',
-      text: "Streak broken. Discipline shattered. You are sliding into mediocrity."
+      text: "Streak broken. It happens to the best of us. What matters now is taking that first step to rebuild your discipline today."
     };
   }
 
   if (focusScore < 40) {
     return {
       severity: 'punitive',
-      text: `Your focus score is ${focusScore}%. The global matrix leaves the weak behind. Disgraceful.`
+      text: `Your focus score is ${focusScore}%. The matrix sees you're distracted. Take a breather, clear your mind, and let's lock back in.`
     };
   }
 
   if (overdueTasksCount > 2) {
     return {
       severity: 'punitive',
-      text: `${overdueTasksCount} overdue tasks detected. Stop making excuses and execute.`
+      text: `${overdueTasksCount} overdue tasks detected. The workload is piling up. Let's tackle the smallest one first to build momentum.`
     };
   }
 
@@ -69,21 +43,21 @@ function generateCritique(context) {
   if (trendWorsening && focusScore < 60) {
     return {
       severity: 'warning',
-      text: "You are hovering on the edge of failure. Correct your trajectory immediately."
+      text: "I'm noticing a slight dip in your performance trend. Let's analyze what's causing the friction and adjust your trajectory."
     };
   }
 
   if (focusScore >= 40 && focusScore < 70) {
     return {
       severity: 'warning',
-      text: "Your performance is barely adequate. Step it up or face the punitive penalty."
+      text: "You're making progress, but there's room for optimization. Let's eliminate distractions and push for a higher focus state."
     };
   }
 
   if (tasksCompleted === 0) {
     return {
       severity: 'warning',
-      text: "Zero tasks completed so far today. Are you going to work, or just stare at the dashboard?"
+      text: "No tasks completed yet today. Every master was once a beginner—let's knock out one task right now and get the gears turning."
     };
   }
 
@@ -91,21 +65,21 @@ function generateCritique(context) {
   if (circadianStatus === 'success' && focusScore >= 85) {
     return {
       severity: 'approval',
-      text: "Circadian anchor locked. Focus parameters optimal. You are dominating the matrix today."
+      text: "Circadian anchor locked and focus parameters are highly optimal. You're operating at elite efficiency today. Keep it up!"
     };
   }
 
   if (focusScore >= 80 && overdueTasksCount === 0) {
     return {
       severity: 'approval',
-      text: "Zero overdue tasks. High focus. This is what peak performance looks like."
+      text: "Zero overdue tasks and solid focus. This is what peak, sustainable performance looks like in the matrix."
     };
   }
 
   // 4. Default / Neutral
   return {
     severity: 'neutral',
-    text: "System nominal. Keep pushing. Do not let your guard down."
+    text: "System running smoothly. Maintain your current pace, stay hydrated, and keep pushing forward."
   };
 }
 

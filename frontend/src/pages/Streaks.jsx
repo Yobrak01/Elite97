@@ -73,9 +73,9 @@ export const Streaks = () => {
             <Flame className="h-8 w-8 text-orange-400 drop-shadow-[0_0_10px_rgba(249,115,22,0.8)] animate-pulse" />
           </div>
           <div>
-            <h1 className="text-3xl md:text-5xl font-display font-black tracking-[0.3em] text-white uppercase drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]">DISCIPLINE STREAKS</h1>
-            <p className="text-xs text-orange-400 font-bold uppercase tracking-[0.4em] mt-2">
-              Forge Unbreakable Habits
+            <h1 className="text-3xl md:text-5xl font-display font-black tracking-widest text-white drop-shadow-[0_0_15px_rgba(249,115,22,0.5)]">Discipline Streaks</h1>
+            <p className="text-xs text-orange-400 font-bold uppercase tracking-widest mt-2">
+              Build Consistency, One Day at a Time
             </p>
           </div>
         </div>
@@ -95,10 +95,10 @@ export const Streaks = () => {
           <button
             type="submit"
             disabled={!newStreakTitle.trim()}
-            className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white rounded-xl font-bold tracking-widest text-xs uppercase disabled:opacity-50 transition-all shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)]"
+            className="flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-500 hover:to-red-500 text-white rounded-xl font-bold tracking-wider text-sm disabled:opacity-50 transition-all shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:shadow-[0_0_25px_rgba(249,115,22,0.5)]"
           >
             <Plus className="h-4 w-4" />
-            Establish Vector
+            Start New Streak
           </button>
         </form>
       </div>
@@ -108,8 +108,8 @@ export const Streaks = () => {
         <div className="glass-panel rounded-3xl p-12 text-center border border-white/5 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-orange-500/5 opacity-50"></div>
           <Flame className="h-16 w-16 text-slate-700 mx-auto mb-4 relative z-10" />
-          <h3 className="text-xl font-black text-slate-400 relative z-10">No Active Vectors</h3>
-          <p className="text-slate-500 mt-2 font-medium relative z-10">Define your first discipline vector above to begin the sequence.</p>
+          <h3 className="text-xl font-black text-slate-400 relative z-10">No Active Streaks</h3>
+          <p className="text-slate-500 mt-2 font-medium relative z-10">Add your first discipline streak above to start building unbreakable habits!</p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -133,7 +133,7 @@ export const Streaks = () => {
                 <button
                   onClick={() => handleDelete(streak._id)}
                   className="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-400/10 transition-colors"
-                  title="Terminate Vector"
+                  title="Delete Streak"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -141,17 +141,17 @@ export const Streaks = () => {
 
               <div className="mt-auto pt-4 border-t border-white/5 z-10 relative">
                 {isCompletedToday ? (
-                  <div className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-bold uppercase tracking-widest">
+                  <div className="flex items-center justify-center gap-2 w-full py-3 bg-emerald-500/10 border border-emerald-500/20 rounded-xl text-emerald-400 text-xs font-bold uppercase tracking-wider">
                     <Check className="h-4 w-4" />
-                    Verified Today
+                    Completed Today
                   </div>
                 ) : (
                   <button
                     onClick={() => handleComplete(streak._id)}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-orange-500/20 border border-white/10 hover:border-orange-500/50 rounded-xl text-white hover:text-orange-400 text-xs font-bold uppercase tracking-widest transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-white/5 hover:bg-orange-500/20 border border-white/10 hover:border-orange-500/50 rounded-xl text-white hover:text-orange-400 text-xs font-bold uppercase tracking-wider transition-all"
                   >
                     <Check className="h-4 w-4" />
-                    Validate Execution
+                    Mark Completed Today
                   </button>
                 )}
               </div>

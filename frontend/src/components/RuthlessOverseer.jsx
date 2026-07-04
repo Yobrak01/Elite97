@@ -30,12 +30,12 @@ const RuthlessOverseer = ({ critique, severity }) => {
     switch (severity) {
       case 'punitive':
         return {
-          border: 'border-red-500/50',
-          bg: 'bg-red-950/30',
+          border: 'border-red-500/30',
+          bg: 'bg-red-900/20',
           icon: <ShieldAlert className="w-5 h-5 text-red-500" />,
           titleColor: 'text-red-500',
           textColor: 'text-red-400',
-          shadow: 'shadow-[0_0_30px_rgba(239,68,68,0.15)]',
+          shadow: 'shadow-[0_0_20px_rgba(239,68,68,0.10)]',
           glow: 'text-glow-red'
         };
       case 'warning':
@@ -82,7 +82,7 @@ const RuthlessOverseer = ({ critique, severity }) => {
         <div className="flex items-center gap-2">
           {styles.icon}
           <span className={`text-xs font-black uppercase tracking-widest ${styles.titleColor} ${styles.glow}`}>
-            RUTHLESS OVERSEER
+            NEURAL GUIDE
           </span>
         </div>
         <div className="flex gap-1.5">

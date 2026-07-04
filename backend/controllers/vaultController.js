@@ -3,62 +3,7 @@ const Flashcard = require('../models/Flashcard');
 const CourseUnit = require('../models/CourseUnit');
 const vaultGenerator = require('../services/vaultGenerator');
 
-// --- NOTES ---
 
-exports.getNotes = async (req, res, next) => {
-  try {
-    const notes = await Note.find({ user: req.user._id }).sort({ updatedAt: -1 }).populate('courseUnit', 'unitCode unitName');
-    res.status(200).json({ success: true, data: notes });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.createNote = async (req, res, next) => {
-  try {
-    const { title, content, courseUnit, tags } = req.body;
-    const note = await Note.create({
-      user: req.user._id,
-      title,
-      content,
-      courseUnit: courseUnit || undefined,
-      tags: tags || []
-    });
-    
-    // Populate before returning so frontend gets course info immediately
-    if (note.courseUnit) {
-      await note.populate('courseUnit', 'unitCode unitName');
-    }
-    res.status(201).json({ success: true, data: note });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.updateNote = async (req, res, next) => {
-  try {
-    const note = await Note.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
-      req.body,
-      { new: true, runValidators: true }
-    ).populate('courseUnit', 'unitCode unitName');
-    
-    if (!note) return res.status(404).json({ success: false, error: 'Note not found' });
-    res.status(200).json({ success: true, data: note });
-  } catch (error) {
-    next(error);
-  }
-};
-
-exports.deleteNote = async (req, res, next) => {
-  try {
-    const note = await Note.findOneAndDelete({ _id: req.params.id, user: req.user._id });
-    if (!note) return res.status(404).json({ success: false, error: 'Note not found' });
-    res.status(200).json({ success: true, data: {} });
-  } catch (error) {
-    next(error);
-  }
-};
 
 
 // --- FLASHCARDS ---

@@ -11,11 +11,7 @@ const upload = multer({
 
 router.use(authMiddleware);
 
-// --- NOTES ---
-router.get('/notes', vaultController.getNotes);
-router.post('/notes', vaultController.createNote);
-router.patch('/notes/:id', vaultController.updateNote);
-router.delete('/notes/:id', vaultController.deleteNote);
+
 
 // --- FLASHCARDS ---
 router.get('/flashcards', vaultController.getFlashcards);

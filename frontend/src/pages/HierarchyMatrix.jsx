@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Globe, Trophy, TrendingUp, TrendingDown, Minus, Target, Flame, Cpu, Eye, Activity } from 'lucide-react';
+import { Globe, Trophy, TrendingUp, TrendingDown, Minus, Target, Flame, User, UserCheck, Activity } from 'lucide-react';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import GlobalFeed from '../components/GlobalFeed';
@@ -44,7 +44,7 @@ export const HierarchyMatrix = () => {
       <div className="flex h-screen items-center justify-center">
         <div className="relative flex flex-col items-center justify-center space-y-4">
           <Globe className="h-16 w-16 animate-pulse text-cyan-500/50" />
-          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400 animate-pulse">Syncing Global Matrix...</div>
+          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400 animate-pulse">Loading Community Leaderboard...</div>
         </div>
       </div>
     );
@@ -63,11 +63,11 @@ export const HierarchyMatrix = () => {
           <div className="flex items-center gap-3 mb-2">
             <Globe className="h-6 w-6 text-cyan-400" />
             <h1 className="text-3xl md:text-4xl font-display font-light tracking-[0.5em] text-white uppercase text-glow-cyan">
-              GLOBAL HIERARCHY
+              COMMUNITY LEADERBOARD
             </h1>
           </div>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest pl-9">
-            Anonymous performance ranking across the elite cohort.
+            See how you're growing alongside other engineering students.
           </p>
         </div>
         
@@ -135,7 +135,7 @@ export const HierarchyMatrix = () => {
               <tr className="bg-black/40 text-[9px] font-black uppercase tracking-[0.2em] text-slate-500 border-b border-white/5">
                 <th className="p-4 pl-6 text-center w-20">Rank</th>
                 <th className="p-4 w-16 text-center">Trend</th>
-                <th className="p-4">Alias / Designation</th>
+                <th className="p-4">Student</th>
                 <th className="p-4 text-center">Composite Score</th>
                 <th className="p-4 text-center">Focus Rating</th>
                 <th className="p-4 pr-6 text-right">Study Hours</th>
@@ -165,11 +165,11 @@ export const HierarchyMatrix = () => {
                     <div className="flex items-center gap-3">
                       {player.isUser ? (
                         <div className="p-1.5 rounded-lg bg-cyan-500/20 text-cyan-400">
-                          <Eye className="w-4 h-4" />
+                          <UserCheck className="w-4 h-4" />
                         </div>
                       ) : (
                         <div className="p-1.5 rounded-lg bg-white/5 text-slate-500">
-                          <Cpu className="w-4 h-4" />
+                          <User className="w-4 h-4" />
                         </div>
                       )}
                       <div>

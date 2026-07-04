@@ -12,14 +12,14 @@ function mulberry32(a) {
 }
 
 const ACTION_TEMPLATES = [
-  { text: "{alias} logged {hours} hours of Deep Focus.", type: "study", severity: "high" },
-  { text: "{alias} completed a {count}-task sprint.", type: "task", severity: "medium" },
-  { text: "{alias} breached the Circadian Anchor. Sliding down the Hierarchy.", type: "penalty", severity: "punitive" },
-  { text: "{alias} locked in the Alpha Overdrive. Focus at 98%.", type: "achievement", severity: "elite" },
-  { text: "{alias} submitted a major project 3 days early.", type: "task", severity: "high" },
-  { text: "{alias}'s discipline streak reached {streak} days.", type: "streak", severity: "elite" },
-  { text: "{alias} dropped 4 ranks due to low productivity.", type: "penalty", severity: "punitive" },
-  { text: "{alias} engaged Neural Override mode.", type: "study", severity: "high" }
+  { text: "{alias} logged {hours} hours of deep study.", type: "study", severity: "high" },
+  { text: "{alias} finished a {count}-task study sprint.", type: "task", severity: "medium" },
+  { text: "{alias} missed their morning routine. Time to bounce back!", type: "penalty", severity: "punitive" },
+  { text: "{alias} is in deep focus mode. 98% focus rating!", type: "achievement", severity: "elite" },
+  { text: "{alias} submitted a major project 3 days early. Amazing work!", type: "task", severity: "high" },
+  { text: "{alias}'s study streak reached {streak} days. Consistency!", type: "streak", severity: "elite" },
+  { text: "{alias} had a tough week but is bouncing back.", type: "penalty", severity: "punitive" },
+  { text: "{alias} just crushed a major study session.", type: "study", severity: "high" }
 ];
 
 /**

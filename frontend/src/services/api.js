@@ -448,12 +448,6 @@ export const api = {
       return handleResponse(res);
     }
   },
-  streaks: {
-    getAll: async () => handleResponse(await fetch(`${API_URL}/streaks`, { headers: getHeaders() })),
-    create: async (title) => handleResponse(await fetch(`${API_URL}/streaks`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ title }) })),
-    complete: async (id) => handleResponse(await fetch(`${API_URL}/streaks/${id}/complete`, { method: 'PATCH', headers: getHeaders() })),
-    delete: async (id) => handleResponse(await fetch(`${API_URL}/streaks/${id}`, { method: 'DELETE', headers: getHeaders() }))
-  },
   life: {
     getWeeklyWorkout: async () => {
       const res = await fetch(`${API_URL}/life/workout/weekly`, {
@@ -529,34 +523,7 @@ export const api = {
     }
   },
   vault: {
-    // Notes
-    getNotes: async () => {
-      const res = await fetch(`${API_URL}/vault/notes`, { headers: getHeaders() });
-      return handleResponse(res);
-    },
-    createNote: async (data) => {
-      const res = await fetch(`${API_URL}/vault/notes`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-      });
-      return handleResponse(res);
-    },
-    updateNote: async (id, data) => {
-      const res = await fetch(`${API_URL}/vault/notes/${id}`, {
-        method: 'PATCH',
-        headers: getHeaders(),
-        body: JSON.stringify(data)
-      });
-      return handleResponse(res);
-    },
-    deleteNote: async (id) => {
-      const res = await fetch(`${API_URL}/vault/notes/${id}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      });
-      return handleResponse(res);
-    },
+
     // Flashcards
     getFlashcards: async () => {
       const res = await fetch(`${API_URL}/vault/flashcards`, { headers: getHeaders() });
@@ -606,34 +573,7 @@ export const api = {
       return handleResponse(res);
     }
   },
-  streaks: {
-    getAll: async () => {
-      const res = await fetch(`${API_URL}/streaks`, { headers: getHeaders() });
-      return handleResponse(res);
-    },
-    create: async (title) => {
-      const res = await fetch(`${API_URL}/streaks`, {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({ title })
-      });
-      return handleResponse(res);
-    },
-    complete: async (id) => {
-      const res = await fetch(`${API_URL}/streaks/${id}/complete`, {
-        method: 'PATCH',
-        headers: getHeaders()
-      });
-      return handleResponse(res);
-    },
-    delete: async (id) => {
-      const res = await fetch(`${API_URL}/streaks/${id}`, {
-        method: 'DELETE',
-        headers: getHeaders()
-      });
-      return handleResponse(res);
-    }
-  },
+
   notes: {
     getAll: async () => {
       const res = await fetch(`${API_URL}/notes`, { headers: getHeaders() });

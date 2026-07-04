@@ -304,8 +304,8 @@ const GymTab = () => {
       ) : exercises.length === 0 ? (
         <div className="glass-panel rounded-2xl border border-white/5 p-12 text-center">
           <Dumbbell className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-          <p className="text-sm font-bold text-slate-400">No workout scheduled for today.</p>
-          <p className="text-xs text-slate-500 mt-1">Generate a weekly plan or enter a manual workout to get started.</p>
+          <p className="text-sm font-bold text-slate-400">Rest day or no workout scheduled.</p>
+          <p className="text-xs text-slate-500 mt-1">Take time to recover, generate a new plan, or enter a manual workout.</p>
         </div>
       ) : (
         <div className="grid gap-3">
@@ -599,7 +599,7 @@ const PantryTab = () => {
           </div>
           <div>
             <h3 className="text-lg font-black tracking-wider text-white uppercase">My Pantry</h3>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Configure your available foods</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Manage your nourishment sources</p>
           </div>
         </div>
         <button
@@ -724,22 +724,18 @@ const RoutineTab = () => {
     }
   };
 
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
+  const [currentTotalMinutes, setCurrentTotalMinutes] = useState(() => {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+  });
 
-  const parseTime = (timeStr) => {
-    const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
-    if (!match) return 0;
-    let hours = parseInt(match[1]);
-    const minutes = parseInt(match[2]);
-    const period = match[3].toUpperCase();
-    if (period === 'PM' && hours !== 12) hours += 12;
-    if (period === 'AM' && hours === 12) hours = 0;
-    return hours * 60 + minutes;
-  };
-
-  const currentTotalMinutes = currentHour * 60 + currentMinute;
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setCurrentTotalMinutes(now.getHours() * 60 + now.getMinutes());
+    }, 60000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -750,7 +746,7 @@ const RoutineTab = () => {
         </div>
         <div>
           <h3 className="text-lg font-black tracking-wider text-white uppercase">Daily Blueprint</h3>
-          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Optimized routine for peak performance</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Your personalized daily rhythm for balanced performance</p>
         </div>
       </div>
 
@@ -863,9 +859,9 @@ export const Lifestyle = () => {
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">LIFESTYLE COMMAND</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">VITALITY HUB</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
-            Gym • Nutrition • Daily Operations
+            Fitness • Nutrition • Daily Rhythm
           </p>
         </div>
       </div>

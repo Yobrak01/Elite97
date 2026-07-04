@@ -16,6 +16,7 @@ const oracleEngine = require('../services/oracleEngine');
 
 const User = require('../models/User');
 const { getStartOfDay, getEndOfDay } = require('../utils/dateUtils');
+const moment = require('moment-timezone');
 
 // Helper function to build comprehensive context
 async function buildContext(userId, today, streak) {
@@ -66,7 +67,6 @@ async function buildContext(userId, today, streak) {
   // 'today' is EAT midnight (e.g., 2026-06-03T21:00:00Z for June 4 EAT).
   // We need UTC midnight of June 4 for the fallback, not June 3.
   // Use moment to get the correct local date string, then construct UTC boundaries.
-  const moment = require('moment-timezone');
   const localDateStr = moment(today).add(3, 'hours').format('YYYY-MM-DD'); // Approximate EAT date
   const utcToday = new Date(localDateStr + 'T00:00:00.000Z');
   const utcTomorrow = new Date(utcToday);

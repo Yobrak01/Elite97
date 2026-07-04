@@ -13,6 +13,20 @@ exports.getStreaks = async (req, res, next) => {
       .skip(skip)
       .limit(limit);
 
+    // Reset broken streaks
+    const todayStr = getLocalDateString(req.user.timezone, new Date());
+    const yesterdayStr = getLocalDateString(req.user.timezone, new Date(Date.now() - 86400000));
+    
+    for (let streak of streaks) {
+      if (streak.lastCompletedDate && streak.currentStreak > 0) {
+        const lastCompletedStr = getLocalDateString(req.user.timezone, new Date(streak.lastCompletedDate));
+        if (lastCompletedStr !== todayStr && lastCompletedStr !== yesterdayStr) {
+          streak.currentStreak = 0;
+          await streak.save();
+        }
+      }
+    }
+
     res.status(200).json({
       success: true,
       data: streaks,

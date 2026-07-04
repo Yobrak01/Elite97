@@ -341,18 +341,18 @@ exports.getTodayRoutine = async (req, res, next) => {
     const sleepTimeMinutes = parseTimeStr(req.user?.settings?.sleepTime, 1350);
 
     const BASELINE_ROUTINE = [
-      { time: formatTime12h(wakeTimeMinutes), minutes: wakeTimeMinutes, label: 'Wake Up', icon: 'Sunrise', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Rise early. No snooze. Discipline starts here.' },
-      { time: formatTime12h(wakeTimeMinutes + 15), minutes: wakeTimeMinutes + 15, label: 'Morning Routine', icon: 'ShowerHead', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Shower, brush teeth, skincare, get dressed.' },
-      { time: formatTime12h(wakeTimeMinutes + 45), minutes: wakeTimeMinutes + 45, label: 'Breakfast Prep & Eat', icon: 'Coffee', color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Cook a proper breakfast. High protein, complex carbs.' },
-      { time: formatTime12h(wakeTimeMinutes + 90), minutes: wakeTimeMinutes + 90, label: 'Morning Study Block', icon: 'BookOpen', color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Deep focus study session. Most important tasks first.' },
-      { time: '12:30 PM', minutes: 750, label: 'Lunch Prep & Eat', icon: 'UtensilsCrossed', color: 'text-green-400', bg: 'bg-green-500/10', description: 'Cook lunch. Balanced meal with vegetables.' },
-      { time: '1:15 PM', minutes: 795, label: 'Afternoon Study Block', icon: 'BookOpen', color: 'text-purple-400', bg: 'bg-purple-500/10', description: 'Continued studying or coursework.' },
-      { time: '5:00 PM', minutes: 1020, label: 'Gym Session', icon: 'Dumbbell', color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'Strength training. Follow the weekly split.' },
-      { time: '6:30 PM', minutes: 1110, label: 'Cooking & Dinner', icon: 'UtensilsCrossed', color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Prepare dinner. Meal prep for tomorrow if possible.' },
-      { time: '7:30 PM', minutes: 1170, label: 'Evening Study', icon: 'BookOpen', color: 'text-indigo-400', bg: 'bg-indigo-500/10', description: 'Review notes, assignments, lighter study tasks.' },
-      { time: '9:00 PM', minutes: 1260, label: 'Cleaning / Laundry', icon: 'Shirt', color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Dishes, wipe surfaces, take out trash, laundry cycle.' },
-      { time: formatTime12h(sleepTimeMinutes - 30), minutes: sleepTimeMinutes - 30, label: 'Wind Down', icon: 'Sunset', color: 'text-pink-400', bg: 'bg-pink-500/10', description: 'No screens. Read, stretch, plan tomorrow.' },
-      { time: formatTime12h(sleepTimeMinutes), minutes: sleepTimeMinutes, label: 'Sleep', icon: 'BedDouble', color: 'text-slate-400', bg: 'bg-slate-500/10', description: 'Get enough sleep. Non-negotiable recovery.' }
+      { time: formatTime12h(wakeTimeMinutes), minutes: wakeTimeMinutes, label: 'Wake Up', icon: 'Sunrise', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Time to rise and shine! A strong morning sets the tone for a great day.' },
+      { time: formatTime12h(wakeTimeMinutes + 15), minutes: wakeTimeMinutes + 15, label: 'Morning Routine', icon: 'ShowerHead', color: 'text-amber-400', bg: 'bg-amber-500/10', description: 'Shower, brush teeth, skincare, and get ready for the day.' },
+      { time: formatTime12h(wakeTimeMinutes + 45), minutes: wakeTimeMinutes + 45, label: 'Breakfast Prep & Eat', icon: 'Coffee', color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Fuel up! A balanced breakfast is essential for cognitive performance.' },
+      { time: formatTime12h(wakeTimeMinutes + 90), minutes: wakeTimeMinutes + 90, label: 'Morning Study Block', icon: 'BookOpen', color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Deep focus time. Tackle your most important goals first.' },
+      { time: '12:30 PM', minutes: 750, label: 'Lunch Prep & Eat', icon: 'UtensilsCrossed', color: 'text-green-400', bg: 'bg-green-500/10', description: 'Recharge with a balanced meal and a moment to relax.' },
+      { time: '1:15 PM', minutes: 795, label: 'Afternoon Study Block', icon: 'BookOpen', color: 'text-purple-400', bg: 'bg-purple-500/10', description: 'Keep the momentum going with continued coursework.' },
+      { time: '5:00 PM', minutes: 1020, label: 'Gym Session', icon: 'Dumbbell', color: 'text-emerald-400', bg: 'bg-emerald-500/10', description: 'Physical vitality. Follow your weekly training split.' },
+      { time: '6:30 PM', minutes: 1110, label: 'Cooking & Dinner', icon: 'UtensilsCrossed', color: 'text-orange-400', bg: 'bg-orange-500/10', description: 'Prepare a hearty dinner to restore your energy.' },
+      { time: '7:30 PM', minutes: 1170, label: 'Evening Study', icon: 'BookOpen', color: 'text-indigo-400', bg: 'bg-indigo-500/10', description: 'Light review, assignments, or wrapping up the day\'s tasks.' },
+      { time: '9:00 PM', minutes: 1260, label: 'Cleaning / Laundry', icon: 'Shirt', color: 'text-yellow-400', bg: 'bg-yellow-500/10', description: 'Tidy up your space for a clear and peaceful mind.' },
+      { time: formatTime12h(sleepTimeMinutes - 30), minutes: sleepTimeMinutes - 30, label: 'Wind Down', icon: 'Sunset', color: 'text-pink-400', bg: 'bg-pink-500/10', description: 'Disconnect from screens. Read, stretch, and relax.' },
+      { time: formatTime12h(sleepTimeMinutes), minutes: sleepTimeMinutes, label: 'Sleep', icon: 'BedDouble', color: 'text-slate-400', bg: 'bg-slate-500/10', description: 'Rest well. Quality sleep is your best tool for recovery.' }
     ];
 
     // Get today's lectures from timetable

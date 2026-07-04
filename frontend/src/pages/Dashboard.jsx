@@ -107,10 +107,10 @@ export const Dashboard = () => {
     setSubmitError('');
     try {
       await api.sessions.create({
-        studyHours: Number(studyHours),
-        focusScore: Number(focusScore),
-        breaks: Number(breaks),
-        subjects: subjects.split(',').map(s => s.trim()),
+        studyHours: Number(studyHours) || 0,
+        focusScore: Number(focusScore) || 0,
+        breaks: Number(breaks) || 0,
+        subjects: subjects.split(',').map(s => s.trim()).filter(Boolean),
         notes
       });
       setShowLogModal(false);
@@ -183,7 +183,7 @@ export const Dashboard = () => {
         <div>
           <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">ELITE DASHBOARD</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
-            Student node: <span className="text-cyan-400 font-black">ACTIVE</span> • Operations: <span className="text-blue-400 font-black">NOMINAL</span>
+            Student node: <span className="text-cyan-400 font-black">ACTIVE</span> • Status: <span className="text-blue-400 font-black">OPTIMAL</span>
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -227,8 +227,8 @@ export const Dashboard = () => {
           <div className="flex items-center gap-3">
             <AlertTriangle className="h-6 w-6 text-red-400" />
             <div>
-              <h4 className="text-sm font-bold text-white tracking-wide">Priority Escalation: Tasks Due!</h4>
-              <p className="text-xs text-red-200 mt-0.5">You have {dueTodayOrOverdue.length} pending task(s) that are due today or overdue. Priority auto-escalated to Critical.</p>
+              <h4 className="text-sm font-bold text-white tracking-wide">Focus Protocol: Tasks Due!</h4>
+              <p className="text-xs text-red-200 mt-0.5">You have {dueTodayOrOverdue.length} pending task(s) that are due today or overdue. Let's knock them out.</p>
             </div>
           </div>
           <button onClick={() => navigate('/tasks')} className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">
@@ -314,7 +314,7 @@ export const Dashboard = () => {
                 </div>
                 <div>
                   <h2 className="text-lg font-black uppercase tracking-wider text-white">Daily Reflection</h2>
-                  <p className="text-xs text-slate-400 font-semibold">Commit to the Grid</p>
+                  <p className="text-xs text-slate-400 font-semibold">Save Session to Matrix</p>
                 </div>
               </div>
               <button 
@@ -400,7 +400,7 @@ export const Dashboard = () => {
                 disabled={submitting}
                 className="w-full py-3 mt-4 rounded-xl bg-accent-gold/20 hover:bg-accent-gold/30 border border-accent-gold/50 text-accent-gold text-xs font-black uppercase tracking-widest shadow-glow-gold transition-all cursor-pointer disabled:opacity-50"
               >
-                {submitting ? 'Committing...' : 'Commit to Global Matrix'}
+                {submitting ? 'Syncing...' : 'Save Session to Matrix'}
               </button>
             </form>
           </div>

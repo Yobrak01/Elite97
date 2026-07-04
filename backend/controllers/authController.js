@@ -203,8 +203,8 @@ exports.updateSettings = async (req, res, next) => {
   try {
     const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode, country, university, major, semesterSchedule, majorCandidatesCount, benchmarkUniversity, timezone } = req.body;
     
-    if (settings) req.user.settings = { ...req.user.settings, ...settings };
-    if (pantry) req.user.pantry = { ...req.user.pantry, ...pantry };
+    if (settings) { req.user.settings = { ...req.user.settings, ...settings }; req.user.markModified('settings'); }
+    if (pantry) req.user.pantry = pantry;
     if (taskGenerationMode) req.user.settings.taskGenerationMode = taskGenerationMode;
     if (studyMode) {
       const allowedModes = ['normal', 'cat_prep', 'exam_prep', 'recovery', 'unexpected_event'];

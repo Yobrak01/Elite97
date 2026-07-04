@@ -7,6 +7,7 @@ export const Schedule = () => {
   const [schedules, setSchedules] = useState([]);
   const [activeSchedule, setActiveSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const fetchSchedules = async () => {
     try {
@@ -29,11 +30,12 @@ export const Schedule = () => {
 
   const handleGenerateTemplate = async (dayType) => {
     setLoading(true);
+    setErrorMsg(null);
     try {
       await api.schedule.generateTemplate(dayType);
       await fetchSchedules();
     } catch (err) {
-      console.error(err);
+      setErrorMsg(err.message || 'Failed to generate template.');
     } finally {
       setLoading(false);
     }
@@ -69,6 +71,7 @@ export const Schedule = () => {
       case 'lecture': return Landmark;
       case 'gym': return Dumbbell;
       case 'exam_week': return AlertCircle;
+      case 'church': return Coffee;
       default: return Calendar;
     }
   };
@@ -93,40 +96,48 @@ export const Schedule = () => {
         </p>
       </div>
 
+      {/* Error message */}
+      {errorMsg && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 flex items-start gap-3 text-red-400">
+          <AlertCircle className="h-5 w-5 shrink-0" />
+          <p className="text-xs font-semibold">{errorMsg}</p>
+        </div>
+      )}
+
       {/* Preset generators */}
       <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
         <div>
-          <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">Generate Preset Day Blueprints</h3>
-          <p className="text-[10px] text-slate-500 font-semibold mt-1">Commit structured presets into your schedule backlog.</p>
+          <h3 className="text-xs font-black uppercase tracking-wider text-slate-400">Choose a Blueprint</h3>
+          <p className="text-[10px] text-slate-500 font-semibold mt-1">Select a template below to add it to your catalog and start planning your days.</p>
         </div>
 
         <div className="flex flex-wrap gap-2.5">
           <button
             onClick={() => handleGenerateTemplate('lecture')}
-            className="flex items-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500 hover:text-white text-purple-400 px-4 py-2.5 text-xs font-bold transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer"
           >
             <Landmark className="h-4 w-4" />
             Lecture Day
           </button>
           <button
             onClick={() => handleGenerateTemplate('gym')}
-            className="flex items-center gap-1.5 rounded-xl border border-indigo-600/30 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-indigo-600/30 bg-indigo-600/10 hover:bg-indigo-600 hover:text-white text-indigo-400 px-4 py-2.5 text-xs font-bold transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-600/20 cursor-pointer"
           >
             <Dumbbell className="h-4 w-4" />
             Gym Conditioning Day
           </button>
           <button
             onClick={() => handleGenerateTemplate('exam_week')}
-            className="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500 hover:text-white text-red-400 px-4 py-2.5 text-xs font-bold transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-red-500/20 cursor-pointer"
           >
             <AlertCircle className="h-4 w-4" />
             Exam Prep Marathon
           </button>
           <button
             onClick={() => handleGenerateTemplate('church')}
-            className="flex items-center gap-1.5 rounded-xl border border-blue-600/30 bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 px-4 py-2.5 text-xs font-bold transition-all cursor-pointer"
+            className="flex items-center gap-1.5 rounded-xl border border-blue-600/30 bg-blue-600/10 hover:bg-blue-600 hover:text-white text-blue-400 px-4 py-2.5 text-xs font-bold transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-600/20 cursor-pointer"
           >
-            <Calendar className="h-4 w-4" />
+            <Coffee className="h-4 w-4" />
             Sunday Reset Day
           </button>
         </div>
@@ -137,7 +148,7 @@ export const Schedule = () => {
         {/* Presets List */}
         <div className="lg:col-span-1 space-y-4">
           <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">Preset Day Catalog</h3>
+            <h3 className="text-xs font-black uppercase tracking-wider text-white">Your Saved Blueprints</h3>
             
             <div className="space-y-3">
               {schedules.map((s) => {
@@ -147,10 +158,10 @@ export const Schedule = () => {
                 return (
                   <div
                     key={s._id}
-                    className={`rounded-2xl p-4 border transition-all duration-200 flex items-center justify-between gap-4 ${
+                    className={`rounded-2xl p-4 border transition-all duration-300 flex items-center justify-between gap-4 hover:-translate-y-1 hover:shadow-lg ${
                       isActive
-                        ? 'border-cyan-500/30 bg-cyan-500/10 text-glow-gold'
-                        : 'border-white/5 bg-navy-900/60 text-slate-400 hover:border-white/10'
+                        ? 'border-cyan-500/50 bg-cyan-500/10 text-glow-gold shadow-cyan-500/10'
+                        : 'border-white/5 bg-navy-900/60 text-slate-400 hover:border-white/20'
                     }`}
                   >
                     <div className="flex items-center gap-3">
@@ -194,8 +205,8 @@ export const Schedule = () => {
         <div className="lg:col-span-2 space-y-4">
           <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
             <div>
-              <h3 className="text-xs font-black uppercase tracking-wider text-white">Active Timeline Preview</h3>
-              <p className="text-[10px] text-slate-500 font-semibold mt-1">This blueprint will structure active study days when activated.</p>
+              <h3 className="text-xs font-black uppercase tracking-wider text-white">Today's Itinerary</h3>
+              <p className="text-[10px] text-slate-500 font-semibold mt-1">This is the blueprint that will structure your day when activated.</p>
             </div>
 
             <div className="space-y-4 pt-2">
@@ -204,8 +215,14 @@ export const Schedule = () => {
                   <ScheduleBlock key={idx} block={block} />
                 ))
               ) : (
-                <div className="text-center py-12 text-xs text-slate-500 font-semibold">
-                  No active schedule preset selected. Choose or generate a catalog entry.
+                <div className="text-center py-16 px-4">
+                  <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-4">
+                    <Calendar className="h-8 w-8 text-cyan-400 opacity-80" />
+                  </div>
+                  <h4 className="text-sm font-bold text-white mb-2">No active schedule</h4>
+                  <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
+                    You haven't selected a daily blueprint yet. Generate one from the options above or activate an existing one to see your day!
+                  </p>
                 </div>
               )}
             </div>

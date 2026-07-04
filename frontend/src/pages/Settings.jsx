@@ -47,7 +47,7 @@ export const Settings = () => {
     if (newResultRow.year && newResultRow.mark) {
       setPastResults([...pastResults, { 
         year: Number(newResultRow.year), 
-        semester: newResultRow.type === 'semester' ? Number(newResultRow.semester) : undefined, 
+        semester: newResultRow.type === 'semester' && newResultRow.semester ? Number(newResultRow.semester) : undefined, 
         type: newResultRow.type,
         mark: Number(newResultRow.mark) 
       }]);
@@ -77,7 +77,7 @@ export const Settings = () => {
   };
 
   const handleSave = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setSubmitting(true);
     setMessage('');
     try {
@@ -106,10 +106,10 @@ export const Settings = () => {
         }
       });
       updateUser(res.user);
-      setMessage('Settings matrix successfully compiled.');
+      setMessage('Settings successfully saved.');
     } catch (err) {
       console.error(err);
-      setMessage(err.message || 'Error compiling settings configuration.');
+      setMessage(err.message || 'Error saving settings.');
     } finally {
       setSubmitting(false);
     }
@@ -118,15 +118,15 @@ export const Settings = () => {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="border-b border-white/5 pb-4">
-        <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">SYSTEM SETTINGS</h1>
+        <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">ACCOUNT & PREFERENCES</h1>
         <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
-          Configure academic performance limits and matrix variables.
+          Manage your study preferences and academic profile.
         </p>
       </div>
 
       {message && (
         <div className={`rounded-xl p-4 text-xs font-bold ${
-          message.includes('compiled') ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'
+          message.includes('saved') ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'
         }`}>
           {message}
         </div>
@@ -136,13 +136,13 @@ export const Settings = () => {
         <form onSubmit={handleSave} className="glass-panel rounded-3xl p-6 border border-white/5 space-y-6">
           <div className="flex items-center gap-2 border-b border-white/5 pb-4">
             <Sliders className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-sm font-black uppercase tracking-wider text-white">Interval Configurations</h3>
+            <h3 className="text-sm font-black uppercase tracking-wider text-white">Study Intervals</h3>
           </div>
 
           {/* Daily study hours slider */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wide">
-              <span>Target daily study goal</span>
+              <span>Daily Study Goal</span>
               <span className="text-white">{dailyGoalHours} Hours</span>
             </div>
             <input
@@ -159,7 +159,7 @@ export const Settings = () => {
           {/* Pomodoro interval slider */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wide">
-              <span>Pomodoro focus block</span>
+              <span>Focus Session Duration</span>
               <span className="text-white">{breakInterval} Minutes</span>
             </div>
             <input
@@ -176,7 +176,7 @@ export const Settings = () => {
           {/* Break Duration slider */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wide">
-              <span>Short Break / Regeneration Duration</span>
+              <span>Short Break Duration</span>
               <span className="text-white">{breakDuration} Minutes</span>
             </div>
             <input
@@ -192,7 +192,7 @@ export const Settings = () => {
 
           {/* Regeneration after sessions select */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Long Regeneration Trigger</label>
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Long Break Frequency</label>
             <select
               value={regenAfterSessions}
               onChange={(e) => setRegenAfterSessions(e.target.value)}
@@ -207,7 +207,7 @@ export const Settings = () => {
 
           {/* Global Study Presets */}
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Global Study Preset Mode</label>
+            <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Study Strategy</label>
             <select
               value={studyMode}
               onChange={(e) => setStudyMode(e.target.value)}
@@ -221,7 +221,7 @@ export const Settings = () => {
             </select>
           </div>
 
-          {/* Task Generation Engine */}
+          {/* Task Generation */}
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Task Generation Engine</label>
             <select
@@ -264,8 +264,8 @@ export const Settings = () => {
             <div className="space-y-2 col-span-2 border-t border-white/5 pt-4 mt-2">
               <div className="flex items-center justify-between mb-2">
                 <div>
-                  <label className="text-[10px] font-black uppercase tracking-wider text-accent-gold">Circadian Protocol</label>
-                  <p className="text-[9px] text-slate-500">Enable absolute wake-up verification to build extreme discipline.</p>
+                  <label className="text-[10px] font-black uppercase tracking-wider text-accent-gold">Sleep & Wake Routine</label>
+                  <p className="text-[9px] text-slate-500">Enable rigid wake-up verification to build discipline.</p>
                 </div>
                 <button
                   type="button"
@@ -316,8 +316,8 @@ export const Settings = () => {
                 <Bell className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs font-bold text-white tracking-wide">Decompression Alerts</p>
-                <p className="text-[10px] text-slate-500 font-semibold">Enable desktop push notification reminders.</p>
+                <p className="text-xs font-bold text-white tracking-wide">Break Notifications</p>
+                <p className="text-[10px] text-slate-500 font-semibold">Enable desktop push notifications for break times.</p>
               </div>
             </div>
 
@@ -342,7 +342,7 @@ export const Settings = () => {
               className="flex items-center gap-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-500/90 border border-cyan-500/20 text-white px-4 py-2.5 text-xs font-black uppercase tracking-widest shadow-glow-cyan transition-all cursor-pointer disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
-              Compile settings
+              Save Preferences
             </button>
           </div>
         </form>
@@ -357,7 +357,7 @@ export const Settings = () => {
             
             <div className="space-y-4">
               <div>
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Nation of Operation</label>
+                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Country</label>
                 <input
                   type="text"
                   value={country}

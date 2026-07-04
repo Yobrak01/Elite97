@@ -100,7 +100,7 @@ const GlobalFeed = () => {
     <div className="flex flex-col h-[600px]">
       <div className="flex items-center gap-2 mb-4 pb-2 border-b border-white/10">
         <Activity className="w-5 h-5 text-cyan-400" />
-        <h3 className="text-sm font-black text-cyan-50 tracking-widest uppercase">Global Matrix Feed</h3>
+        <h3 className="text-sm font-black text-cyan-50 tracking-widest uppercase">Community Activity Feed</h3>
         <span className="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-cyan-500 uppercase tracking-widest bg-cyan-950/50 px-2 py-1 rounded-md border border-cyan-500/20">
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
           Live Monitoring

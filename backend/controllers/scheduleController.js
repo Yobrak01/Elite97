@@ -84,11 +84,17 @@ exports.getActiveSchedule = async (req, res, next) => {
 exports.generateTemplate = async (req, res, next) => {
   try {
     const { dayType } = req.body;
+    const requestedDayType = dayType || 'custom';
+
+    const existingTemplate = await Schedule.findOne({ user: req.user._id, dayType: requestedDayType });
+    if (existingTemplate) {
+      return res.status(400).json({ message: 'You already have a saved blueprint for this day type.' });
+    }
 
     let blocks = [];
     let templateName = '';
 
-    if (dayType === 'lecture') {
+    if (requestedDayType === 'lecture') {
       templateName = 'Standard Lecture Blueprint';
       blocks = [
         { startTime: '08:00', endTime: '12:00', activity: 'Morning Classes / Lectures', category: 'lecture', duration: 240 },
@@ -97,7 +103,7 @@ exports.generateTemplate = async (req, res, next) => {
         { startTime: '17:00', endTime: '19:00', activity: 'Deep Work: Assignment Proofing', category: 'study', duration: 120 },
         { startTime: '20:30', endTime: '22:30', activity: 'Formula Run & Retrieval', category: 'revision', duration: 120 }
       ];
-    } else if (dayType === 'gym') {
+    } else if (requestedDayType === 'gym') {
       templateName = 'High Energy Gym Day';
       blocks = [
         { startTime: '08:00', endTime: '11:00', activity: 'Deep Theoretical Focus block', category: 'study', duration: 180 },
@@ -105,7 +111,7 @@ exports.generateTemplate = async (req, res, next) => {
         { startTime: '16:00', endTime: '18:00', activity: 'Athletic Conditioning & Lifting', category: 'exercise', duration: 120 },
         { startTime: '20:00', endTime: '22:00', activity: 'Procedural Exercises', category: 'study', duration: 120 }
       ];
-    } else if (dayType === 'exam_week') {
+    } else if (requestedDayType === 'exam_week') {
       templateName = 'Maximum Focus Exam Lock-in';
       blocks = [
         { startTime: '08:00', endTime: '11:00', activity: 'Active Recall Mock Paper', category: 'study', duration: 180 },
@@ -113,7 +119,7 @@ exports.generateTemplate = async (req, res, next) => {
         { startTime: '15:00', endTime: '18:00', activity: 'Problem Set Marathon', category: 'study', duration: 180 },
         { startTime: '20:00', endTime: '22:00', activity: 'Cheat Sheet Construction', category: 'revision', duration: 120 }
       ];
-    } else if (dayType === 'church') {
+    } else if (requestedDayType === 'church') {
       templateName = 'Sunday Contemplation & Reset';
       blocks = [
         { startTime: '09:00', endTime: '12:00', activity: 'Service / Personal Development', category: 'personal', duration: 180 },
@@ -132,7 +138,7 @@ exports.generateTemplate = async (req, res, next) => {
     const schedule = await Schedule.create({
       user: req.user._id,
       templateName,
-      dayType: dayType || 'custom',
+      dayType: requestedDayType,
       blocks,
       isActive: false
     });

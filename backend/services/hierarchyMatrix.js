@@ -22,23 +22,23 @@ function randomNormal(rng, mean, stdDev) {
 }
 
 const ALIAS_PREFIXES = [
-  'Phantom', 'Alpha', 'Ghost', 'Spectre', 'Null', 'Void', 'Cipher', 
-  'Apex', 'Echo', 'Neon', 'DeKUT', 'MIT', 'Stanford', 'Oxford',
-  'Omega', 'Zenith', 'Titan', 'Vanguard', 'Rogue', 'Onyx'
+  'Alex', 'Sarah', 'David', 'Emma', 'John', 'Chris', 'Mike', 
+  'Jessica', 'Dan', 'Ryan', 'Sam', 'Anna', 'Tom', 'Emily',
+  'Kevin', 'Rachel', 'Brian', 'Chloe', 'Daniel', 'Olivia'
 ];
 
 const ALIAS_SUFFIXES = [
-  'Protocol', 'Prime', '99', 'Actual', 'X', 'Zero', 'Matrix',
-  'Code', 'Mind', 'Overdrive', 'Elite', 'Engine', 'Unit', 'Node'
+  '_dev', '.c', '_eng', '99', '24', '_tech', 'Builds',
+  'Student', 'Maker', '.js', '_coder', 'Designs', 'Lab'
 ];
 
 function generateAlias(rng) {
   const prefix = ALIAS_PREFIXES[Math.floor(rng() * ALIAS_PREFIXES.length)];
   const suffix = ALIAS_SUFFIXES[Math.floor(rng() * ALIAS_SUFFIXES.length)];
-  const number = Math.floor(rng() * 999);
+  const number = Math.floor(rng() * 99);
   
   if (rng() > 0.5) {
-    return `${prefix}-${suffix}`;
+    return `${prefix}${suffix}`;
   } else {
     return `${prefix}_${number}`;
   }
@@ -123,7 +123,7 @@ function generateMatrix(currentUserStats, realPeers = []) {
       weeklyStudyHours: Number((peer.weeklyStudyHours || 0).toFixed(1)),
       avgFocusScore: Number((peer.avgFocusScore || 0).toFixed(0)),
       compositeScore: Number(compositeScore.toFixed(2)),
-      trend: 'up' // default trend for peers
+      trend: 'stable' // default trend for peers
     });
   });
 
@@ -135,6 +135,10 @@ function generateMatrix(currentUserStats, realPeers = []) {
   
   const userCompositeScore = (userHoursScore * 0.4) + (userFScore * 0.3) + (userPScore * 0.2) + (userCScore * 0.1);
 
+  let userTrend = 'stable';
+  if (userCompositeScore > 75) userTrend = 'up';
+  else if (userCompositeScore < 40) userTrend = 'down';
+
   rivals.push({
     id: currentUserStats.id || 'real_user',
     alias: currentUserStats.alias || 'YOU',
@@ -142,7 +146,7 @@ function generateMatrix(currentUserStats, realPeers = []) {
     weeklyStudyHours: Number((currentUserStats.weeklyStudyHours || 0).toFixed(1)),
     avgFocusScore: Number((currentUserStats.avgFocusScore || 0).toFixed(0)),
     compositeScore: Number(userCompositeScore.toFixed(2)),
-    trend: 'up' // User is always visually pushing upward
+    trend: userTrend
   });
 
   // Sort by composite score descending
