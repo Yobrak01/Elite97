@@ -152,12 +152,12 @@ CRITICAL INSTRUCTIONS:
 1. You MUST include ALL the fixed schedule events exactly at their specified times.
 2. Fill the remaining time with study blocks and short breaks. 
 3. If you assign a block to one of the user's active tasks, you MUST include its ID exactly as provided in the "taskId" field.
-4. If the user's active tasks run out or they don't have enough to fill the time, invent specific, highly intelligent study blocks (e.g. "Deep Review: Neural Networks", "Spaced Repetition: Chapter 4") and leave taskId empty.
+4. If the user's active tasks run out or they don't have enough to fill the time, invent specific, highly intelligent study blocks (e.g. "Deep Review: Neural Networks", "Spaced Repetition: Chapter 4"). For these invented blocks, you MUST set "taskId" to null (not a string).
 5. Do not exceed their sleep time.
 
 Return ONLY a JSON array of blocks. Each block must have this exact format:
 [
-  { "startTime": "HH:MM", "endTime": "HH:MM", "activity": "Specific Activity string", "category": "study" | "break" | "lecture" | "gym" | "event" | "rest", "duration": Number(minutes), "taskId": "string ID if applicable" }
+  { "startTime": "HH:MM", "endTime": "HH:MM", "activity": "Specific Activity string", "category": "study" | "break" | "lecture" | "gym" | "event" | "rest", "duration": Number(minutes), "taskId": "string ID" | null }
 ]
 Do not use markdown. Do not include \`\`\`json.`;
 
@@ -349,11 +349,11 @@ Generate a highly targeted daily schedule.
 
 CRITICAL INSTRUCTION: You MUST prioritize the units with upcoming CATs IMMEDIATELY. 
 If you assign a block to one of the user's active tasks, you MUST include its ID exactly as provided in the "taskId" field.
-If the user's active tasks do NOT contain anything related to the upcoming CATs, you MUST explicitly invent study blocks titled "Deep Review: [CAT Unit Name]" and assign them to the schedule (leave taskId empty). Do not let them study non-CAT units if a CAT is approaching within 7 days.
+If the user's active tasks do NOT contain anything related to the upcoming CATs, you MUST explicitly invent study blocks titled "Deep Review: [CAT Unit Name]" and assign them to the schedule. For these invented blocks, you MUST set "taskId" to null (not a string). Do not let them study non-CAT units if a CAT is approaching within 7 days.
 
 Return ONLY a JSON array of blocks. Each block must have this exact format:
 [
-  { "startTime": "HH:MM", "endTime": "HH:MM", "activity": "Specific Activity string", "category": "study" | "break" | "lecture", "duration": Number(minutes), "taskId": "string ID if applicable" }
+  { "startTime": "HH:MM", "endTime": "HH:MM", "activity": "Specific Activity string", "category": "study" | "break" | "lecture", "duration": Number(minutes), "taskId": "string ID" | null }
 ]
 Do not use markdown. Do not include \`\`\`json.`;
 

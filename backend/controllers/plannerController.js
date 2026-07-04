@@ -121,7 +121,7 @@ exports.getDailyPlan = async (req, res, next) => {
     // Persist invented AI blocks as Tasks so they show up in the Tasks bar
     for (let i = 0; i < planData.blocks.length; i++) {
       const block = planData.blocks[i];
-      if (block.category === 'study' && !block.taskId) {
+      if (block.category === 'study' && (!block.taskId || block.taskId === "null" || block.taskId === "")) {
         // Check if an identical auto-generated pending task already exists
         let existingTask = await Task.findOne({
           user: req.user._id,
@@ -189,7 +189,7 @@ exports.generatePlan = async (req, res, next) => {
     // Persist invented AI blocks as Tasks so they show up in the Tasks bar
     for (let i = 0; i < planData.blocks.length; i++) {
       const block = planData.blocks[i];
-      if (block.category === 'study' && !block.taskId) {
+      if (block.category === 'study' && (!block.taskId || block.taskId === "null" || block.taskId === "")) {
         // Check if an identical auto-generated pending task already exists
         let existingTask = await Task.findOne({
           user: req.user._id,
