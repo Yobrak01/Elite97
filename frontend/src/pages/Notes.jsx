@@ -11,6 +11,7 @@ export const Notes = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [tags, setTags] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const fetchNotes = async () => {
     try {
@@ -47,6 +48,7 @@ export const Notes = () => {
   const handleSave = async () => {
     if (!title.trim()) return;
     
+    setSaving(true);
     const noteData = {
       title,
       content,
@@ -65,6 +67,8 @@ export const Notes = () => {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -101,7 +105,7 @@ export const Notes = () => {
         <div className="flex items-center justify-between glass-panel p-4 rounded-2xl border border-white/10">
           <div className="flex items-center gap-2">
             <BookOpen className="h-5 w-5 text-cyan-400" />
-            <h2 className="text-sm font-black uppercase tracking-widest text-white">Neural Notes</h2>
+            <h2 className="text-sm font-black uppercase tracking-widest text-white">My Notes</h2>
           </div>
           <button 
             onClick={handleCreateNew}
@@ -115,7 +119,7 @@ export const Notes = () => {
         <div className="flex-1 overflow-y-auto glass-panel rounded-2xl border border-white/10 p-2 space-y-2 custom-scrollbar">
           {notes.length === 0 ? (
             <div className="p-8 text-center text-slate-500 text-xs font-bold uppercase tracking-wider">
-              No entries found.
+              No notes yet. Create one to get started!
             </div>
           ) : (
             notes.map(note => (
@@ -173,11 +177,11 @@ export const Notes = () => {
                   )}
                   <button 
                     onClick={handleSave}
-                    disabled={!title.trim()}
+                    disabled={!title.trim() || saving}
                     className="flex items-center gap-2 px-5 py-2.5 bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-glow-cyan"
                   >
                     <Save className="h-4 w-4" />
-                    Save
+                    {saving ? 'Saving...' : 'Save'}
                   </button>
                 </div>
               </div>
@@ -199,7 +203,7 @@ export const Notes = () => {
               <textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Initialize neural dump..."
+                placeholder="What's on your mind? Start typing..."
                 className="w-full h-full bg-transparent text-slate-300 resize-none focus:outline-none custom-scrollbar leading-relaxed"
                 style={{ fontFamily: 'monospace' }}
               />
@@ -208,9 +212,9 @@ export const Notes = () => {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8 opacity-50">
             <LayoutTemplate className="h-16 w-16 text-slate-600 mb-4" />
-            <h3 className="text-lg font-black text-slate-400 tracking-widest uppercase">No Entry Selected</h3>
+            <h3 className="text-lg font-black text-slate-400 tracking-widest uppercase">Select a Note</h3>
             <p className="text-xs font-semibold text-slate-500 mt-2 max-w-sm">
-              Select an entry from the sidebar or initialize a new neural dump to begin documentation.
+              Choose a note from the sidebar or create a new one to start writing.
             </p>
           </div>
         )}

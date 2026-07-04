@@ -39,9 +39,9 @@ exports.createNote = async (req, res, next) => {
 
     const note = await Note.create({
       user: req.user._id,
-      title,
+      title: title.trim(),
       content: content || '',
-      tags: tags || [],
+      tags: Array.isArray(tags) ? tags.map(t => String(t).trim()).filter(Boolean) : [],
       courseUnit: courseUnit || undefined
     });
 
@@ -58,9 +58,17 @@ exports.updateNote = async (req, res, next) => {
     
     if (!note) return res.status(404).json({ success: false, message: 'Note not found' });
 
-    note.title = title || note.title;
+    if (title !== undefined) {
+      if (!title.trim()) return res.status(400).json({ success: false, message: 'Title cannot be empty' });
+      note.title = title.trim();
+    }
+    
     if (content !== undefined) note.content = content;
-    if (tags !== undefined) note.tags = tags;
+    
+    if (tags !== undefined) {
+      note.tags = Array.isArray(tags) ? tags.map(t => String(t).trim()).filter(Boolean) : [];
+    }
+    
     if (courseUnit !== undefined) note.courseUnit = courseUnit;
 
     await note.save();
