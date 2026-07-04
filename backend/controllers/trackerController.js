@@ -232,8 +232,8 @@ exports.manualLog = async (req, res, next) => {
   try {
     const { activityType, durationMinutes, description, date, exactStartTime, exactEndTime, allowOverlap } = req.body;
 
-    if (!activityType || !durationMinutes) {
-      return res.status(400).json({ success: false, message: 'activityType and durationMinutes are required.' });
+    if (!activityType || !durationMinutes || Number(durationMinutes) <= 0) {
+      return res.status(400).json({ success: false, message: 'activityType and a valid positive durationMinutes are required.' });
     }
 
     const validTypes = ['personal_study', 'lecture', 'chore', 'gym', 'rest', 'group_discussion', 'project'];
@@ -250,6 +250,10 @@ exports.manualLog = async (req, res, next) => {
     // Use exact times if provided, otherwise calculate mock times from now
     const endTime = exactEndTime ? new Date(exactEndTime) : now;
     const startTime = exactStartTime ? new Date(exactStartTime) : new Date(endTime.getTime() - (durationMinutes * 60000));
+
+    if (endTime < startTime) {
+      return res.status(400).json({ success: false, message: 'End time cannot be before start time.' });
+    }
 
     if (activityType === 'lecture' && endTime > now) {
       return res.status(400).json({
@@ -504,14 +508,16 @@ exports.breachOverride = async (req, res, next) => {
     // Punish Analytics
     const today = getStartOfDay(req.user.timezone);
     
-    await Analytics.findOneAndUpdate(
-      { user: req.user._id, date: today },
-      { 
-        $inc: { focusScore: -15, productivityScore: -20 },
-        $set: { ruthlessCritique: "Neural Override aborted. Focus broken. Weakness detected and penalized.", critiqueSeverity: "punitive" }
-      },
-      { new: true, upsert: true }
-    );
+    let analytics = await Analytics.findOne({ user: req.user._id, date: today });
+    if (!analytics) {
+      analytics = new Analytics({ user: req.user._id, date: today });
+    }
+    analytics.focusScore = Math.max(0, (analytics.focusScore || 100) - 15);
+    analytics.productivityScore = Math.max(0, (analytics.productivityScore || 100) - 20);
+    analytics.ruthlessCritique = "Neural Override aborted. Focus broken. Weakness detected and penalized.";
+    analytics.critiqueSeverity = "punitive";
+    
+    await analytics.save();
 
     res.status(200).json({ success: true, message: 'Override breached. Penalty applied.' });
   } catch (error) {
@@ -541,14 +547,16 @@ exports.completeOverride = async (req, res, next) => {
     // Reward Analytics
     const today = getStartOfDay(req.user.timezone);
     
-    await Analytics.findOneAndUpdate(
-      { user: req.user._id, date: today },
-      { 
-        $inc: { focusScore: 25, productivityScore: 25 },
-        $set: { ruthlessCritique: "Neural Override completed. Elite discipline recognized.", critiqueSeverity: "elite" }
-      },
-      { new: true, upsert: true }
-    );
+    let analytics = await Analytics.findOne({ user: req.user._id, date: today });
+    if (!analytics) {
+      analytics = new Analytics({ user: req.user._id, date: today });
+    }
+    analytics.focusScore = Math.min(100, (analytics.focusScore || 100) + 25);
+    analytics.productivityScore = Math.min(100, (analytics.productivityScore || 100) + 25);
+    analytics.ruthlessCritique = "Neural Override completed. Elite discipline recognized.";
+    analytics.critiqueSeverity = "elite";
+    
+    await analytics.save();
 
     res.status(200).json({ success: true, message: 'Override completed. Boost applied.' });
   } catch (error) {

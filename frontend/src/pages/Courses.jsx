@@ -186,6 +186,14 @@ export const Courses = () => {
     }
   };
 
+  const isUpcomingDate = (dateString) => {
+    if (!dateString) return false;
+    const today = new Date();
+    const todayLocalStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const catDateStr = dateString.substring(0, 10);
+    return catDateStr >= todayLocalStr;
+  };
+
   const handleSyllabusUploadClick = (courseId) => {
     setTargetCourseId(courseId);
     if (fileInputRef.current) {
@@ -299,7 +307,7 @@ export const Courses = () => {
                       {formatTier(course.aiSuggestedTier)}
                     </div>
                   </div>
-                  {course.upcomingCatDate && (
+                  {course.upcomingCatDate && isUpcomingDate(course.upcomingCatDate) && (
                     <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-purple-500/20 text-purple-400 border border-purple-500/30 text-[10px] font-black uppercase tracking-wider">
                       <Target className="w-3 h-3" />
                       UPCOMING CAT: {new Date(course.upcomingCatDate).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' })}
