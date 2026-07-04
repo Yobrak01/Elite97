@@ -84,9 +84,27 @@ exports.stopTimer = async (req, res, next) => {
     const logTomorrow = new Date(logDate);
     logTomorrow.setDate(logTomorrow.getDate() + 1);
 
-    const allLogsToday = await TimeLog.find({ 
-      user: req.user._id, 
-      date: { $gte: logDate, $lt: logTomorrow } 
+    const utcLogDate = new Date(timeLog.date);
+    utcLogDate.setUTCHours(0, 0, 0, 0);
+    const utcLogTomorrow = new Date(utcLogDate);
+    utcLogTomorrow.setUTCDate(utcLogTomorrow.getUTCDate() + 1);
+
+    const rawLogsToday = await TimeLog.find({ 
+      user: req.user._id,
+      $or: [
+        { date: { $gte: logDate, $lt: logTomorrow } },
+        { createdAt: { $gte: logDate, $lt: logTomorrow } },
+        { date: { $gte: utcLogDate, $lt: utcLogTomorrow } },
+        { createdAt: { $gte: utcLogDate, $lt: utcLogTomorrow } }
+      ]
+    });
+    // Deduplicate
+    const seenIds = new Set();
+    const allLogsToday = rawLogsToday.filter(l => {
+      const id = l._id.toString();
+      if (seenIds.has(id)) return false;
+      seenIds.add(id);
+      return true;
     });
     const studyHours = allLogsToday
       .filter(l => ['personal_study', 'lecture', 'group_discussion', 'project'].includes(l.activityType))
@@ -172,13 +190,23 @@ exports.logFocus = async (req, res, next) => {
     const logTomorrow = new Date(logDate);
     logTomorrow.setDate(logTomorrow.getDate() + 1);
 
+    const utcLogDate = new Date(timeLog.date);
+    utcLogDate.setUTCHours(0, 0, 0, 0);
+    const utcLogTomorrow = new Date(utcLogDate);
+    utcLogTomorrow.setUTCDate(utcLogTomorrow.getUTCDate() + 1);
+
     const studyLogs = await TimeLog.find({
       user: req.user._id,
-      date: { $gte: logDate, $lt: logTomorrow },
-      activityType: { $in: ['personal_study', 'lecture', 'group_discussion', 'project'] }
+      activityType: { $in: ['personal_study', 'lecture', 'group_discussion', 'project'] },
+      $or: [
+        { date: { $gte: logDate, $lt: logTomorrow } },
+        { createdAt: { $gte: logDate, $lt: logTomorrow } },
+        { date: { $gte: utcLogDate, $lt: utcLogTomorrow } },
+        { createdAt: { $gte: utcLogDate, $lt: utcLogTomorrow } }
+      ]
     });
-    // Average focus scores from all study logs that have one
-    const scored = studyLogs.filter(l => l.focusScore !== undefined && l.focusScore !== null);
+    // Average focus scores from all study logs that have a real user-set score (> 0)
+    const scored = studyLogs.filter(l => l.focusScore !== undefined && l.focusScore !== null && l.focusScore > 0);
     const avgFocus = scored.length > 0
       ? Math.round(scored.reduce((s, l) => s + l.focusScore, 0) / scored.length)
       : null;

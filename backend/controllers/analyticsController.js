@@ -67,7 +67,7 @@ async function buildContext(userId, today, streak) {
   const utcTomorrow = new Date(utcToday);
   utcTomorrow.setUTCDate(utcTomorrow.getUTCDate() + 1);
 
-  const effectiveLogs = await TimeLog.find({
+  const rawLogs = await TimeLog.find({
     user: userId,
     $or: [
       { date: { $gte: today, $lt: tomorrow } },
@@ -75,6 +75,15 @@ async function buildContext(userId, today, streak) {
       { date: { $gte: utcToday, $lt: utcTomorrow } },
       { createdAt: { $gte: utcToday, $lt: utcTomorrow } }
     ]
+  });
+
+  // Deduplicate: the $or query can match the same log via multiple clauses
+  const seenIds = new Set();
+  const effectiveLogs = rawLogs.filter(l => {
+    const id = l._id.toString();
+    if (seenIds.has(id)) return false;
+    seenIds.add(id);
+    return true;
   });
   
   // Sum completed time logs for study-related activities
@@ -158,8 +167,9 @@ async function buildContext(userId, today, streak) {
   const taskFocusScore = taskFocusCount > 0 ? totalTaskFocus / taskFocusCount : undefined;
 
   // Compute average focus score from TimeLog entries (user-set per-session focus)
+  // Only consider focusScore > 0 — a score of 0 is the default/unset value, not a real rating
   const studyLogsWithFocus = effectiveLogs
-    .filter(l => studyActivityTypes.includes(l.activityType) && l.focusScore !== undefined && l.focusScore !== null);
+    .filter(l => studyActivityTypes.includes(l.activityType) && l.focusScore !== undefined && l.focusScore !== null && l.focusScore > 0);
   const timeLogFocusScore = studyLogsWithFocus.length > 0
     ? Math.round(studyLogsWithFocus.reduce((s, l) => s + l.focusScore, 0) / studyLogsWithFocus.length)
     : undefined;
