@@ -80,7 +80,7 @@ export const HierarchyMatrix = () => {
           </div>
           <div className="h-12 w-px bg-white/10" />
           <div className="space-y-1">
-            <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Cohort Size</p>
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-500">Community Size</p>
             <p className="text-xl font-black text-white">100</p>
           </div>
         </div>
@@ -105,13 +105,13 @@ export const HierarchyMatrix = () => {
               <div className="text-center space-y-1">
                 <p className={`text-[10px] font-black uppercase tracking-[0.3em] ${
                   isFirst ? 'text-amber-500/50' : 'text-slate-500'
-                }`}>Rank 0{rival.rank}</p>
+                }`}>Rank {rival.rank}</p>
                 <h3 className={`text-xl font-black tracking-wider ${rival.isUser ? 'text-cyan-400' : 'text-white'}`}>
                   {rival.alias}
                 </h3>
                 <div className="flex items-center justify-center gap-2 mt-2">
                   <Activity className="h-3 w-3 text-emerald-400" />
-                  <p className="text-sm font-bold text-emerald-400">{rival.compositeScore} <span className="text-[10px] text-emerald-600">PTS</span></p>
+                  <p className="text-sm font-bold text-emerald-400">{rival.compositeScore} <span className="text-[10px] text-emerald-600">Score</span></p>
                 </div>
               </div>
             </div>
@@ -178,7 +178,7 @@ export const HierarchyMatrix = () => {
                         </div>
                         {player.isUser && (
                           <div className="text-[9px] font-bold text-cyan-600 uppercase tracking-widest mt-0.5">
-                            Active User Identity
+                            That's You!
                           </div>
                         )}
                       </div>

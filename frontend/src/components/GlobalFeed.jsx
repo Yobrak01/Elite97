@@ -103,13 +103,13 @@ const GlobalFeed = () => {
         <h3 className="text-sm font-black text-cyan-50 tracking-widest uppercase">Community Activity Feed</h3>
         <span className="ml-auto flex items-center gap-1.5 text-[10px] font-bold text-cyan-500 uppercase tracking-widest bg-cyan-950/50 px-2 py-1 rounded-md border border-cyan-500/20">
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
-          Live Monitoring
+          Live Updates
         </span>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-hide">
         {feed.length === 0 ? (
-          <div className="text-center text-xs text-slate-500 font-bold uppercase tracking-widest mt-10">No recent activity detected.</div>
+          <div className="text-center text-xs text-slate-500 font-bold uppercase tracking-widest mt-10">No recent updates right now.</div>
         ) : (
           feed.map(event => {
             const styles = getEventStyles(event);
