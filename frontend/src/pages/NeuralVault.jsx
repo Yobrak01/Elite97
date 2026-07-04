@@ -38,7 +38,7 @@ export const NeuralVault = () => {
     setLoading(true);
     try {
       const [notesRes, cardsRes, dueRes, coursesRes] = await Promise.all([
-        api.vault.getNotes(),
+        api.notes.getAll(),
         api.vault.getFlashcards(),
         api.vault.getDueFlashcards(),
         api.courses.getAll()
@@ -59,11 +59,11 @@ export const NeuralVault = () => {
     if (!noteForm.title || !noteForm.content) return;
     try {
       if (selectedNote && selectedNote._id) {
-        const res = await api.vault.updateNote(selectedNote._id, noteForm);
+        const res = await api.notes.update(selectedNote._id, noteForm);
         setNotes(notes.map(n => n._id === selectedNote._id ? res.data : n));
         setSelectedNote(res.data);
       } else {
-        const res = await api.vault.createNote(noteForm);
+        const res = await api.notes.create(noteForm);
         setNotes([res.data, ...notes]);
         setSelectedNote(res.data);
       }
@@ -75,7 +75,7 @@ export const NeuralVault = () => {
 
   const handleDeleteNote = async (id) => {
     try {
-      await api.vault.deleteNote(id);
+      await api.notes.delete(id);
       setNotes(notes.filter(n => n._id !== id));
       if (selectedNote?._id === id) {
         setSelectedNote(null);

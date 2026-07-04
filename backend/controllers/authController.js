@@ -204,7 +204,7 @@ exports.updateSettings = async (req, res, next) => {
     const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode, country, university, major, semesterSchedule, majorCandidatesCount, benchmarkUniversity, timezone } = req.body;
     
     if (settings) { req.user.settings = { ...req.user.settings, ...settings }; req.user.markModified('settings'); }
-    if (pantry) req.user.pantry = pantry;
+    if (pantry) { req.user.pantry = pantry; req.user.markModified('pantry'); }
     if (taskGenerationMode) req.user.settings.taskGenerationMode = taskGenerationMode;
     if (studyMode) {
       const allowedModes = ['normal', 'cat_prep', 'exam_prep', 'recovery', 'unexpected_event'];
@@ -232,6 +232,7 @@ exports.updateSettings = async (req, res, next) => {
         ...req.user.semesterSchedule,
         ...semesterSchedule
       };
+      req.user.markModified('semesterSchedule');
       
       // Keep legacy semesterEndDate in sync just in case
       if (semesterSchedule.endDate) {
@@ -248,6 +249,7 @@ exports.updateSettings = async (req, res, next) => {
         overlearning: studyGauge.overlearning !== undefined ? studyGauge.overlearning : (req.user.studyGauge?.overlearning || 0),
         tier: studyGauge.tier !== undefined ? studyGauge.tier : (req.user.studyGauge?.tier || 'Standard')
       };
+      req.user.markModified('studyGauge');
     }
 
     await req.user.save();

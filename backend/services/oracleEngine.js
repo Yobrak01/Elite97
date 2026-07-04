@@ -69,13 +69,13 @@ function generateVerdict(trajectory, daysRemaining, currentGpa, predictedGpa, ra
   }
 
   if (trajectory < -1.5) {
-    return `Your trajectory is catastrophically degenerative.${milestoneWarning}At your current rate of decay, you will mathematically fail by the time the semester ends ${timeStr}. The Global Matrix will leave you behind. Execute immediate neural override or face academic exile.`;
+    return `You are losing ground fast.${milestoneWarning}At your current pace, you are at risk of falling behind by the time the semester ends ${timeStr}. We need to initiate an immediate course correction. Take a deep breath, recalibrate your focus, and let's get back on track.`;
   } else if (trajectory < 0) {
-    return `You are bleeding momentum.${milestoneWarning}With ${timeStr} remaining until the semester deadline, your predicted standing is slipping. If this trajectory holds, you will fall to rank ${Math.max(100, Math.round(rankTrajectory))} and your GPA will drop. Stop making excuses.`;
+    return `Your momentum is slipping.${milestoneWarning}With ${timeStr} remaining, your predicted standing is slowly dropping. If this trajectory holds, you might fall to rank ${Math.max(100, Math.round(rankTrajectory))}. It's okay to have off days, but it's time to refocus and push forward.`;
   } else if (trajectory > 0 && trajectory < 1) {
-    return `You are stagnant.${milestoneWarning}The semester terminates ${timeStr}, and your current output is merely adequate. You will survive, but you will not dominate. The elite cohort is outworking you.`;
+    return `You are maintaining a steady pace.${milestoneWarning}The semester ends ${timeStr}, and your current output is consistent. You are doing well, but if you want to reach your full potential, consider pushing just a little harder.`;
   } else {
-    return `Alpha Overdrive confirmed.${milestoneWarning}Your trajectory is compounding exponentially. If you maintain this ruthless velocity for the remaining ${daysRemaining} days, you will annihilate the curve and seize absolute dominance in the Global Matrix. Do not falter.`;
+    return `Exceptional focus detected.${milestoneWarning}Your trajectory is compounding beautifully. If you maintain this velocity for the remaining ${daysRemaining} days, you will achieve outstanding results. Keep up the great work!`;
   }
 }
 
@@ -210,8 +210,8 @@ async function runGeminiOracle(user, recentAnalytics, currentRank, predictedSeme
 
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-    const prompt = `You are the Elite97 System Oracle, a highly advanced AI academic analyst.
-Analyze the following student data and provide a concise, ruthless, and precise "Class Position Projection" and "Verdict".
+    const prompt = `You are the Elite97 System Oracle, an empathetic but highly analytical AI academic mentor.
+Analyze the following student data and provide a concise, supportive, and precise "Class Position Projection" and "Verdict".
 Student Data:
 - Major Candidates Count: ${user.majorCandidatesCount || 100}
 - Current Computed Semester Mark: ${predictedSemesterMark}
@@ -221,7 +221,7 @@ Student Data:
 Return ONLY a JSON object with this exact structure, nothing else:
 {
   "projectedRank": <number between 1 and MajorCandidatesCount>,
-  "verdict": "<A harsh, 3-sentence prediction on their fate. If they are failing, tell them they are bleeding momentum. If they are succeeding, tell them to maintain dominance.>"
+  "verdict": "<A supportive, 3-sentence evaluation of their progress. If they are falling behind, encourage them to course-correct. If they are succeeding, praise their effort and encourage them to keep it up.>"
 }`;
 
     const response = await ai.models.generateContent({

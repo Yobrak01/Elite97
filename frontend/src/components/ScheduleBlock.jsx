@@ -29,15 +29,15 @@ export const ScheduleBlock = ({ block, onComplete, onStart, onAttend, onLogStudy
 
       {/* Time duration column */}
       <div className="w-20 shrink-0 flex flex-col justify-center text-xs font-bold text-slate-400 uppercase tracking-widest leading-none">
-        <span>{block.startTime}</span>
-        <span className="text-[10px] text-slate-600 mt-1">{block.endTime}</span>
+        <span className="text-slate-300">{block.startTime}</span>
+        <span className="text-[10px] text-slate-500 mt-1">{block.endTime}</span>
       </div>
 
       {/* Main card info */}
-      <div className={`glass-panel flex-1 rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ${theme.css} hover:border-white/20`}>
+      <div className={`glass-panel flex-1 rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ${theme.css} hover:border-white/30 cursor-default`}>
         <div className="space-y-1">
-          <h5 className="text-sm font-bold text-white tracking-wide">{block.activity}</h5>
-          <p className="text-[10px] uppercase font-black tracking-widest opacity-80 mix-blend-plus-lighter">
+          <h5 className="text-sm font-bold text-white tracking-wide drop-shadow-sm">{block.activity}</h5>
+          <p className="text-[10px] uppercase font-black tracking-widest opacity-90 mix-blend-plus-lighter">
             {block.category} • {block.duration} mins
           </p>
         </div>
