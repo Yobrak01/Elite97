@@ -22,6 +22,7 @@ export const NeuralVault = () => {
   const [studyQueue, setStudyQueue] = useState([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
 
   // AI Generator State
   const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -137,8 +138,7 @@ export const NeuralVault = () => {
         setIsFlipped(false);
       } else {
         // Finished queue
-        setActiveTab('flashcards');
-        fetchData(); // refresh due counts
+        setShowCelebration(true);
       }
     } catch (err) {
       console.error(err);
@@ -189,7 +189,13 @@ export const NeuralVault = () => {
             </div>
           ))}
           {notes.length === 0 && (
-            <div className="p-8 text-center text-slate-500 text-sm font-bold">No notes found. Create one.</div>
+            <div className="p-8 text-center flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center mb-3 hover:scale-110 transition-transform">
+                <Book className="h-5 w-5 text-cyan-400" />
+              </div>
+              <p className="text-slate-300 text-sm font-bold">Your vault is empty!</p>
+              <p className="text-slate-500 text-xs mt-1">Ready to expand your mind? Let's create your first note.</p>
+            </div>
           )}
         </div>
       </div>
@@ -245,9 +251,12 @@ export const NeuralVault = () => {
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-slate-500">
-            <Book className="h-16 w-16 mb-4 opacity-20" />
-            <p className="font-bold">Select a note or create a new one.</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-center animate-fade-in group p-8">
+            <div className="w-24 h-24 rounded-full bg-cyan-500/5 flex items-center justify-center mb-6 group-hover:bg-cyan-500/10 transition-colors">
+              <Book className="h-10 w-10 text-cyan-400 opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all" />
+            </div>
+            <h3 className="text-xl font-black text-white tracking-widest uppercase mb-2">Neural Dump Initialized</h3>
+            <p className="text-slate-500 font-semibold max-w-sm">Select an existing note from the sidebar, or initialize a new thought to begin your documentation.</p>
           </div>
         )}
       </div>
@@ -334,7 +343,13 @@ export const NeuralVault = () => {
                 </div>
               ))}
               {flashcards.length === 0 && (
-                <div className="text-center text-slate-500 py-10 font-bold">No flashcards yet. Build your deck.</div>
+                <div className="flex flex-col items-center justify-center text-center py-16 animate-fade-in group">
+                  <div className="w-16 h-16 rounded-full bg-purple-500/10 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                    <Layers className="h-8 w-8 text-purple-400" />
+                  </div>
+                  <h3 className="text-lg font-black text-white uppercase tracking-widest mb-1">No flashcards found</h3>
+                  <p className="text-slate-500 text-xs font-semibold max-w-xs mt-2">Create your first card manually, or use <strong className="text-purple-400">Neural Extraction</strong> to generate a deck automatically!</p>
+                </div>
               )}
             </div>
           </div>
@@ -344,6 +359,25 @@ export const NeuralVault = () => {
   );
 
   const renderStudyMode = () => {
+    if (showCelebration) {
+      return (
+        <div className="h-[calc(100vh-160px)] flex flex-col items-center justify-center animate-fade-in text-center">
+          <div className="w-full max-w-lg glass-panel p-12 rounded-3xl border border-cyan-500/30 flex flex-col items-center shadow-[0_0_50px_rgba(6,182,212,0.15)] relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/10 to-transparent"></div>
+            <Zap className="h-20 w-20 text-cyan-400 mb-6 animate-bounce" />
+            <h2 className="text-3xl font-black text-white uppercase tracking-widest mb-4">Neural Connections Strengthened!</h2>
+            <p className="text-slate-400 font-semibold mb-8 relative z-10">Great job completing your review. Consistent active recall is the key to mastery.</p>
+            <button 
+              onClick={() => { setShowCelebration(false); setActiveTab('flashcards'); fetchData(); }}
+              className="px-8 py-4 bg-cyan-500 text-white rounded-xl font-black uppercase tracking-widest hover:bg-cyan-400 transition-all hover:-translate-y-1 shadow-[0_0_20px_rgba(6,182,212,0.4)] relative z-10"
+            >
+              Return to Vault
+            </button>
+          </div>
+        </div>
+      );
+    }
+
     const card = studyQueue[currentCardIndex];
     if (!card) return null;
 

@@ -1059,107 +1059,11 @@ exports.getOracleProjections = async (req, res, next) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-    // Self-healing database repair: Recalculate/repair the last 30 days of analytics
-    // based on actual historical logs to fix corrupt records caused by past bugs.
-    const timezone = req.user.timezone || 'Africa/Nairobi';
-    const moment = require('moment-timezone');
-    for (let i = 30; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const dayStart = getStartOfDay(timezone, d);
-      
-      const tomorrow = new Date(dayStart);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      
-      // Compute correct UTC midnight for the same calendar date
-      const localDateStr = moment(d).tz(timezone).format('YYYY-MM-DD');
-      const utcToday = new Date(localDateStr + 'T00:00:00.000Z');
-      const utcTomorrow = new Date(utcToday);
-      utcTomorrow.setUTCDate(utcTomorrow.getUTCDate() + 1);
-
-      const hasLogs = await TimeLog.exists({
-        user: req.user._id,
-        $or: [
-          { date: { $gte: dayStart, $lt: tomorrow } },
-          { createdAt: { $gte: dayStart, $lt: tomorrow } },
-          { date: { $gte: utcToday, $lt: utcTomorrow } },
-          { createdAt: { $gte: utcToday, $lt: utcTomorrow } }
-        ]
-      });
-
-      if (hasLogs) {
-        const context = await buildContext(req.user._id, dayStart, req.user.streak || 0);
-        
-        const existingAnalytics = await Analytics.findOne({ user: req.user._id, date: dayStart });
-        let focusScore;
-        if (context.timeLogFocusScore !== undefined) {
-          focusScore = context.timeLogFocusScore;
-        } else if (context.session && context.session.focusScore !== undefined) {
-          focusScore = context.session.focusScore;
-        } else if (context.taskFocusScore !== undefined) {
-          focusScore = context.taskFocusScore;
-        } else if (existingAnalytics && existingAnalytics.focusScore != null && existingAnalytics.focusScore > 0) {
-          focusScore = existingAnalytics.focusScore;
-        } else {
-          focusScore = analyticsEngine.calculateFocusScore(context);
-        }
-
-        // Study-hours floor: a student who logged significant hours should never
-        // get an absurdly low focus score just because metadata (breaks, sessions,
-        // subject variety) is sparse. Minimum = studyHours * 8, capped at 60.
-        if (context.studyHours >= 1) {
-          const floor = Math.min(60, Math.round(context.studyHours * 8));
-          focusScore = Math.max(focusScore, floor);
-        }
-        
-        context.focusScore = focusScore;
-        const burnoutResult = await burnoutDetector.detectBurnout(context);
-        const calculatedMode = aiPlanner.determineMode(burnoutResult.risk, focusScore);
-        const productivityScore = await analyticsEngine.calculateProductivityScore(focusScore, context.completionPercentage, req.user.streak || 0, context.circadianStatus);
-        
-        const tasks = await Task.find({ user: req.user._id });
-        const overdueTasksCount = tasks.filter(t => t.status !== 'completed' && t.deadline && new Date(t.deadline) <= tomorrow).length;
-        const recommendations = aiPlanner.generateRecommendations(
-          { focusScore, completionPercentage: context.completionPercentage, studyHours: context.studyHours },
-          tasks,
-          calculatedMode
-        );
-
-        const critique = ruthlessAI.generateCritique({
-          circadianStatus: context.circadianStatus,
-          focusScore,
-          streak: req.user.streak || 0,
-          trendWorsening: context.trendWorsening,
-          tasksCompleted: context.tasksCompleted || 0,
-          overdueTasksCount
-        });
-
-        await Analytics.findOneAndUpdate(
-          { user: req.user._id, date: dayStart },
-          {
-            focusScore,
-            burnoutRisk: burnoutResult.risk,
-            burnoutLevel: burnoutResult.level,
-            completionPercentage: context.completionPercentage,
-            productivityScore,
-            streak: req.user.streak || 0,
-            studyHours: context.studyHours,
-            mode: calculatedMode,
-            recommendations,
-            ruthlessCritique: critique.text,
-            critiqueSeverity: critique.severity
-          },
-          { upsert: true }
-        );
-      }
-    }
-
     const recentAnalytics = await Analytics.find({
       user: req.user._id,
       date: { $gte: thirtyDaysAgo }
     }).sort({ date: 1 });
 
-    // Ensure we have some base GPA to pass to the engine
     let predictedSemesterMark = 0;
     if (req.user.cumulativeMark) {
       predictedSemesterMark = req.user.cumulativeMark;
@@ -1181,6 +1085,7 @@ exports.getOracleProjections = async (req, res, next) => {
 // @desc    Diagnostic endpoint to debug studyHours=0 issue
 // @route   GET /api/analytics/debug
 // @access  Private
+
 exports.debugAnalytics = async (req, res, next) => {
   try {
     const timezone = req.user.timezone;
