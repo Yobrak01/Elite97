@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Landmark, Dumbbell, Calendar, BookOpen, Coffee, Award, Play, AlertCircle } from 'lucide-react';
+import { Landmark, Dumbbell, Calendar, BookOpen, Coffee, Award, Play, AlertCircle, Plus, Edit2, Trash2 } from 'lucide-react';
 import api from '../services/api';
 import ScheduleBlock from '../components/ScheduleBlock';
+import ScheduleBuilderModal from '../components/ScheduleBuilderModal';
 
 export const Schedule = () => {
   const [schedules, setSchedules] = useState([]);
   const [activeSchedule, setActiveSchedule] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState(null);
 
   const fetchSchedules = async () => {
     try {
@@ -39,6 +42,33 @@ export const Schedule = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSaveBlueprint = async (data) => {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      if (editingSchedule) {
+        await api.schedule.update(editingSchedule._id, data);
+      } else {
+        await api.schedule.create(data);
+      }
+      await fetchSchedules();
+    } catch (err) {
+      setErrorMsg(err.message || 'Failed to save blueprint.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openCreateModal = () => {
+    setEditingSchedule(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (schedule) => {
+    setEditingSchedule(schedule);
+    setIsModalOpen(true);
   };
 
   const handleActivate = async (id) => {
@@ -112,6 +142,14 @@ export const Schedule = () => {
         </div>
 
         <div className="flex flex-wrap gap-2.5">
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-1.5 rounded-xl border border-cyan-500/50 bg-cyan-500/20 hover:bg-cyan-500 hover:text-white text-cyan-400 px-4 py-2.5 text-xs font-bold transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-cyan-500/20 cursor-pointer shadow-[0_0_10px_rgba(6,182,212,0.2)]"
+          >
+            <Plus className="h-4 w-4" />
+            Create Custom
+          </button>
+          
           <button
             onClick={() => handleGenerateTemplate('lecture')}
             className="flex items-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 hover:bg-purple-500 hover:text-white text-purple-400 px-4 py-2.5 text-xs font-bold transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/20 cursor-pointer"
@@ -187,11 +225,18 @@ export const Schedule = () => {
                         </button>
                       )}
                       <button
+                        onClick={() => openEditModal(s)}
+                        className="rounded-lg border border-white/5 hover:border-blue-500/20 text-slate-500 hover:text-blue-400 p-2 hover:bg-blue-500/10 transition-all cursor-pointer"
+                        title="Edit schedule"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </button>
+                      <button
                         onClick={() => handleDelete(s._id)}
                         className="rounded-lg border border-white/5 hover:border-red-500/20 text-slate-500 hover:text-red-400 p-2 hover:bg-red-500/10 transition-all cursor-pointer"
                         title="Delete schedule"
                       >
-                        Delete
+                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </div>
@@ -229,6 +274,12 @@ export const Schedule = () => {
           </div>
         </div>
       </div>
+      <ScheduleBuilderModal 
+        isOpen={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setEditingSchedule(null); }}
+        onSave={handleSaveBlueprint}
+        initialData={editingSchedule}
+      />
     </div>
   );
 };

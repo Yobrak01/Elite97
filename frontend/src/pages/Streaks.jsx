@@ -90,7 +90,7 @@ export const Streaks = () => {
             value={newStreakTitle}
             onChange={(e) => setNewStreakTitle(e.target.value)}
             placeholder="E.g. 1 Hour Algorithm Practice..."
-            className="flex-1 bg-navy-950/50 border border-white/10 rounded-xl px-5 py-4 text-white placeholder-slate-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all text-sm font-semibold tracking-wide"
+            className="flex-1 bg-[var(--color-bg-900)] border border-[var(--color-panel-border)] rounded-xl px-5 py-4 text-[var(--color-text-main)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all text-sm font-semibold tracking-wide"
           />
           <button
             type="submit"
