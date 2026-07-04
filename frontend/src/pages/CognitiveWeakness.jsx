@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { BrainCircuit, AlertTriangle, Crosshair, Zap, Activity, Clock, BarChart3 } from 'lucide-react';
+import { BrainCircuit, AlertTriangle, Crosshair, Zap, Activity, Clock, HeartHandshake, CheckCircle2 } from 'lucide-react';
 import api from '../services/api';
 
 export const CognitiveWeakness = () => {
   const [logs, setLogs] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedbackMsg, setFeedbackMsg] = useState(null);
   
   const [selectedType, setSelectedType] = useState('Procrastination');
   const [intensity, setIntensity] = useState(5);
@@ -39,13 +41,20 @@ export const CognitiveWeakness = () => {
 
   const handleLog = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
+    setFeedbackMsg(null);
     try {
       await api.weakness.log({ weaknessType: selectedType, intensity: Number(intensity), trigger });
       setTrigger('');
       setIntensity(5);
+      setFeedbackMsg({ type: 'success', text: 'Reflection saved successfully. Growth takes time!' });
       fetchWeaknesses();
+      setTimeout(() => setFeedbackMsg(null), 3000);
     } catch (err) {
       console.error(err);
+      setFeedbackMsg({ type: 'error', text: 'Failed to save reflection. Please try again.' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -72,7 +81,7 @@ export const CognitiveWeakness = () => {
           <div>
             <h1 className="text-3xl md:text-5xl font-display font-black tracking-[0.3em] text-white uppercase drop-shadow-[0_0_15px_rgba(239,68,68,0.3)]">Cognitive Profile</h1>
             <p className="text-xs text-red-400 font-bold uppercase tracking-[0.4em] mt-2">
-              Outcompete Past Versions Of Yourself
+              Understand your patterns. Grow beyond them.
             </p>
           </div>
         </div>
@@ -85,12 +94,12 @@ export const CognitiveWeakness = () => {
           <div className="absolute -right-20 -top-20 w-40 h-40 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/20 transition-all duration-700"></div>
           
           <h2 className="text-sm font-black uppercase tracking-widest text-white mb-6 flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-red-500" /> Log Weakness Breach
+            <HeartHandshake className="w-4 h-4 text-red-500" /> Reflect on a Challenge
           </h2>
 
           <form onSubmit={handleLog} className="space-y-5 relative z-10">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Breach Type</label>
+              <label className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Challenge Type</label>
               <div className="grid grid-cols-1 gap-2">
                 {WEAKNESSES.map(w => (
                   <button
@@ -133,16 +142,34 @@ export const CognitiveWeakness = () => {
                 placeholder="What caused this? E.g. 'Got stuck on a bug and opened Twitter...'"
                 className="w-full bg-navy-950/50 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-red-500/50 focus:ring-1 focus:ring-red-500/50 transition-all text-xs resize-none"
                 rows="3"
+                required
               />
             </div>
 
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 py-3.5 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)]"
+              disabled={isSubmitting}
+              className={`w-full flex items-center justify-center gap-2 py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)] ${
+                isSubmitting 
+                  ? 'bg-red-900/50 text-white/50 cursor-not-allowed' 
+                  : 'bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white'
+              }`}
             >
-              <BarChart3 className="w-4 h-4" />
-              Commit Log
+              {isSubmitting ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/50 border-t-transparent"></div>
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
+              )}
+              {isSubmitting ? 'Saving...' : 'Save Reflection'}
             </button>
+            
+            {feedbackMsg && (
+              <div className={`p-3 rounded-lg text-center text-xs font-bold ${
+                feedbackMsg.type === 'success' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'
+              }`}>
+                {feedbackMsg.text}
+              </div>
+            )}
           </form>
         </div>
 
@@ -167,14 +194,16 @@ export const CognitiveWeakness = () => {
           <div className="glass-panel p-6 rounded-3xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-sm font-black uppercase tracking-widest text-white flex items-center gap-2">
-                <Activity className="w-4 h-4 text-cyan-400" /> Breach History
+                <Activity className="w-4 h-4 text-cyan-400" /> Past Reflections
               </h2>
             </div>
             
             <div className="space-y-3 max-h-[400px] overflow-y-auto custom-scrollbar pr-2">
               {logs.length === 0 ? (
-                <div className="p-8 text-center text-slate-500 text-xs font-bold uppercase tracking-wider">
-                  No cognitive breaches recorded yet.
+                <div className="p-8 text-center text-slate-400 text-xs font-medium leading-relaxed">
+                  <div className="text-4xl mb-4">🌱</div>
+                  No challenges recorded yet.<br/>
+                  You're doing great, but remember it's okay to log moments when things get tough!
                 </div>
               ) : (
                 [...logs].reverse().map(log => {
