@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Timer, Play, Square, Pause, Trash2, ChevronDown, ChevronUp, BookOpen, GraduationCap, Dumbbell, Brush, Moon, Clock, Check, Users, Briefcase } from 'lucide-react';
+import { Timer, Play, Square, Pause, ChevronDown, ChevronUp, BookOpen, GraduationCap, Dumbbell, Brush, Moon, Clock, Check, Users, Briefcase } from 'lucide-react';
 import api from '../services/api';
 
 const ACTIVITIES = [
@@ -140,17 +140,19 @@ export const LiveTimer = () => {
     }
   }, [todayLogs, isRunning, isPaused]);
 
-  // Timer tick
+  // Timer tick (uses Date.now() to prevent background throttling drift)
   useEffect(() => {
     if (isRunning && !isPaused) {
+      const startMs = Date.now();
+      const baseSeconds = elapsedSeconds;
       intervalRef.current = setInterval(() => {
-        setElapsedSeconds(prev => prev + 1);
+        setElapsedSeconds(baseSeconds + Math.floor((Date.now() - startMs) / 1000));
       }, 1000);
     } else {
       clearInterval(intervalRef.current);
     }
     return () => clearInterval(intervalRef.current);
-  }, [isRunning, isPaused]);
+  }, [isRunning, isPaused]); // Captured baseSeconds when it enters running state
 
   const handleStart = useCallback(async (overrideType = null, description = null) => {
     if (loadingAction) return;
@@ -335,7 +337,7 @@ export const LiveTimer = () => {
             <div className="flex items-center gap-2">
               <Timer className="h-4 w-4 text-cyan-400" />
               <span className="text-[10px] font-black uppercase tracking-widest text-white">
-                {manualMode ? 'Manual Log' : 'Live Tracker'}
+                {manualMode ? 'Log Past Session' : 'Live Tracker'}
               </span>
             </div>
             <div className="flex items-center gap-2">
@@ -346,7 +348,7 @@ export const LiveTimer = () => {
                   manualMode ? 'bg-cyan-500/20 text-cyan-400' : 'text-slate-500 hover:text-white'
                 } ${isRunning ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Manual
+                Log Past
               </button>
               <button
                 onClick={() => setIsExpanded(false)}
@@ -438,7 +440,7 @@ export const LiveTimer = () => {
                 type="text"
                 value={customDescription}
                 onChange={(e) => setCustomDescription(e.target.value)}
-                placeholder={activityType === 'gym' ? 'e.g. Chest & Triceps' : activityType === 'chore' ? 'e.g. Groceries' : 'Specific topic or task...'}
+                placeholder="What are you working on?"
                 className="w-full rounded-xl bg-navy-900 border border-white/5 py-2.5 px-4 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/30 transition-colors"
               />
             </div>
@@ -462,7 +464,7 @@ export const LiveTimer = () => {
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500 hover:text-white py-3 text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-accent-gold/10 disabled:opacity-50"
               >
                 <Play className="h-4 w-4" />
-                {loadingAction ? 'Starting...' : 'Start Session'}
+                {loadingAction ? 'Starting...' : 'Begin Focus Session'}
               </button>
             ) : (
               <>
@@ -490,7 +492,7 @@ export const LiveTimer = () => {
           {pendingFocusLogId && (
             <div className="space-y-3 border border-cyan-500/20 bg-cyan-500/5 rounded-2xl p-4 animate-fade-in">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] font-black uppercase tracking-widest text-cyan-400">Rate Your Focus</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-cyan-400">How did this session feel?</p>
                 <span className="text-xl font-black text-cyan-400">{postStopFocus}</span>
               </div>
               <input
@@ -502,7 +504,7 @@ export const LiveTimer = () => {
                 className="w-full accent-cyan-400"
               />
               <div className="flex justify-between text-[9px] text-slate-600 font-bold uppercase tracking-widest">
-                <span>Distracted</span><span>Moderate</span><span>Flow State</span>
+                <span>Struggled a bit</span><span>Solid work</span><span>Deep Flow</span>
               </div>
               <div className="flex gap-2">
                 <button
@@ -516,7 +518,7 @@ export const LiveTimer = () => {
                   disabled={loadingAction}
                   className="flex-1 py-2 rounded-xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all disabled:opacity-50"
                 >
-                  {loadingAction ? 'Saving...' : 'Save Focus'}
+                  {loadingAction ? 'Saving...' : 'Save Feedback'}
                 </button>
               </div>
             </div>
