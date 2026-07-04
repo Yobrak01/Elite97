@@ -110,9 +110,11 @@ async function buildContext(userId, today, streak) {
     
   // If a manual daily session commit exists, use whichever is higher (prevents double-count).
   // Otherwise rely purely on the live time log sum.
-  const studyHours = (session && session.studyHours > 0)
+  const studyHoursRaw = (session && session.studyHours > 0)
     ? Math.max(session.studyHours, personalStudyTimeLogs)
     : personalStudyTimeLogs;
+  
+  const studyHours = Math.min(24, studyHoursRaw);
 
   console.log('[buildContext] studyHours:', studyHours, 'personalStudyTimeLogs:', personalStudyTimeLogs);
   
@@ -340,10 +342,10 @@ exports.getTimeAverages = async (req, res, next) => {
     const getStats = async (days) => {
       const dateLimit = new Date();
       dateLimit.setDate(dateLimit.getDate() - days);
-      dateLimit.setHours(0, 0, 0, 0);
+      const startOfDay = getStartOfDay(req.user.timezone, dateLimit);
 
       const logs = await TimeLog.aggregate([
-        { $match: { user: req.user._id, date: { $gte: dateLimit, $lte: now } } },
+        { $match: { user: req.user._id, date: { $gte: startOfDay, $lte: now } } },
         { $group: { _id: '$activityType', totalMinutes: { $sum: '$durationMinutes' } } }
       ]);
 
@@ -397,10 +399,38 @@ exports.getTrends = async (req, res, next) => {
     const last30DaysDate = new Date();
     last30DaysDate.setDate(last30DaysDate.getDate() - 30);
 
-    const trendData = await Analytics.find({
+    const rawData = await Analytics.find({
       user: req.user._id,
       date: { $gte: last30DaysDate }
     }).sort({ date: 1 });
+
+    const trendMap = {};
+    rawData.forEach(item => {
+      const dateKey = item.date.toISOString().split('T')[0];
+      trendMap[dateKey] = item;
+    });
+
+    const trendData = [];
+    const timezone = req.user.timezone || 'Africa/Nairobi';
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dayStart = getStartOfDay(timezone, d);
+      const dateKey = dayStart.toISOString().split('T')[0];
+      
+      if (trendMap[dateKey]) {
+        trendData.push(trendMap[dateKey]);
+      } else {
+        trendData.push({
+          date: dayStart,
+          studyHours: 0,
+          focusScore: 0,
+          burnoutRisk: 0,
+          completionPercentage: 0,
+          productivityScore: 0
+        });
+      }
+    }
 
     res.status(200).json({ success: true, data: trendData });
   } catch (error) {

@@ -107,7 +107,7 @@ export const Courses = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Delete this course unit?')) {
+    if (window.confirm('Are you sure you want to remove this course unit?')) {
       try {
         await api.courses.delete(id);
         setCourses(prev => prev.filter(c => c._id !== id));
@@ -164,12 +164,24 @@ export const Courses = () => {
     }
   };
 
+  const formatTier = (tier) => {
+    switch (tier) {
+      case 'tier1_critical': return 'Critical Priority';
+      case 'tier2_high': return 'High Priority';
+      case 'tier3_standard': return 'Standard Priority';
+      case 'tier4_low': return 'Low Priority';
+      case 'tier5_minimal': return 'Minimal Priority';
+      default: return 'Unranked';
+    }
+  };
+
   const getTierBadgeClasses = (tier) => {
     switch (tier) {
       case 'tier1_critical': return 'bg-red-500/20 text-red-400 border border-red-500/30';
       case 'tier2_high': return 'bg-indigo-600/20 text-indigo-400 border border-indigo-600/30';
       case 'tier3_standard': return 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30';
       case 'tier4_low': return 'bg-green-500/20 text-green-400 border border-green-500/30';
+      case 'tier5_minimal': return 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
       default: return 'bg-slate-500/20 text-slate-400 border border-slate-500/30';
     }
   };
@@ -224,7 +236,7 @@ export const Courses = () => {
 
       await api.tasks.createBulk(formattedTasks);
       
-      alert(`Successfully integrated ${syllabusTasks.length} tasks into your matrix!`);
+      alert(`Successfully added ${syllabusTasks.length} tasks to your schedule!`);
       setSyllabusTasks(null);
     } catch (err) {
       console.error('Failed to save some syllabus tasks:', err);
@@ -246,9 +258,9 @@ export const Courses = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">COURSE UNITS</h1>
-          <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
-            Academic load matrix and priority weighting.
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.2em] text-cyan-50 text-glow-cyan opacity-90">My Course Units</h1>
+          <p className="text-xs text-slate-400 font-medium tracking-wide mt-1">
+            Manage your classes and let us help you balance your study load.
           </p>
         </div>
         <button
@@ -269,8 +281,8 @@ export const Courses = () => {
       />
 
       {courses.length === 0 ? (
-        <div className="glass-panel rounded-2xl border border-white/5 p-12 text-center text-xs font-semibold text-slate-500">
-          No course units registered in the system.
+        <div className="glass-panel rounded-2xl border border-white/5 p-12 text-center text-sm font-medium text-slate-400">
+          You haven't added any course units yet. Click "Add Course Unit" to get started!
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -284,13 +296,13 @@ export const Courses = () => {
                   <div className="flex justify-between items-start">
                     <h4 className="text-lg font-bold tracking-wide text-white">{course.unitCode}</h4>
                     <div className={`px-2 py-1 rounded text-[10px] font-black uppercase tracking-wider ${getTierBadgeClasses(course.aiSuggestedTier)}`}>
-                      {(course.aiSuggestedTier || 'unranked').replace('_', ' ')}
+                      {formatTier(course.aiSuggestedTier)}
                     </div>
                   </div>
                   {course.upcomingCatDate && (
                     <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-purple-500/20 text-purple-400 border border-purple-500/30 text-[10px] font-black uppercase tracking-wider">
                       <Target className="w-3 h-3" />
-                      UPCOMING CAT: {new Date(course.upcomingCatDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      UPCOMING CAT: {new Date(course.upcomingCatDate).toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' })}
                     </div>
                   )}
                   <p className="text-sm font-semibold text-slate-300">{course.unitName}</p>
@@ -357,7 +369,7 @@ export const Courses = () => {
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Credits</label>
                   <select value={credits} onChange={e => setCredits(e.target.value)} className="w-full rounded-xl bg-navy-900 border border-white/5 py-2 px-4 text-sm text-white focus:outline-none">
-                    <option value="0">✨ AI Auto-Assign</option>
+                    <option value="0">✨ Let AI decide for me</option>
                     <option value="4">4 Credits (Heavy)</option>
                     <option value="3">3 Credits (Standard)</option>
                     <option value="2">2 Credits (Moderate)</option>
@@ -385,12 +397,12 @@ export const Courses = () => {
               <div className="space-y-1">
                 <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Difficulty Level</label>
                 <select value={difficulty} onChange={e => setDifficulty(e.target.value)} className="w-full rounded-xl bg-navy-900 border border-white/5 py-2 px-4 text-sm text-white focus:outline-none">
-                  <option value="0">✨ AI Auto-Rate</option>
-                  <option value="5">5 - Brutal</option>
+                  <option value="0">✨ Let AI decide for me</option>
+                  <option value="5">5 - Very Challenging</option>
                   <option value="4">4 - Hard</option>
                   <option value="3">3 - Normal</option>
                   <option value="2">2 - Easy</option>
-                  <option value="1">1 - Trivial</option>
+                  <option value="1">1 - Very Light</option>
                 </select>
               </div>
 
@@ -402,7 +414,7 @@ export const Courses = () => {
                   onChange={e => setUpcomingCatDate(e.target.value)} 
                   className="w-full rounded-xl bg-purple-900/20 border border-purple-500/20 py-2 px-4 text-sm text-purple-200 focus:outline-none" 
                 />
-                <p className="text-[9px] text-slate-500 mt-1">If set, CAT Prep Mode will violently prioritize this unit.</p>
+                <p className="text-[9px] text-slate-500 mt-1">If set, we'll make sure you are well-prepared when CAT Prep Mode is active.</p>
               </div>
 
               {/* Assessment Structure Builder */}
@@ -458,7 +470,7 @@ export const Courses = () => {
                   ))}
                   {assessmentStructure.length === 0 && (
                     <div className="text-center text-[10px] text-slate-500 py-2">
-                      No assessments defined. Prediction will be 100% AI-generated.
+                      No assessments defined. We'll use our AI to predict your scores.
                     </div>
                   )}
                 </div>
@@ -490,9 +502,9 @@ export const Courses = () => {
                 <FileText className="h-6 w-6 text-cyan-400" />
               </div>
               <div>
-                <h3 className="text-xl font-black tracking-widest text-white uppercase text-glow-cyan">Syllabus Extracted</h3>
-                <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest mt-1">
-                  {syllabusTasks.length} Potential Tasks Identified
+                <h3 className="text-xl font-bold tracking-wide text-white text-glow-cyan">We analyzed your syllabus</h3>
+                <p className="text-xs font-medium text-cyan-400 tracking-wide mt-1">
+                  We found {syllabusTasks.length} tasks that you can add to your schedule.
                 </p>
               </div>
             </div>
@@ -533,7 +545,7 @@ export const Courses = () => {
                 className="flex items-center gap-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black px-6 py-3 text-xs font-black uppercase disabled:opacity-50 tracking-widest shadow-glow-cyan transition-all"
               >
                 {savingSyllabus ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                {savingSyllabus ? 'Integrating...' : 'Integrate Tasks'}
+                {savingSyllabus ? 'Adding to Schedule...' : 'Add to My Schedule'}
               </button>
             </div>
           </div>

@@ -5,35 +5,35 @@ export const ModeSelector = ({ currentMode, onModeChange }) => {
   const modes = [
     {
       id: 'normal',
-      name: 'Normal Mode',
+      name: 'Balanced Day',
       icon: Award,
       color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
       description: 'Standard pomodoro-based daily study sessions.'
     },
     {
       id: 'cat_prep',
-      name: 'CAT Prep Mode',
+      name: 'CAT Crunch',
       icon: Landmark,
       color: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
       description: 'Intense revision, formula cycles, and high task goals.'
     },
     {
       id: 'exam_prep',
-      name: 'Exam Prep Mode',
+      name: 'Deep Focus',
       icon: ShieldAlert,
       color: 'text-red-400 bg-red-500/10 border-red-500/20',
       description: 'Maximum focus intervals, isolation, and full simulations.'
     },
     {
       id: 'recovery',
-      name: 'Recovery Mode',
+      name: 'Take It Easy',
       icon: Heart,
       color: 'text-green-400 bg-green-500/10 border-green-500/20',
       description: 'Cognitive rest. Shorter sessions and deep recovery cycles.'
     },
     {
       id: 'unexpected_event',
-      name: 'Interruption Mode',
+      name: 'Flexible Flow',
       icon: RefreshCw,
       color: 'text-purple-400 bg-purple-500/10 border-purple-500/20',
       description: 'Adapt schedules dynamically during system blocks.'
@@ -43,8 +43,8 @@ export const ModeSelector = ({ currentMode, onModeChange }) => {
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">System Study Presets</h3>
-        <p className="text-xs text-slate-500 font-semibold">Change mode variables to alter AI duration metrics and breaks.</p>
+        <h3 className="text-sm font-black uppercase tracking-wider text-slate-400">How are you feeling today?</h3>
+        <p className="text-xs text-slate-500 font-semibold">Select your current vibe, and I'll adjust your study intervals and breaks to match.</p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">

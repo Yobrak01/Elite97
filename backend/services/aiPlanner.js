@@ -4,6 +4,13 @@ function determineMode(burnoutRisk, focusScore) {
   return 'balanced';
 }
 
+const formatTimeStr = (min) => {
+  const h = Math.floor(min / 60).toString().padStart(2, '0');
+  const m = (min % 60).toString().padStart(2, '0');
+  return `${h}:${m}`;
+};
+
+
 async function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, breakInterval: 25 }, studyMode = 'normal', timetable = [], workout = null, mealPlan = null) {
   const now = new Date();
   let targetDate = new Date(now);
@@ -123,7 +130,7 @@ async function generateDailyPlan(tasks, mode, settings = { dailyGoalHours: 6, br
     return `- ${formatTimeStr(l.start)} to ${formatTimeStr(l.end)}: ${l.unitName} (Type: ${l.activityType})`;
   }).join('\n');
 
-  let generatedBlocks = [];
+  let blocks = [];
 
   if (process.env.GEMINI_API_KEY && mode !== 'recovery') {
     try {
@@ -160,8 +167,8 @@ Do not use markdown. Do not include \`\`\`json.`;
       });
 
       let text = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
-      generatedBlocks = JSON.parse(text);
-      return { blocks: generatedBlocks, dateString };
+      blocks = JSON.parse(text);
+      return { blocks, dateString };
     } catch (error) {
       console.error("Gemini Daily Plan Generation Failed:", error);
       // Fallback to basic block if AI fails
@@ -169,7 +176,7 @@ Do not use markdown. Do not include \`\`\`json.`;
   }
 
   // Fallback if no Gemini key or API fails
-  if (generatedBlocks.length === 0) {
+  if (blocks.length === 0) {
     blocks.push({
       startTime: formatTimeStr(currentMinute),
       endTime: formatTimeStr(currentMinute + 60),
@@ -327,12 +334,8 @@ async function generateGeminiCatPlan(tasks, courseUnits, settings = { dailyGoalH
   let currentTotalMinutes = now.getHours() * 60 + now.getMinutes();
   const startMinute = Math.max(wakeTimeMinutes, currentTotalMinutes);
   
-  const formatTimeStr = (min) => {
-    const h = Math.floor(min / 60).toString().padStart(2, '0');
-    const m = (min % 60).toString().padStart(2, '0');
-    return `${h}:${m}`;
-  };
   const startTimeStr = formatTimeStr(startMinute);
+  const dailyGoalHours = settings?.dailyGoalHours || 6;
 
 const prompt = `You are the Elite97 AI Planner. The user is in "CAT Prep Mode".
 They have upcoming Continuous Assessment Tests (CATs):
@@ -341,7 +344,7 @@ ${catDetails}
 Their active tasks are:
 ${activeTasks || "No specific tasks logged."}
 
-They want to study for up to ${settings.dailyGoalHours} hours today. They start now at ${startTimeStr}.
+They want to study for up to ${dailyGoalHours} hours today. They start now at ${startTimeStr}.
 Generate a highly targeted daily schedule. 
 
 CRITICAL INSTRUCTION: You MUST prioritize the units with upcoming CATs IMMEDIATELY. 
