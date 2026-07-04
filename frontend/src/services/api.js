@@ -448,6 +448,12 @@ export const api = {
       return handleResponse(res);
     }
   },
+  streaks: {
+    getAll: async () => handleResponse(await fetch(`${API_URL}/streaks`, { headers: getHeaders() })),
+    create: async (title) => handleResponse(await fetch(`${API_URL}/streaks`, { method: 'POST', headers: getHeaders(), body: JSON.stringify({ title }) })),
+    complete: async (id) => handleResponse(await fetch(`${API_URL}/streaks/${id}/complete`, { method: 'PATCH', headers: getHeaders() })),
+    delete: async (id) => handleResponse(await fetch(`${API_URL}/streaks/${id}`, { method: 'DELETE', headers: getHeaders() }))
+  },
   life: {
     getWeeklyWorkout: async () => {
       const res = await fetch(`${API_URL}/life/workout/weekly`, {
