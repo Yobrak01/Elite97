@@ -11,11 +11,12 @@ const getStudyMethod = (type, difficulty = 3) => {
 };
 
 export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
-  const getPriorityClasses = (p) => {
-    if (p >= 5) return 'text-red-400 bg-red-500/10 border-red-500/20';
-    if (p >= 4) return 'text-indigo-400 bg-indigo-600/10 border-indigo-600/20';
-    if (p >= 3) return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20';
-    return 'text-green-400 bg-green-500/10 border-green-500/20';
+  const getPriorityInfo = (p) => {
+    if (p >= 5) return { class: 'text-red-400 bg-red-500/10 border-red-500/30 shadow-[0_0_8px_rgba(239,68,68,0.15)]', label: 'P5 Critical' };
+    if (p >= 4) return { class: 'text-indigo-400 bg-indigo-600/10 border-indigo-600/30 shadow-[0_0_8px_rgba(79,70,229,0.15)]', label: 'P4 High' };
+    if (p >= 3) return { class: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30 shadow-[0_0_8px_rgba(234,179,8,0.15)]', label: 'P3 Standard' };
+    if (p >= 2) return { class: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_8px_rgba(16,185,129,0.15)]', label: 'P2 Low' };
+    return { class: 'text-slate-400 bg-slate-500/10 border-slate-500/30', label: 'P1 Minor' };
   };
 
   const getTypeClasses = (t) => {
@@ -34,18 +35,20 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
   const isOverdue = task.deadline && new Date(task.deadline) < new Date() && task.status !== 'completed';
   const studyMethod = getStudyMethod(task.type, task.difficulty || 3);
 
+  const priorityInfo = getPriorityInfo(task.priority);
+
   return (
-    <div className={`glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between space-y-4 transition-all duration-200 hover:border-white/10 ${
-      task.status === 'completed' ? 'opacity-50' : ''
+    <div className={`glass-panel rounded-2xl p-5 border border-white/5 flex flex-col justify-between space-y-4 transition-all duration-300 hover:border-cyan-500/30 hover:shadow-[0_4px_20px_rgba(6,182,212,0.1)] hover:-translate-y-1 ${
+      task.status === 'completed' ? 'opacity-50 grayscale-[0.5]' : ''
     }`}>
       <div className="space-y-2">
         <div className="flex items-start justify-between gap-3">
           <h4 className={`text-base font-bold tracking-wide text-white leading-tight ${task.status === 'completed' ? 'line-through' : ''}`}>
             {task.title}
           </h4>
-          <div className="flex gap-1.5 shrink-0">
-            <span className={`rounded-lg border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${getPriorityClasses(task.priority)}`}>
-              P{task.priority}
+          <div className="flex gap-1.5 shrink-0 flex-wrap justify-end max-w-[50%]">
+            <span className={`rounded-lg border px-2 py-0.5 text-[9px] font-extrabold uppercase tracking-wider ${priorityInfo.class}`}>
+              {priorityInfo.label}
             </span>
             <span className={`rounded-lg border px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${getTypeClasses(task.type)}`}>
               {task.type}
@@ -93,9 +96,9 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
           {task.status !== 'completed' && (
             <button
               onClick={() => {
-                window.dispatchEvent(new CustomEvent('start-timer', { detail: { type: 'personal_study', name: task.title } }));
+                window.dispatchEvent(new CustomEvent('start-timer', { detail: { type: task.type, name: task.title } }));
               }}
-              className="flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+              className="flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500 hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:shadow-[0_0_10px_rgba(16,185,129,0.4)]"
             >
               <PlayCircle className="h-3.5 w-3.5" />
               Start Timer
@@ -105,7 +108,7 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
           {task.status === 'pending' && onStart && (
             <button
               onClick={() => onStart(task._id)}
-              className="flex items-center gap-1 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500 hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+              className="flex items-center gap-1 rounded-lg bg-blue-500/10 border border-blue-500/30 text-blue-400 hover:bg-blue-500 hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:shadow-[0_0_10px_rgba(59,130,246,0.4)]"
             >
               <PlayCircle className="h-3.5 w-3.5" />
               In Progress
@@ -115,7 +118,7 @@ export const TaskCard = ({ task, onComplete, onDelete, onEdit, onStart }) => {
           {task.status !== 'completed' && onComplete && (
             <button
               onClick={() => onComplete(task._id)}
-              className="flex items-center gap-1 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all"
+              className="flex items-center gap-1 rounded-lg bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 hover:bg-cyan-500 hover:text-white px-2.5 py-1 text-[10px] font-black uppercase tracking-widest transition-all hover:shadow-[0_0_10px_rgba(6,182,212,0.4)]"
             >
               <CheckSquare className="h-3.5 w-3.5" />
               Complete

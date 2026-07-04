@@ -7,12 +7,14 @@ export const useTasks = (filters = {}) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const filtersString = JSON.stringify(filters);
+  
   const fetchTasks = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       const [listRes, statsRes] = await Promise.all([
-        api.tasks.getAll(filters),
+        api.tasks.getAll(JSON.parse(filtersString)),
         api.tasks.getStats()
       ]);
       setTasks(listRes.data);
@@ -23,7 +25,7 @@ export const useTasks = (filters = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [JSON.stringify(filters)]);
+  }, [filtersString]);
 
   useEffect(() => {
     fetchTasks();

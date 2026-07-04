@@ -86,9 +86,9 @@ export const Tasks = () => {
           estimatedHours: Number(estimatedHours),
           type,
           deadline: deadline || undefined,
-          fixedDate: (type === 'event' || type === 'lecture') ? (fixedDate || undefined) : undefined,
-          fixedStartTime: (type === 'event' || type === 'lecture') ? (fixedStartTime || undefined) : undefined,
-          fixedEndTime: (type === 'event' || type === 'lecture') ? (fixedEndTime || undefined) : undefined,
+          fixedDate: (type === 'lecture' || type === 'group_discussion') ? (fixedDate || undefined) : undefined,
+          fixedStartTime: (type === 'lecture' || type === 'group_discussion') ? (fixedStartTime || undefined) : undefined,
+          fixedEndTime: (type === 'lecture' || type === 'group_discussion') ? (fixedEndTime || undefined) : undefined,
           courseUnit: selectedCourse || undefined
         });
       } else {
@@ -99,9 +99,9 @@ export const Tasks = () => {
           estimatedHours: Number(estimatedHours),
           type,
           deadline: deadline || undefined,
-          fixedDate: (type === 'event' || type === 'lecture') ? (fixedDate || undefined) : undefined,
-          fixedStartTime: (type === 'event' || type === 'lecture') ? (fixedStartTime || undefined) : undefined,
-          fixedEndTime: (type === 'event' || type === 'lecture') ? (fixedEndTime || undefined) : undefined,
+          fixedDate: (type === 'lecture' || type === 'group_discussion') ? (fixedDate || undefined) : undefined,
+          fixedStartTime: (type === 'lecture' || type === 'group_discussion') ? (fixedStartTime || undefined) : undefined,
+          fixedEndTime: (type === 'lecture' || type === 'group_discussion') ? (fixedEndTime || undefined) : undefined,
           courseUnit: selectedCourse || undefined
         });
       }
@@ -166,9 +166,9 @@ export const Tasks = () => {
       {/* Top Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">TASK BACKLOG</h1>
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">MISSION CONTROL</h1>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
-            Prioritize conceptual derivations and technical challenges.
+            Tackle your tasks, conquer your goals. Let's do this.
           </p>
         </div>
         <button
@@ -261,7 +261,7 @@ export const Tasks = () => {
       {/* Task Cards Grid */}
       {filteredTasks.length === 0 ? (
         <div className="glass-panel rounded-2xl border border-white/5 p-12 text-center text-xs font-semibold text-slate-500">
-          No tasks found matching current filters.
+          All caught up! Time to recharge or plan your next move.
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -357,7 +357,7 @@ export const Tasks = () => {
                   </select>
                 </div>
 
-                {type !== 'event' && (
+                {(type !== 'lecture' && type !== 'group_discussion') && (
                   <div className="space-y-1">
                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Course Unit</label>
                     <select
@@ -374,7 +374,7 @@ export const Tasks = () => {
                 )}
               </div>
 
-              {(type === 'event' || type === 'lecture') ? (
+              {(type === 'lecture' || type === 'group_discussion') ? (
                 <>
                   <div className="space-y-1">
                     <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Scheduled Date</label>
@@ -453,8 +453,8 @@ export const Tasks = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setCompletingTaskId(null)} />
           <div className="relative w-full max-w-sm rounded-3xl bg-navy-800 border border-white/10 p-6 shadow-2xl animate-fade-in">
-            <h3 className="text-lg font-black text-white mb-1 tracking-wide uppercase">Mission Complete</h3>
-            <p className="text-xs text-slate-400 mb-5">Rate your focus for this session. This directly feeds the AI analytics engine.</p>
+            <h3 className="text-lg font-black text-white mb-1 tracking-wide uppercase">Mission Complete!</h3>
+            <p className="text-xs text-slate-400 mb-5">Great job! How focused were you during this session? Your feedback helps the AI personalize your schedule.</p>
 
             <div className="space-y-4 mb-6">
               <div className="flex items-center justify-between">
