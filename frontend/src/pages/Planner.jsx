@@ -156,9 +156,9 @@ export const Planner = () => {
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-white/5 pb-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-display font-light tracking-[0.5em] text-cyan-50 text-glow-cyan uppercase opacity-80">AI PRODUCTIVITY PLANNER</h1>
-          <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest mt-1">
-            Dynamic Pomodoro scheduling customized to cognitive levels.
+          <h1 className="text-2xl md:text-3xl font-display font-light tracking-widest text-cyan-50 text-glow-cyan uppercase opacity-90">Your Personal AI Planner</h1>
+          <p className="text-xs text-slate-400 font-semibold tracking-wide mt-1">
+            Let me build a smart, balanced schedule tailored to your focus and energy levels.
           </p>
         </div>
         <button
@@ -182,7 +182,7 @@ export const Planner = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-cyan-400" />
-                <h3 className="text-xs font-black uppercase tracking-wider text-white">Target Core Timeline</h3>
+                <h3 className="text-xs font-black uppercase tracking-wider text-white">Today's Roadmap</h3>
               </div>
               <span className="text-[10px] font-black tracking-wider uppercase text-blue-400/90">
                 {plan?.planDate ? `Plan for: ${plan.planDate}` : 'Target: Today'}
@@ -195,8 +195,10 @@ export const Planner = () => {
                   <ScheduleBlock key={idx} block={block} onComplete={handleCompleteTask} onStart={handleStartTask} onAttend={handleAttendLecture} onLogStudy={handleLogStudy} />
                 ))
               ) : (
-                <div className="text-center py-12 text-xs text-slate-500 font-semibold">
-                  Click 'Generate Daily Plan' above to build customized Pomodoro sessions.
+                <div className="text-center py-12 px-4 border border-dashed border-white/10 rounded-xl bg-white/5">
+                  <Sparkles className="h-8 w-8 text-cyan-500/50 mx-auto mb-3" />
+                  <p className="text-sm text-slate-300 font-semibold mb-1">Hi there! I'm ready to organize your day.</p>
+                  <p className="text-xs text-slate-500">Click 'Generate Daily Plan' above and let's crush your goals together.</p>
                 </div>
               )}
             </div>
@@ -245,7 +247,7 @@ export const Planner = () => {
           <div className="glass-panel rounded-2xl p-5 border border-white/5 space-y-4">
             <div className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-blue-400" />
-              <h3 className="text-xs font-black uppercase tracking-wider text-white">AI Core Recommendations</h3>
+              <h3 className="text-xs font-black uppercase tracking-wider text-white">My Advice For You</h3>
             </div>
             
             <ul className="space-y-3.5 text-xs text-slate-300">

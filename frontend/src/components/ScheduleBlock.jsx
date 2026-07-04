@@ -34,10 +34,10 @@ export const ScheduleBlock = ({ block, onComplete, onStart, onAttend, onLogStudy
       </div>
 
       {/* Main card info */}
-      <div className={`glass-panel flex-1 rounded-2xl p-4 border flex items-center justify-between gap-4 ${theme.css}`}>
+      <div className={`glass-panel flex-1 rounded-2xl p-4 border flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 ${theme.css} hover:border-white/20`}>
         <div className="space-y-1">
           <h5 className="text-sm font-bold text-white tracking-wide">{block.activity}</h5>
-          <p className="text-[10px] uppercase font-black tracking-widest text-slate-400">
+          <p className="text-[10px] uppercase font-black tracking-widest opacity-80 mix-blend-plus-lighter">
             {block.category} • {block.duration} mins
           </p>
         </div>
@@ -57,10 +57,10 @@ export const ScheduleBlock = ({ block, onComplete, onStart, onAttend, onLogStudy
             <button
               onClick={() => onComplete(block.taskId)}
               title="Mark Completed"
-              className="flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white px-2.5 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all"
+              className="flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-emerald-500/20"
             >
               <CheckSquare className="h-3.5 w-3.5" />
-              <span>Complete</span>
+              <span>Done</span>
             </button>
           )}
           {!block.taskId && block.category === 'study' && onLogStudy && (

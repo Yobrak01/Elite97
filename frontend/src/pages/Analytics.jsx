@@ -219,10 +219,10 @@ export const Analytics = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-8">
         <div className="relative">
-          <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-lg blur opacity-20 animate-pulse"></div>
+          
           <div className="relative">
-            <h1 className="text-3xl md:text-5xl font-display font-black tracking-[0.3em] text-white uppercase drop-shadow-[0_0_15px_rgba(6,182,212,0.8)]">YOUR PROGRESS & INSIGHTS</h1>
-            <p className="text-xs text-cyan-400 font-bold uppercase tracking-[0.4em] mt-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-white">YOUR PROGRESS & INSIGHTS</h1>
+            <p className="text-sm text-slate-400 font-medium mt-2">
               Learning Journey & Growth
             </p>
           </div>
@@ -231,11 +231,11 @@ export const Analytics = () => {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {/* Productivity score trend */}
-        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-cyan-500/30 hover:shadow-[0_0_40px_rgba(6,182,212,0.15)] transition-all duration-500 space-y-4 lg:col-span-2 relative overflow-hidden group">
-          <div className="absolute -right-10 -top-10 w-32 h-32 bg-cyan-500/10 rounded-full blur-3xl group-hover:bg-cyan-500/20 transition-all duration-700"></div>
+        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-4 lg:col-span-2 relative overflow-hidden group">
+          
           <div className="flex items-center gap-2">
             <Cpu className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">Productivity Trend (30 Days)</h3>
+            <h3 className="text-xs font-semibold text-slate-100">Productivity Trend (30 Days)</h3>
           </div>
           <div className="h-64 w-full">
             {formattedData.length === 0 ? (
@@ -263,11 +263,11 @@ export const Analytics = () => {
         </div>
 
         {/* Radar Performance Chart */}
-        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-purple-500/30 hover:shadow-[0_0_40px_rgba(168,85,247,0.15)] transition-all duration-500 space-y-4 relative overflow-hidden group">
-          <div className="absolute -right-10 -top-10 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl group-hover:bg-purple-500/20 transition-all duration-700"></div>
+        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-4 relative overflow-hidden group">
+          
           <div className="flex items-center gap-2">
             <Target className="h-5 w-5 text-purple-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">Learning Strengths</h3>
+            <h3 className="text-xs font-semibold text-slate-100">Learning Strengths</h3>
           </div>
           <div className="h-64 w-full">
             {radarData.length === 0 ? (
@@ -289,11 +289,11 @@ export const Analytics = () => {
         </div>
 
         {/* Burnout Risk Trend */}
-        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-red-500/30 hover:shadow-[0_0_40px_rgba(239,68,68,0.15)] transition-all duration-500 space-y-4 lg:col-span-2 relative overflow-hidden group">
-          <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-red-500/10 rounded-full blur-3xl group-hover:bg-red-500/20 transition-all duration-700"></div>
+        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-4 lg:col-span-2 relative overflow-hidden group">
+          
           <div className="flex items-center gap-2">
             <Calendar className="h-5 w-5 text-red-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">Well-being & Focus Balance</h3>
+            <h3 className="text-xs font-semibold text-slate-100">Well-being & Focus Balance</h3>
           </div>
           <div className="h-72 w-full">
             {formattedData.length === 0 ? (
@@ -317,11 +317,11 @@ export const Analytics = () => {
         </div>
 
         {/* Study Hours Trend */}
-        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-blue-500/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] transition-all duration-500 space-y-4 relative overflow-hidden group">
-          <div className="absolute -left-10 -bottom-10 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-all duration-700"></div>
+        <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-4 relative overflow-hidden group">
+          
           <div className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5 text-blue-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">Study Duration</h3>
+            <h3 className="text-xs font-semibold text-slate-100">Study Duration</h3>
           </div>
           <div className="h-72 w-full">
             {formattedData.length === 0 ? (
@@ -345,14 +345,14 @@ export const Analytics = () => {
 
       {/* Study Gauge Section */}
       <div className="border-t border-white/5 pt-6 mt-6">
-        <h2 className="text-xl font-black tracking-wider text-white mb-6">YOUR LEARNING PROFILE</h2>
+        <h2 className="text-xl font-semibold text-slate-100 mb-6">YOUR LEARNING PROFILE</h2>
         {studyGauge ? (
           <div className="grid gap-6 md:grid-cols-3">
             {/* System Profile Radar */}
-            <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-cyan-500/30 transition-all duration-500 space-y-4 relative overflow-hidden">
+            <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-4 relative overflow-hidden">
               <div className="flex items-center gap-2">
                 <Compass className="h-5 w-5 text-blue-400" />
-                <h3 className="text-xs font-black uppercase tracking-wider text-white">Learning Pillars</h3>
+                <h3 className="text-xs font-semibold text-slate-100">Learning Pillars</h3>
               </div>
               <div className="h-48 w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -368,10 +368,10 @@ export const Analytics = () => {
             </div>
 
             {/* Performance Tier Speedometer */}
-            <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-cyan-500/30 transition-all duration-500 space-y-4 flex flex-col items-center justify-center relative overflow-hidden">
+            <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-4 flex flex-col items-center justify-center relative overflow-hidden">
               <div className="flex items-center gap-2 w-full justify-start">
                 <Activity className="h-5 w-5 text-blue-400" />
-                <h3 className="text-xs font-black uppercase tracking-wider text-white">Current Level</h3>
+                <h3 className="text-xs font-semibold text-slate-100">Current Level</h3>
               </div>
               <div className="relative flex flex-col items-center justify-center h-40 w-full">
                 <svg viewBox="0 0 100 50" className="w-full h-full max-w-[200px] overflow-visible">
@@ -401,11 +401,11 @@ export const Analytics = () => {
             </div>
 
             {/* Improvement Plan */}
-            <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-6 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-emerald-500/30 hover:shadow-[0_0_40px_rgba(16,185,129,0.1)] transition-all duration-500 space-y-4 relative overflow-hidden group">
-              <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl group-hover:bg-emerald-500/20 transition-all duration-700"></div>
+            <div className="bg-slate-900 rounded-2xl p-6 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-4 relative overflow-hidden group">
+              
               <div className="flex items-center gap-2">
                 <Zap className="h-5 w-5 text-emerald-400" />
-                <h3 className="text-xs font-black uppercase tracking-wider text-white">Improvement Plan</h3>
+                <h3 className="text-xs font-semibold text-slate-100">Improvement Plan</h3>
               </div>
               <div className="space-y-4 pt-2">
                 <p className="text-xs text-slate-300">
@@ -441,13 +441,13 @@ export const Analytics = () => {
       <div className="grid gap-6 md:grid-cols-2 mt-6">
         
         {/* Honours Trajectory Card */}
-        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-emerald-500/30 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)] transition-all duration-500 space-y-5 relative overflow-hidden group">
+        <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-5 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
              <GraduationCap className="w-40 h-40" />
           </div>
           <div className="flex items-center gap-2">
             <GraduationCap className="h-5 w-5 text-emerald-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">Academic Journey</h3>
+            <h3 className="text-xs font-semibold text-slate-100">Academic Journey</h3>
           </div>
 
           {gpaData ? (
@@ -470,19 +470,19 @@ export const Analytics = () => {
                   </defs>
                 </svg>
                 <div className="absolute text-center">
-                  <p className="text-3xl font-black text-white">{(gpaData.predictedSemesterMark || 0).toFixed(2)}</p>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Semester</p>
+                  <p className="text-3xl font-bold text-slate-100">{(gpaData.predictedSemesterMark || 0).toFixed(2)}</p>
+                  <p className="text-xs font-medium text-slate-400">Semester</p>
                 </div>
               </div>
 
               {/* Stats */}
               <div className="flex-1 space-y-4">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Weighted Honours Mark</p>
-                  <p className="text-2xl font-black text-blue-400">{(gpaData.cumulativeMark || 0).toFixed(2)}%</p>
+                  <p className="text-xs font-medium text-slate-400">Weighted Honours Mark</p>
+                  <p className="text-2xl font-bold text-blue-400">{(gpaData.cumulativeMark || 0).toFixed(2)}%</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Projected Classification</p>
+                  <p className="text-xs font-medium text-slate-400">Projected Classification</p>
                   <p className="text-sm font-black text-emerald-400">{gpaData.classification || 'N/A'}</p>
                 </div>
                 <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
@@ -501,13 +501,13 @@ export const Analytics = () => {
         </div>
 
         {/* Daily Expected Mark Gauge (By Study Hours) */}
-        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-cyan-500/30 hover:shadow-[0_0_40px_rgba(6,182,212,0.15)] transition-all duration-500 space-y-5 relative overflow-hidden group">
+        <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-5 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
              <Award className="w-40 h-40" />
           </div>
           <div className="flex items-center gap-2">
             <Award className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">Daily Mark Gauge (By Effort)</h3>
+            <h3 className="text-xs font-semibold text-slate-100">Daily Mark Gauge (By Effort)</h3>
           </div>
 
           {gpaData ? (
@@ -530,19 +530,19 @@ export const Analytics = () => {
                   </defs>
                 </svg>
                 <div className="absolute text-center">
-                  <p className="text-3xl font-black text-white">{mitRanking?.breakdown?.baseline ? Math.min(100, (mitRanking.breakdown.weeklyStudyHours / mitRanking.breakdown.baseline.maxStudyHours) * 100).toFixed(2) : '0.00'}</p>
-                  <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Daily Mark</p>
+                  <p className="text-3xl font-bold text-slate-100">{mitRanking?.breakdown?.baseline ? Math.min(100, (mitRanking.breakdown.weeklyStudyHours / mitRanking.breakdown.baseline.maxStudyHours) * 100).toFixed(2) : '0.00'}</p>
+                  <p className="text-xs font-medium text-slate-400">Daily Mark</p>
                 </div>
               </div>
 
               {/* Stats */}
               <div className="flex-1 space-y-4">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Max Potential Mark</p>
-                  <p className="text-2xl font-black text-blue-400">100%</p>
+                  <p className="text-xs font-medium text-slate-400">Max Potential Mark</p>
+                  <p className="text-2xl font-bold text-blue-400">100%</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Books & Focus Gauge</p>
+                  <p className="text-xs font-medium text-slate-400">Books & Focus Gauge</p>
                   <p className="text-sm font-black text-emerald-400">{(mitRanking?.vectors?.hours || 0) > 70 ? 'Excellent' : (mitRanking?.vectors?.hours || 0) > 50 ? 'Average' : 'Low'}</p>
                 </div>
                 <div className="h-2 w-full rounded-full bg-white/5 overflow-hidden">
@@ -560,24 +560,24 @@ export const Analytics = () => {
           )}
         </div>
 
-        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-amber-500/30 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] transition-all duration-500 space-y-5 relative overflow-hidden group">
+        <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-5 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
              <Globe className="w-40 h-40" />
           </div>
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">{user?.university || 'University'} {user?.major || ''} Rank</h3>
+            <h3 className="text-xs font-semibold text-slate-100">{user?.university || 'University'} {user?.major || ''} Rank</h3>
           </div>
 
           {mitRanking ? (
             <div className="space-y-5">
               {/* Rank Display */}
               <div className="text-center py-2">
-                <p className="text-5xl font-black text-white">
+                <p className="text-4xl font-bold text-slate-100">
                   <span className="text-2xl text-cyan-400">#</span>{Math.max(1, Math.round(((100 - (mitRanking.mitRankPercentile || 0)) / 100) * candidatesCount))}
                 </p>
                 <div className="flex items-center justify-center mt-2 gap-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Out of</span>
+                  <span className="text-xs font-medium text-slate-400">Out of</span>
                   <input
                     type="number"
                     value={candidatesCount}
@@ -585,7 +585,7 @@ export const Analytics = () => {
                     onBlur={handleUpdateCandidates}
                     className="w-16 bg-navy-950/50 border border-white/10 rounded px-2 py-1 text-white text-xs text-center focus:outline-none focus:border-cyan-500/50"
                   />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Candidates</span>
+                  <span className="text-xs font-medium text-slate-400">Candidates</span>
                   {updatingCandidates && <span className="text-xs text-cyan-400 animate-pulse">...</span>}
                 </div>
               </div>
@@ -604,7 +604,7 @@ export const Analytics = () => {
 
               {/* Scoring Vectors */}
               <div className="space-y-3">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Scoring Vectors</p>
+                <p className="text-xs font-medium text-slate-400">Scoring Vectors</p>
                 {[
                   { label: 'Study Hours', value: mitRanking.breakdown?.baseline ? Math.round(Math.min(100, (mitRanking.breakdown.weeklyStudyHours / mitRanking.breakdown.baseline.maxStudyHours) * 100)) : 0, color: 'from-yellow-500 to-amber-400' },
                   { label: 'Focus Score', value: mitRanking.breakdown?.baseline ? Math.round(Math.min(100, (mitRanking.breakdown.avgFocusScore / mitRanking.breakdown.baseline.maxFocusScore) * 100)) : 0, color: 'from-purple-500 to-pink-400' },
@@ -613,7 +613,7 @@ export const Analytics = () => {
                 ].map((vector) => (
                   <div key={vector.label} className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{vector.label}</span>
+                      <span className="text-xs font-medium text-slate-400">{vector.label}</span>
                       <span className="text-xs font-black text-white">{vector.value}%</span>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
@@ -634,13 +634,13 @@ export const Analytics = () => {
         </div>
 
         {/* MIT Global Ranking Card */}
-        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-blue-500/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] transition-all duration-500 space-y-5 relative overflow-hidden group">
+        <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-5 relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
              <Globe className="w-40 h-40 text-white" />
           </div>
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-cyan-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">
+            <h3 className="text-xs font-semibold text-slate-100">
               <select 
                 value={benchmarkUni}
                 onChange={(e) => handleUpdateBenchmark(e.target.value)}
@@ -658,10 +658,10 @@ export const Analytics = () => {
             <div className="space-y-5">
               {/* Percentile Display */}
               <div className="text-center py-2">
-                <p className="text-5xl font-black text-white">
+                <p className="text-4xl font-bold text-slate-100">
                   {mitRanking.mitRankPercentile || 0}<span className="text-2xl text-cyan-400">%</span>
                 </p>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">Global Percentile</p>
+                <p className="text-xs font-medium text-slate-400 mt-1">Global Percentile</p>
               </div>
 
               {/* Gradient Progress Bar */}
@@ -678,7 +678,7 @@ export const Analytics = () => {
 
               {/* Scoring Vectors */}
               <div className="space-y-3">
-                <p className="text-[9px] font-bold uppercase tracking-widest text-slate-500">Scoring Vectors</p>
+                <p className="text-xs font-medium text-slate-400">Scoring Vectors</p>
                 {[
                   { label: 'Study Hours', value: mitRanking.breakdown?.baseline ? Math.round(Math.min(100, (mitRanking.breakdown.weeklyStudyHours / mitRanking.breakdown.baseline.maxStudyHours) * 100)) : 0, color: 'from-yellow-500 to-amber-400' },
                   { label: 'Focus Score', value: mitRanking.breakdown?.baseline ? Math.round(Math.min(100, (mitRanking.breakdown.avgFocusScore / mitRanking.breakdown.baseline.maxFocusScore) * 100)) : 0, color: 'from-purple-500 to-pink-400' },
@@ -687,7 +687,7 @@ export const Analytics = () => {
                 ].map((vector) => (
                   <div key={vector.label} className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{vector.label}</span>
+                      <span className="text-xs font-medium text-slate-400">{vector.label}</span>
                       <span className="text-xs font-black text-white">{vector.value}%</span>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-white/5 overflow-hidden">
@@ -710,13 +710,13 @@ export const Analytics = () => {
 
       {/* Oracle Prediction Card */}
       {oracleData && (
-        <div className="bg-navy-900/60 backdrop-blur-xl rounded-3xl p-8 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] hover:border-purple-500/30 transition-all duration-500 space-y-5 relative overflow-hidden group mt-6">
+        <div className="bg-slate-900 rounded-2xl p-8 border border-slate-800 shadow-sm hover:border-slate-700 transition-all duration-500 space-y-5 relative overflow-hidden group mt-6">
           <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity duration-700">
             <Eye className="w-40 h-40 text-purple-400" />
           </div>
           <div className="flex items-center gap-2">
             <Eye className="h-5 w-5 text-purple-400 animate-pulse" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-white">AI Mentor's Advice</h3>
+            <h3 className="text-xs font-semibold text-slate-100">AI Mentor's Advice</h3>
           </div>
           <div className="text-center py-4">
             <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500 drop-shadow-[0_0_10px_rgba(168,85,247,0.5)]">
@@ -738,9 +738,9 @@ export const Analytics = () => {
           : 0;
         
         return (
-        <div className="bg-navy-900/80 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-[0_10px_50px_rgba(0,0,0,0.6)] overflow-hidden mt-10 hover:border-cyan-500/30 transition-all duration-700">
+        <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-sm overflow-hidden mt-10 hover:border-slate-700 transition-all duration-700">
           <div className="p-6 border-b border-white/5">
-            <h3 className="text-lg font-black uppercase tracking-wider text-white">Course Projections & Guidance</h3>
+            <h3 className="text-lg font-semibold text-slate-100">Course Projections & Guidance</h3>
             <p className="text-xs text-slate-400 font-semibold mt-1">Smart analysis based on study hours, focus, attendance, consistency, and more.</p>
           </div>
           <div className="overflow-x-auto">
@@ -871,7 +871,7 @@ export const Analytics = () => {
                       {gpaData.predictedSemesterMark >= 70 ? 'A' : gpaData.predictedSemesterMark >= 60 ? 'B' : gpaData.predictedSemesterMark >= 50 ? 'C' : gpaData.predictedSemesterMark >= 40 ? 'D' : 'E'}
                     </span>
                   </td>
-                  <td className="p-4 pr-6 text-right text-2xl font-black text-white">
+                  <td className="p-4 pr-6 text-right text-2xl font-bold text-white">
                     {gpaData.predictedSemesterMark !== undefined ? gpaData.predictedSemesterMark.toFixed(1) : '0.0'}%
                   </td>
                 </tr>
