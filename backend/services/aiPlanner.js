@@ -162,11 +162,12 @@ Return ONLY a JSON array of blocks. Each block must have this exact format:
 Do not use markdown. Do not include \`\`\`json.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.1-flash-lite',
         contents: prompt,
       });
 
-      let text = response.text.replace(/```json/g, '').replace(/```/g, '').trim();
+      const match = response.text.match(/\[[\s\S]*\]/);
+      let text = match ? match[0] : response.text.replace(/```json/g, '').replace(/```/g, '').trim();
       blocks = JSON.parse(text);
       return { blocks, dateString };
     } catch (error) {
@@ -360,12 +361,12 @@ Do not use markdown. Do not include \`\`\`json.`;
   try {
     const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-3.1-flash-lite',
       contents: prompt,
     });
 
-    let text = response.text;
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const match = response.text.match(/\[[\s\S]*\]/);
+    let text = match ? match[0] : response.text.replace(/```json/g, '').replace(/```/g, '').trim();
     const blocks = JSON.parse(text);
 
     return { blocks, dateString };

@@ -13,6 +13,17 @@ const NeuralOverride = () => {
   const [activeLogId, setActiveLogId] = useState(null);
   const [isCompleted, setIsCompleted] = useState(false);
   const [abortConfirm, setAbortConfirm] = useState(false);
+  const [youtubeId, setYoutubeId] = useState('jfKfPfyJRdk');
+  
+  const handleYoutubeChange = (e) => {
+    const val = e.target.value;
+    const match = val.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([\w-]{11})/);
+    if (match && match[1]) {
+      setYoutubeId(match[1]);
+    } else {
+      setYoutubeId(val);
+    }
+  };
   
   const audioCtxRef = useRef(null);
   const leftOscRef = useRef(null);
@@ -303,18 +314,26 @@ const NeuralOverride = () => {
               </span>
             </button>
             
-            {/* YouTube Audio Player (Hidden visually, but active for audio) */}
+            {/* YouTube Audio Player */}
             {audioMode === 'LOFI' && (
-              <div className="w-64 h-24 overflow-hidden rounded-xl border border-cyan-500/30 opacity-50 hover:opacity-100 transition-opacity">
-                <iframe 
-                  width="100%" 
-                  height="100%" 
-                  src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=1&controls=0&disablekb=1&fs=0&modestbranding=1" 
-                  title="Lofi Radio" 
-                  frameBorder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen
-                ></iframe>
+              <div className="flex flex-col gap-2">
+                <input 
+                  type="text" 
+                  placeholder="Paste YouTube Link or ID (if default fails)..." 
+                  onChange={handleYoutubeChange}
+                  className="w-64 px-3 py-1.5 text-xs bg-black/50 border border-cyan-500/30 rounded-lg text-cyan-400 focus:outline-none focus:border-cyan-500 transition-colors"
+                />
+                <div className="w-64 h-24 overflow-hidden rounded-xl border border-cyan-500/30 opacity-70 hover:opacity-100 transition-opacity">
+                  <iframe 
+                    width="100%" 
+                    height="100%" 
+                    src={`https://www.youtube-nocookie.com/embed/${youtubeId}?autoplay=1&controls=1&disablekb=0&fs=0&modestbranding=1`} 
+                    title="Lofi Radio" 
+                    frameBorder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowFullScreen
+                  ></iframe>
+                </div>
               </div>
             )}
           </>

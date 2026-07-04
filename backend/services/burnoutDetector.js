@@ -133,12 +133,12 @@ Return ONLY a JSON object with this exact structure:
 }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-3.1-flash-lite',
       contents: prompt,
     });
 
-    let text = response.text;
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const match = response.text.match(/\{[\s\S]*\}/);
+    let text = match ? match[0] : response.text.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(text);
 
   } catch (error) {

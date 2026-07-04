@@ -66,14 +66,14 @@ exports.generateFromMaterial = async (fileBuffer, mimetype = '', originalname = 
     let response;
     try {
       response = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.1-flash-lite',
         contents: contents,
       });
     } catch (apiError) {
       if (apiError.status === 429 || apiError.message?.includes('429') || apiError.message?.includes('quota')) {
-        console.warn('Gemini 2.0 Flash quota exceeded. Falling back to gemini-1.5-flash...');
+        console.warn('Gemini quota exceeded. Retrying...');
         response = await ai.models.generateContent({
-          model: 'gemini-1.5-flash',
+          model: 'gemini-3.1-flash-lite',
           contents: contents,
         });
       } else {
@@ -81,10 +81,8 @@ exports.generateFromMaterial = async (fileBuffer, mimetype = '', originalname = 
       }
     }
 
-    let resultText = response.text;
-    
-    // Clean up potential markdown formatting from Gemini's response
-    resultText = resultText.replace(/```json/g, '').replace(/```/g, '').trim();
+    const match = response.text.match(/\{[\s\S]*\}/);
+    let resultText = match ? match[0] : response.text.replace(/```json/g, '').replace(/```/g, '').trim();
     
     // Handle potential trailing commas or formatting errors
     let parsedData;

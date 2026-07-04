@@ -225,12 +225,12 @@ Return ONLY a JSON object with this exact structure, nothing else:
 }`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-3.5-flash',
+      model: 'gemini-3.1-flash-lite',
       contents: prompt,
     });
     
-    let text = response.text;
-    text = text.replace(/```json/g, '').replace(/```/g, '').trim();
+    const match = response.text.match(/\{[\s\S]*\}/);
+    let text = match ? match[0] : response.text.replace(/```json/g, '').replace(/```/g, '').trim();
     const aiData = JSON.parse(text);
 
     baseResult.projections.rank = aiData.projectedRank;
