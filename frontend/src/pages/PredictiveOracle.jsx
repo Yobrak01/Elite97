@@ -42,8 +42,8 @@ export const PredictiveOracle = () => {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="relative flex flex-col items-center justify-center space-y-4">
-          <Eye className="h-16 w-16 animate-pulse text-cyan-500/50" />
-          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400 animate-pulse">Running Trajectory Simulation...</div>
+          <Brain className="h-16 w-16 animate-pulse text-cyan-500/50" />
+          <div className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400 animate-pulse">Analyzing your recent study patterns...</div>
         </div>
       </div>
     );
@@ -71,13 +71,13 @@ export const PredictiveOracle = () => {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-white/5 pb-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <Cpu className={`h-6 w-6 ${theme.text}`} />
+            <Brain className={`h-6 w-6 ${theme.text}`} />
             <h1 className={`text-3xl md:text-4xl font-display font-light tracking-[0.5em] uppercase ${theme.text} ${theme.glow}`}>
-              PREDICTIVE ORACLE
+              THE ORACLE (AI ADVISOR)
             </h1>
           </div>
           <p className="text-xs text-slate-400 font-semibold uppercase tracking-widest pl-9">
-            Mathematical Consequence Visualization Engine
+            AI-Powered Performance & Focus Extrapolation
           </p>
         </div>
         
@@ -96,10 +96,10 @@ export const PredictiveOracle = () => {
       {/* The Verdict Box */}
       <div className={`glass-panel rounded-3xl p-8 border relative overflow-hidden transition-colors ${theme.border} ${theme.bg}`}>
         <div className="absolute top-0 right-0 p-4 opacity-10">
-          <Eye className="w-48 h-48" />
+          <Brain className="w-48 h-48" />
         </div>
         <div className="relative z-10 max-w-4xl">
-          <h2 className={`text-xs font-black uppercase tracking-[0.4em] mb-4 ${theme.text}`}>Oracle Verdict</h2>
+          <h2 className={`text-xs font-black uppercase tracking-[0.4em] mb-4 ${theme.text}`}>Mentor's Verdict</h2>
           <p className="text-xl md:text-2xl font-light leading-relaxed text-white tracking-wide">
             {verdict}
           </p>
@@ -111,7 +111,7 @@ export const PredictiveOracle = () => {
         {/* Trajectory Vector */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Focus Trajectory Vector</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Focus Momentum</h3>
             {isDeclining ? <TrendingDown className="w-4 h-4 text-red-500" /> : <TrendingUp className="w-4 h-4 text-cyan-400" />}
           </div>
           <p className={`text-4xl font-black ${theme.text}`}>
@@ -140,7 +140,7 @@ export const PredictiveOracle = () => {
         {/* System Failure Consequence */}
         <div className="glass-panel rounded-2xl p-6 border border-white/5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">System Failure Horizon</h3>
+            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Burnout Risk Horizon</h3>
             <AlertTriangle className="w-4 h-4 text-amber-500" />
           </div>
           <p className={`text-4xl font-black ${projections.burnoutHorizon && projections.burnoutHorizon.includes('Critical') ? 'text-red-500 animate-pulse' : 'text-white'}`}>
