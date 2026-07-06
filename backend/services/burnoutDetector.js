@@ -100,6 +100,7 @@ async function detectBurnout(context) {
   }
 
   // OVERRIDE: If the user manually logged a burnout assessment today, we respect their self-reported risk score over the algorithm.
+  let hasManualOverride = false;
   if (userId) {
     const today = getStartOfDay(timezone);
     const todayEnd = getEndOfDay(timezone);
@@ -110,6 +111,7 @@ async function detectBurnout(context) {
       }).sort({ createdAt: -1 });
 
       if (manualLog) {
+        hasManualOverride = true;
         risk = manualLog.riskScore;
         level = manualLog.level;
         factors.push(`User Override: Manually self-reported ${level} level at ${risk}% risk.`);
@@ -137,7 +139,7 @@ async function detectBurnout(context) {
     recommendations: generateBurnoutRecommendations(level)
   };
 
-  if (!process.env.GEMINI_API_KEY) {
+  if (hasManualOverride || !process.env.GEMINI_API_KEY) {
     return fallbackResult;
   }
 
