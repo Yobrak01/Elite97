@@ -203,8 +203,14 @@ exports.updateSettings = async (req, res, next) => {
   try {
     const { settings, studyMode, yearOfStudy, course, currentSemester, timetable, studyGauge, pastResults, pantry, taskGenerationMode, country, university, major, semesterSchedule, majorCandidatesCount, benchmarkUniversity, timezone } = req.body;
     
-    if (settings) { req.user.settings = { ...req.user.settings, ...settings }; req.user.markModified('settings'); }
-    if (pantry) { req.user.pantry = pantry; req.user.markModified('pantry'); }
+    if (settings) {
+      Object.assign(req.user.settings, settings);
+      req.user.markModified('settings');
+    }
+    if (pantry) {
+      Object.assign(req.user.pantry, pantry);
+      req.user.markModified('pantry');
+    }
     if (taskGenerationMode) req.user.settings.taskGenerationMode = taskGenerationMode;
     if (studyMode) {
       const allowedModes = ['normal', 'cat_prep', 'exam_prep', 'recovery', 'unexpected_event'];
@@ -228,10 +234,7 @@ exports.updateSettings = async (req, res, next) => {
     if (timetable !== undefined) req.user.timetable = timetable;
     if (pastResults !== undefined) req.user.pastResults = pastResults;
     if (semesterSchedule !== undefined) {
-      req.user.semesterSchedule = {
-        ...req.user.semesterSchedule,
-        ...semesterSchedule
-      };
+      Object.assign(req.user.semesterSchedule, semesterSchedule);
       req.user.markModified('semesterSchedule');
       
       // Keep legacy semesterEndDate in sync just in case
