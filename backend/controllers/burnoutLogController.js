@@ -1,4 +1,6 @@
 const BurnoutLog = require('../models/BurnoutLog');
+const Analytics = require('../models/Analytics');
+const { getStartOfDay } = require('../utils/dateUtils');
 
 /**
  * GET /api/burnout-log
@@ -89,6 +91,17 @@ exports.createLog = async (req, res, next) => {
       symptoms: Array.isArray(symptoms) ? symptoms : [],
       notes: notes || ''
     });
+
+    // IMMEDIATELY forcefully update today's Analytics document so the Oracle & Dashboard use it instantly
+    const today = getStartOfDay(req.user.timezone || 'Africa/Nairobi');
+    await Analytics.findOneAndUpdate(
+      { user: req.user._id, date: today },
+      { 
+        burnoutRisk: log.riskScore,
+        burnoutLevel: log.level
+      },
+      { upsert: true, new: true }
+    );
 
     res.status(201).json({ success: true, data: log });
   } catch (error) {
