@@ -382,7 +382,7 @@ exports.getTodayRoutine = async (req, res, next) => {
     };
 
     // Format lectures to match routine structure
-    const lectureRoutines = lectures.map(lec => {
+    const lectureRoutines = lectures.map((lec, index) => {
       const startMins = parseTime(lec.startTime);
       const endMins = parseTime(lec.endTime);
       
@@ -425,6 +425,9 @@ exports.getTodayRoutine = async (req, res, next) => {
 
       return {
         id: `lec_${index}`,
+        time: formatTime12h(startMins),
+        minutes: startMins,
+        endMinutes: endMins,
         startTime: lec.startTime,
         endTime: lec.endTime,
         activity: lec.unitName,
