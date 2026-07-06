@@ -23,6 +23,7 @@ const NeuralVault = lazy(() => import('./pages/NeuralVault'));
 const Streaks = lazy(() => import('./pages/Streaks'));
 const Notes = lazy(() => import('./pages/Notes'));
 const CognitiveWeakness = lazy(() => import('./pages/CognitiveWeakness'));
+const BurnoutLog = lazy(() => import('./pages/BurnoutLog'));
 
 // Suspense fallback spinner matching the app's design
 const PageLoader = () => (
@@ -66,6 +67,7 @@ export const App = () => {
                 <Route path="/streaks" element={<Streaks />} />
                 <Route path="/notes" element={<Notes />} />
                 <Route path="/weakness" element={<CognitiveWeakness />} />
+                <Route path="/burnout-log" element={<BurnoutLog />} />
               </Route>
             </Route>
 

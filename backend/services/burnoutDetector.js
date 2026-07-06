@@ -1,4 +1,6 @@
 const { GoogleGenAI } = require('@google/genai');
+const BurnoutLog = require('../models/BurnoutLog');
+const { getStartOfDay, getEndOfDay } = require('../utils/dateUtils');
 
 /**
  * Detects burnout risk based on a 12-factor model.
@@ -14,7 +16,9 @@ async function detectBurnout(context) {
     restHours = 8,
     hasGym = false,
     consecutiveHighDays = 0,
-    trendWorsening = false
+    trendWorsening = false,
+    userId,
+    timezone = 'UTC'
   } = context;
 
   let risk = 20; // Base baseline
@@ -93,6 +97,36 @@ async function detectBurnout(context) {
   } else if (risk >= 30) {
     level = 'moderate';
     severity = 'Elevated Friction';
+  }
+
+  // OVERRIDE: If the user manually logged a burnout assessment today, we respect their self-reported risk score over the algorithm.
+  if (userId) {
+    const today = getStartOfDay(timezone);
+    const todayEnd = getEndOfDay(timezone);
+    try {
+      const manualLog = await BurnoutLog.findOne({
+        user: userId,
+        createdAt: { $gte: today, $lte: todayEnd }
+      }).sort({ createdAt: -1 });
+
+      if (manualLog) {
+        risk = manualLog.riskScore;
+        level = manualLog.level;
+        factors.push(`User Override: Manually self-reported ${level} level at ${risk}% risk.`);
+        
+        if (risk >= 80) {
+          severity = 'Immediate Intervention Required (Manual)';
+        } else if (risk >= 60) {
+          severity = 'Approaching Failure Point (Manual)';
+        } else if (risk >= 30) {
+          severity = 'Elevated Friction (Manual)';
+        } else {
+          severity = 'System nominal (Manual)';
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch manual BurnoutLog in detector:', err);
+    }
   }
 
   const fallbackResult = {

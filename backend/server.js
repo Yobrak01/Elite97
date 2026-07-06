@@ -23,6 +23,7 @@ const vaultRoutes = require('./routes/vaultRoutes');
 const streakRoutes = require('./routes/streakRoutes');
 const noteRoutes = require('./routes/noteRoutes');
 const weaknessRoutes = require('./routes/weaknessRoutes');
+const burnoutLogRoutes = require('./routes/burnoutLogRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -72,6 +73,7 @@ app.use('/api/vault', vaultRoutes);
 app.use('/api/streaks', streakRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/weakness', weaknessRoutes);
+app.use('/api/burnout-log', burnoutLogRoutes);
 
 // Health Check
 app.get('/api/health', (req, res) => {

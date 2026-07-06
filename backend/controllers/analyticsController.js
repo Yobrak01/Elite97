@@ -19,7 +19,7 @@ const { getStartOfDay, getEndOfDay } = require('../utils/dateUtils');
 const moment = require('moment-timezone');
 
 // Helper function to build comprehensive context
-async function buildContext(userId, today, streak) {
+async function buildContext(userId, today, streak, timezone = 'Africa/Nairobi') {
   const last7Days = new Date(today);
   last7Days.setDate(last7Days.getDate() - 7);
   
@@ -184,6 +184,8 @@ async function buildContext(userId, today, streak) {
   console.log('[buildContext] timeLogFocusScore:', timeLogFocusScore, 'taskFocusScore:', taskFocusScore, 'logsWithFocus:', studyLogsWithFocus.length);
 
   return {
+    userId,
+    timezone,
     studyHours,
     completionPercentage,
     breaks,
@@ -207,7 +209,7 @@ exports.getDashboard = async (req, res, next) => {
   try {
     const today = getStartOfDay(req.user.timezone);
 
-    const context = await buildContext(req.user._id, today, req.user.streak || 0);
+    const context = await buildContext(req.user._id, today, req.user.streak || 0, req.user.timezone);
     
     // Focus score priority chain:
     // 1. User-set per-session focus scores from TimeLog entries (highest priority — user explicitly rated)
@@ -379,7 +381,7 @@ exports.getBurnoutAssessment = async (req, res, next) => {
   try {
     const today = getStartOfDay(req.user.timezone);
 
-    const context = await buildContext(req.user._id, today, req.user.streak || 0);
+    const context = await buildContext(req.user._id, today, req.user.streak || 0, req.user.timezone);
     const session = await StudySession.findOne({ user: req.user._id, date: today });
     if (!context.focusScore) {
       context.focusScore = session && session.focusScore !== undefined 
@@ -442,7 +444,7 @@ exports.recalculateAnalytics = async (req, res, next) => {
   try {
     const today = getStartOfDay(req.user.timezone);
 
-    const context = await buildContext(req.user._id, today, req.user.streak || 0);
+    const context = await buildContext(req.user._id, today, req.user.streak || 0, req.user.timezone);
     const session = context.session;
     const tasks = await Task.find({ user: req.user._id });
     

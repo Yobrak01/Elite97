@@ -626,6 +626,20 @@ export const api = {
       });
       return handleResponse(res);
     }
+  },
+  burnoutLog: {
+    getAll: async () => {
+      const res = await fetch(`${API_URL}/burnout-log?t=${Date.now()}`, { headers: getHeaders() });
+      return handleResponse(res);
+    },
+    create: async (data) => {
+      const res = await fetch(`${API_URL}/burnout-log`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify(data)
+      });
+      return handleResponse(res);
+    }
   }
 };
 export default api;
