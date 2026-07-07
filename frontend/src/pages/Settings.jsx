@@ -28,7 +28,7 @@ export const Settings = () => {
   const [major, setMajor] = useState(user?.major || '');
 
   const [timetable, setTimetable] = useState(user?.timetable || []);
-  const [newTimetableRow, setNewTimetableRow] = useState({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '', activityType: 'lecture', eventName: '' });
+  const [newTimetableRow, setNewTimetableRow] = useState({ dayOfWeek: ['Monday'], startTime: '', endTime: '', unitName: '', activityType: 'lecture', eventName: '' });
 
   const [pastResults, setPastResults] = useState(user?.pastResults || []);
   const [newResultRow, setNewResultRow] = useState({ year: '', semester: '', type: 'semester', mark: '' });
@@ -61,8 +61,13 @@ export const Settings = () => {
 
   const handleAddTimetableRow = () => {
     if (newTimetableRow.startTime && newTimetableRow.endTime && (newTimetableRow.unitName || newTimetableRow.eventName)) {
-      setTimetable([...timetable, newTimetableRow]);
-      setNewTimetableRow({ dayOfWeek: 'Monday', startTime: '', endTime: '', unitName: '', activityType: 'lecture', eventName: '' });
+      const days = Array.isArray(newTimetableRow.dayOfWeek) ? newTimetableRow.dayOfWeek : [newTimetableRow.dayOfWeek];
+      const newRows = days.map(day => ({
+        ...newTimetableRow,
+        dayOfWeek: day
+      }));
+      setTimetable([...timetable, ...newRows]);
+      setNewTimetableRow({ dayOfWeek: ['Monday'], startTime: '', endTime: '', unitName: '', activityType: 'lecture', eventName: '' });
     }
   };
 
@@ -72,7 +77,7 @@ export const Settings = () => {
 
   const handleEditTimetableRow = (index) => {
     const row = timetable[index];
-    setNewTimetableRow({ dayOfWeek: row.dayOfWeek || row.day, startTime: row.startTime, endTime: row.endTime, unitName: row.unitName, activityType: row.activityType || 'lecture', eventName: row.eventName || '' });
+    setNewTimetableRow({ dayOfWeek: [row.dayOfWeek || row.day], startTime: row.startTime, endTime: row.endTime, unitName: row.unitName, activityType: row.activityType || 'lecture', eventName: row.eventName || '' });
     handleRemoveTimetableRow(index);
   };
 
@@ -432,15 +437,28 @@ export const Settings = () => {
               {/* Add new row form */}
               <div className="flex flex-col gap-2">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <select
-                    value={newTimetableRow.dayOfWeek}
-                    onChange={(e) => setNewTimetableRow({...newTimetableRow, dayOfWeek: e.target.value})}
-                    className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
-                  >
-                    {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => (
-                      <option key={d} value={d}>{d}</option>
-                    ))}
-                  </select>
+                  <div className="flex gap-1 items-center bg-navy-900 border border-white/5 rounded-lg px-1 py-1">
+                    {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => {
+                      const currentDays = Array.isArray(newTimetableRow.dayOfWeek) ? newTimetableRow.dayOfWeek : [newTimetableRow.dayOfWeek];
+                      const isSelected = currentDays.includes(d);
+                      return (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => {
+                            if (isSelected) {
+                              if (currentDays.length > 1) setNewTimetableRow({...newTimetableRow, dayOfWeek: currentDays.filter(day => day !== d)});
+                            } else {
+                              setNewTimetableRow({...newTimetableRow, dayOfWeek: [...currentDays, d]});
+                            }
+                          }}
+                          className={`flex-1 min-w-[20px] h-6 rounded-md text-[10px] font-bold flex items-center justify-center transition-colors ${isSelected ? 'bg-purple-500 text-white' : 'text-slate-400 hover:bg-white/5'}`}
+                        >
+                          {d.substring(0,1)}
+                        </button>
+                      );
+                    })}
+                  </div>
                   <input
                     type="time"
                     value={newTimetableRow.startTime}
@@ -455,7 +473,7 @@ export const Settings = () => {
                   />
                   <select
                     value={newTimetableRow.activityType || 'lecture'}
-                    onChange={(e) => setNewTimetableRow({...newTimetableRow, activityType: e.target.value, unitName: e.target.value === 'lecture' ? '' : 'Other'})}
+                    onChange={(e) => setNewTimetableRow({...newTimetableRow, activityType: e.target.value, unitName: ['lecture', 'personal_study'].includes(e.target.value) ? '' : 'Other'})}
                     className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                   >
                     <option value="lecture">Lecture / Class</option>
@@ -468,7 +486,7 @@ export const Settings = () => {
                   </select>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
-                  {newTimetableRow.activityType === 'lecture' || !newTimetableRow.activityType ? (
+                  {['lecture', 'personal_study'].includes(newTimetableRow.activityType) || !newTimetableRow.activityType ? (
                     <select
                       value={newTimetableRow.unitName}
                       onChange={(e) => setNewTimetableRow({...newTimetableRow, unitName: e.target.value})}
