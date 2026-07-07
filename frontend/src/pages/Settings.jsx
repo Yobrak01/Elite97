@@ -436,8 +436,8 @@ export const Settings = () => {
             <div className="space-y-4">
               {/* Add new row form */}
               <div className="flex flex-col gap-2">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <div className="flex gap-1 items-center bg-navy-900 border border-white/5 rounded-lg px-1 py-1">
+                <div className="grid grid-cols-2 xl:grid-cols-5 gap-2">
+                  <div className="col-span-2 xl:col-span-2 flex gap-1 items-center bg-navy-900 border border-white/5 rounded-lg px-1 py-1">
                     {['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'].map(d => {
                       const currentDays = Array.isArray(newTimetableRow.dayOfWeek) ? newTimetableRow.dayOfWeek : [newTimetableRow.dayOfWeek];
                       const isSelected = currentDays.includes(d);
@@ -461,20 +461,22 @@ export const Settings = () => {
                   </div>
                   <input
                     type="time"
+                    style={{ colorScheme: 'dark' }}
                     value={newTimetableRow.startTime}
                     onChange={(e) => setNewTimetableRow({...newTimetableRow, startTime: e.target.value})}
-                    className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                    className="col-span-1 xl:col-span-1 rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                   />
                   <input
                     type="time"
+                    style={{ colorScheme: 'dark' }}
                     value={newTimetableRow.endTime}
                     onChange={(e) => setNewTimetableRow({...newTimetableRow, endTime: e.target.value})}
-                    className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                    className="col-span-1 xl:col-span-1 rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                   />
                   <select
                     value={newTimetableRow.activityType || 'lecture'}
                     onChange={(e) => setNewTimetableRow({...newTimetableRow, activityType: e.target.value, unitName: ['lecture', 'personal_study'].includes(e.target.value) ? '' : 'Other'})}
-                    className="rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
+                    className="col-span-2 xl:col-span-1 rounded-lg bg-navy-900 border border-white/5 py-2 px-2 text-xs text-white focus:outline-none"
                   >
                     <option value="lecture">Lecture / Class</option>
                     <option value="personal_study">Personal Study</option>
