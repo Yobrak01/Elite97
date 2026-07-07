@@ -432,6 +432,7 @@ exports.getTodayRoutine = async (req, res, next) => {
         endTime: lec.endTime,
         activity: lec.unitName,
         category: 'lecture',
+        activityType: lec.activityType || 'lecture',
         label,
         icon,
         color,

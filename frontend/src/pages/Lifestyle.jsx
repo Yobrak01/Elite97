@@ -708,7 +708,7 @@ const RoutineTab = () => {
       const exactEndTime = new Date(exactStartTime.getTime() + (duration * 60000));
 
       await api.tracker.manualLog({
-        activityType: 'lecture',
+        activityType: item.activityType || 'lecture',
         durationMinutes: duration,
         description: item.label,
         exactStartTime: exactStartTime.toISOString(),
