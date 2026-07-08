@@ -264,16 +264,16 @@ exports.manualLog = async (req, res, next) => {
 
     // Deduplication check
     if (allowOverlap) {
-      // Even if overlap is allowed, we must prevent logging the exact same named session (e.g. lecture) twice today
-      if (activityType === 'lecture' && description) {
-        const existingLectureLog = await TimeLog.findOne({
+      // Even if overlap is allowed, we must prevent logging the exact same named session twice today
+      if (description) {
+        const existingLog = await TimeLog.findOne({
           user: req.user._id,
-          activityType: 'lecture',
+          activityType: activityType,
           description: description,
           date: getStartOfDay(req.user.timezone, targetDate)
         });
         
-        if (existingLectureLog) {
+        if (existingLog) {
           return res.status(400).json({
             success: false,
             message: 'You have already logged this session as attended today.'

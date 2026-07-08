@@ -586,7 +586,8 @@ exports.getGpaPrediction = async (req, res, next) => {
     // ── Count expected lectures per unit in the 14-day window ──
     function countExpectedLectures(unitCode, windowDays) {
       const unitSlots = timetable.filter(slot => 
-        slot && slot.unitName && slot.unitName.toUpperCase().includes(unitCode.toUpperCase())
+        slot && slot.unitName && slot.unitName.toUpperCase().includes(unitCode.toUpperCase()) &&
+        (!slot.activityType || slot.activityType === 'lecture')
       );
       // Each slot repeats weekly, so slots × (windowDays / 7)
       const weeks = Math.max(windowDays / 7, 1);
