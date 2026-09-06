@@ -1,11 +1,11 @@
 const CourseUnit = require('../models/CourseUnit');
 const Task = require('../models/Task');
-const { predictCourseDifficulty, predictCourseCredits } = require('../services/studyMethodology');
+const { predictCourseDifficulty, predictCourseCredits, aiResearchCourseUnit } = require('../services/studyMethodology');
 const { parseSyllabus } = require('../services/syllabusParser');
 const plannerController = require('./plannerController');
 const { computeAiTier } = require('../services/tierEngine');
 
-// Suggest AI Tier based on difficulty and credits
+// Suggest AI Tier based on difficulty and credits (fallback when Gemini doesn't return a tier)
 const suggestCourseTier = (difficulty, credits) => {
   const score = (difficulty * 10) + (credits * 5);
   if (score >= 60) return 'tier1_critical';
@@ -27,19 +27,31 @@ exports.getCourses = async (req, res, next) => {
 exports.createCourse = async (req, res, next) => {
   try {
     req.body.user = req.user._id;
-    
-    // Auto-rate difficulty if AI option is selected (difficulty = 0)
-    if (Number(req.body.difficulty) === 0) {
-      req.body.difficulty = predictCourseDifficulty(req.body.unitName);
+
+    const aiDifficultyRequested = Number(req.body.difficulty) === 0;
+    const aiCreditsRequested = Number(req.body.credits) === 0;
+
+    // If either difficulty or credits is AI-requested, use Gemini deep research
+    if (aiDifficultyRequested || aiCreditsRequested) {
+      const research = await aiResearchCourseUnit(req.body.unitName, req.body.unitCode);
+
+      if (aiDifficultyRequested) {
+        req.body.difficulty = research.difficulty;
+      }
+      if (aiCreditsRequested) {
+        req.body.credits = research.credits;
+      }
+
+      // If Gemini returned a direct tier, use it (it's research-backed)
+      if (research.tier) {
+        req.body.aiSuggestedTier = research.tier;
+      } else {
+        req.body.aiSuggestedTier = suggestCourseTier(req.body.difficulty, req.body.credits);
+      }
+    } else {
+      // User manually set both difficulty and credits — use formula
+      req.body.aiSuggestedTier = suggestCourseTier(req.body.difficulty, req.body.credits);
     }
-    
-    // Auto-assign credits if AI option is selected (credits = 0)
-    if (Number(req.body.credits) === 0) {
-      req.body.credits = predictCourseCredits(req.body.unitName);
-    }
-    
-    // Auto-compute AI tier based on difficulty and credits
-    req.body.aiSuggestedTier = suggestCourseTier(req.body.difficulty, req.body.credits);
 
     const course = await CourseUnit.create(req.body);
     
@@ -60,18 +72,33 @@ exports.updateCourse = async (req, res, next) => {
       return res.status(404).json({ message: 'Course not found or access denied.' });
     }
 
-    // Auto-rate difficulty if AI option is selected
-    if (Number(req.body.difficulty) === 0) {
-      req.body.difficulty = predictCourseDifficulty(req.body.unitName || course.unitName);
-    }
-    
-    // Auto-assign credits if AI option is selected
-    if (Number(req.body.credits) === 0) {
-      req.body.credits = predictCourseCredits(req.body.unitName || course.unitName);
-    }
+    // Auto-rate difficulty and credits using Gemini AI research if AI option is selected
+    const aiDifficultyRequested = Number(req.body.difficulty) === 0;
+    const aiCreditsRequested = Number(req.body.credits) === 0;
+    const effectiveUnitName = req.body.unitName || course.unitName;
+    const effectiveUnitCode = req.body.unitCode || course.unitCode;
 
-    const updatedData = { ...course.toObject(), ...req.body };
-    req.body.aiSuggestedTier = suggestCourseTier(updatedData.difficulty, updatedData.credits);
+    if (aiDifficultyRequested || aiCreditsRequested) {
+      const research = await aiResearchCourseUnit(effectiveUnitName, effectiveUnitCode);
+
+      if (aiDifficultyRequested) {
+        req.body.difficulty = research.difficulty;
+      }
+      if (aiCreditsRequested) {
+        req.body.credits = research.credits;
+      }
+
+      const updatedData = { ...course.toObject(), ...req.body };
+      // If Gemini returned a direct tier, use it (research-backed)
+      if (research.tier) {
+        req.body.aiSuggestedTier = research.tier;
+      } else {
+        req.body.aiSuggestedTier = suggestCourseTier(updatedData.difficulty, updatedData.credits);
+      }
+    } else {
+      const updatedData = { ...course.toObject(), ...req.body };
+      req.body.aiSuggestedTier = suggestCourseTier(updatedData.difficulty, updatedData.credits);
+    }
 
     course = await CourseUnit.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
